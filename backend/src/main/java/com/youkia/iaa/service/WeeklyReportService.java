@@ -14,7 +14,9 @@ import java.util.*;
 public class WeeklyReportService {
     private final JdbcTemplate jdbc;private final ObjectMapper mapper;private final MarketWeeklySkill skill;
     private final MarketInsightService insights;private final ResearchService research;
-    public WeeklyReportService(JdbcTemplate j,ObjectMapper m){jdbc=j;mapper=m;skill=new MarketWeeklySkill(m);insights=new MarketInsightService(j,m,skill);research=new ResearchService(j,m);}
+    public WeeklyReportService(JdbcTemplate j,ObjectMapper m){this(j,m,new ResearchService(j,m));}
+    @org.springframework.beans.factory.annotation.Autowired
+    public WeeklyReportService(JdbcTemplate j,ObjectMapper m,ResearchService r){jdbc=j;mapper=m;skill=new MarketWeeklySkill(m);insights=new MarketInsightService(j,m,skill);research=r;}
     public Map<String,Object> skill(){var s=new LinkedHashMap<>(skill.snapshot());s.put("researchProfile",research.profile());return s;}
     @Transactional public Map<String,Object> generate(LocalDate start,LocalDate end){return generate(start,end,null);}
     @Transactional public Map<String,Object> generate(LocalDate start,LocalDate end,LocalDateTime availableAt){
@@ -37,6 +39,7 @@ public class WeeklyReportService {
             c.put("chart_id","MANUAL");c.put("chart_name","榜外研究材料");c.put("business_date",day);c.put("history",missingHistory(day));candidates.add(c);
         }
         List<Map<String,Object>> inputs=new ArrayList<>();Map<String,Map<String,Object>> origins=new LinkedHashMap<>();
+        research.prepareProfiles();
         for(var c:candidates){var input=research.enrich(c,day,cutoff);input.put("sourceFacts",c);inputs.add(input);origins.put(String.valueOf(input.get("id")),c);}
         var run=V22RecommendationEngine.run(inputs,parameters);
         var rows=(List<Map<String,Object>>)run.get("rows");

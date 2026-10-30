@@ -1,78 +1,73 @@
 # 部署与填写说明
 
-正式环境使用 Java 21、Spring Boot、JDBC、MySQL 和 Nginx。Docker 与 MySQL CLI 都不是运行依赖；Flyway 由应用启动时通过 JDBC 执行迁移。
+Java 21、Spring Boot、JDBC、MySQL 8、Nginx；Docker 与 MySQL CLI 均不是依赖。迁移由应用启动时通过 Flyway/JDBC 执行。当前代码只维护最新设计，旧发布目录仅供事故回滚，旧周报作为历史事实保留。
 
-当前部署地址：`http://14.103.231.1:18080`。API 仅监听服务器 `127.0.0.1:18081`，Nginx 负责 `/api/` 代理；服务器专用 MySQL 监听 `127.0.0.1:13306`，不要修改机器上其他 MySQL 服务。应用目录为 `/opt/iaa-radar/current`，历史发布保留在 `/opt/iaa-radar/releases/`，systemd 服务名为 `iaa-radar`。本次 V2.2 发布应使用新的时间戳目录，保留 `20261027-1935-insights` 作为回滚版本。
+## 当前部署
 
-## JDBC 参数
+| 项目 | 当前值 |
+| --- | --- |
+| 网页 | http://14.103.231.1:18080 |
+| 发布 | `/opt/iaa-radar/releases/20261030-v23` |
+| 当前链接 | `/opt/iaa-radar/current` |
+| 应用服务 | `iaa-radar`，API `127.0.0.1:18081` |
+| 专用MySQL | `127.0.0.1:13306/iaa_radar` |
+| 环境文件 | `/etc/iaa-radar/app.env`，权限600 |
+| 原始材料 / 图标 | `/opt/iaa-radar/shared/materials` / `/opt/iaa-radar/shared/icons` |
+| 回滚发布 | `/opt/iaa-radar/releases/20261029-v22` |
 
-在部署服务器的 `/etc/iaa-radar/app.env` 填写：
+开发机 `.env` 指向3306配置库，生产应用使用13306专用库，两个实例不得混淆报告ID。旧材料仍有引用指向历史发布目录，清理目录前须检查raw_locator，不能一并删除。
+
+生产已启用工作区访问口令。首次登录使用部署操作者本地 `data/deployment/workspace-access.txt` 中的口令；文件被Git忽略，不通过公开仓库分发。口令来自服务器环境变量 `PROFILE_ACCESS_TOKEN`；丢失时由部署管理员读取或轮换。浏览器持有8小时HttpOnly SameSite=Strict会话，重启后重新登录；脚本使用Bearer。当前为单组织共享访问，姓名为填报字段，尚无人员级认证/权限。
+
+## JDBC与AI配置
+
+按 `.env.example` 填写，服务端示例：
 
 ```dotenv
 DB_URL=jdbc:mysql://127.0.0.1:13306/iaa_radar?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
-DB_USERNAME=...
-DB_PASSWORD=...
+DB_USERNAME=填写账号
+DB_PASSWORD=填写密码
 BUSINESS_TIMEZONE=Asia/Shanghai
-MATERIAL_DIR=/opt/iaa-radar/materials
-APP_CONFIG_ENCRYPTION_KEY=至少32字节随机值
+MATERIAL_DIR=/opt/iaa-radar/shared/materials
+ICON_DIR=/opt/iaa-radar/shared/icons
+APP_CONFIG_ENCRYPTION_KEY=填写独立随机加密密钥
+PROFILE_TENANT_ID=default
+PROFILE_ACCESS_TOKEN=填写独立随机访问口令
 ```
 
-本地开发同样只需复制 `.env.example` 为 `.env`，把 `DB_URL` 改成你的 MySQL 地址。密码不写入代码、报告或聊天；服务账号文件权限为 `600`。
+AI配置页接受OpenAI-compatible Base URL、模型、Key、超时和temperature。Base URL通常以`/v1`结尾，服务端追加`/chat/completions`。页面保存后Key使用AES-GCM加密；环境中首次配置作为默认。授权摘录须在档案中明确确认可发送至模型，不能把供应商配置存在称为真实模型效果已验收。
 
-## AI 中转
-
-AI 采集中心页面支持任意 OpenAI-compatible `/v1/chat/completions` 中转。已将本地 `.env` 的 `AI_BASE_URL`、`AI_MODEL`、`AI_API_KEY` 安全同步到服务器环境文件，服务重启后页面只显示“已配置”，不会回显密钥。此次真实报告未调用模型；配置页可用不代表 AI 抽取链路已验收。
-
-## V2.2 发布验收
-
-本次发布包含 V8 Flyway 迁移、V2.2 推荐引擎、研究 API/页面、周报冻结和候选审计。上线后必须检查：
+## 构建与发布
 
 ```text
-curl http://127.0.0.1:18081/api/v1/research/profile
-curl http://14.103.231.1:18080/api/v1/reports
-curl http://14.103.231.1:18080/api/v1/health
+mvn -q -f backend/pom.xml test
+npm ci --prefix frontend
+npm --prefix frontend run build
+mvn -q -f backend/pom.xml -DskipTests package
 ```
 
-然后在浏览器打开“研究目标与推荐”“研究材料与补证”“每周精选”，确认无 5xx、无凭据回显、无横向溢出。新报告 `researchSnapshot`、`availableCutoff`、候选审计和 `aiStatus` 必须可读；旧报告内容必须保持不变。
+1. 通过JDBC创建新的数据库备份；备份环境文件、材料和图标，敏感文件权限600。
+2. 新建发布目录，上传JAR与dist；比对JAR SHA256，不能覆盖当前运行包。
+3. 独立预览端口启动同一构建；预览必须关闭每日/每周调度。Flyway执行增量迁移后检查定义、产品、旧报告和历史记录不变。
+4. 保留原生产环境参数及调度开关，切换current并重启iaa-radar。Nginx的Host使用`$http_host`保留端口；`proxy_read_timeout 360s`覆盖模型最长300秒。修改后先`nginx -t`再reload。
+5. 公网验证登录、Cookie、未登录401、档案8分区/历史/导出、榜单进入对应范围和旧周报；确认不暴露Key。生产禁止使用dev profile。
 
-## 已验证版本
+当前HTTP地址可运行现有流程；配置TLS后由HTTPS入口代理并传递协议，登录会话应使用Secure Cookie。默认会话仅保存在单实例内存，多实例部署前须改为共享会话与统一限速。
 
-- Flyway V1–V5 成功；24 张业务表、236 个业务字段中文注释缺失 0。
-- Apple 中国 iOS 100 条；AppBrain Google Play 美/英/德/法分别 99/100/100/100 条。美国原页面缺第90名，快照标记 `PARTIAL`，不补名次。
-- 报告生成国内正式 0、海外正式 0、观察 10；纯 IAA 证据不足时保持 `UNKNOWN`。
-- 部署浏览器验证：报告生成、中国榜100行、美国榜99行、移动端视图；Chrome/Playwright 无控制台错误。
+## 2026-10-30 验收
 
-证据位于 `validation/deployed/`，包括 JDBC 核验、API 反例、来源哈希、部署浏览器结果和截图。AppBrain 原始页面由开发机公开 HTTPS 获取，经 SFTP 上传后在服务器 localhost API 导入；服务器直连该站网络不可达，已如实记录运输路径。
+本地78项测试通过，包含实际MySQL回滚、独立并发事务和本地mock HTTP模型；前端构建通过（现有大包提示保留）。生产先备份33表、3372行到 `/opt/iaa-radar/backups/before-v23-20261030.sql`，预览端口18082成功执行V9～V11。比对957行历史报告/榜单冻结记录内容保持不变。预览关闭后正式服务运行最新包。
 
-## 更新与回滚
+应用身份、81字段定义、指定日期产品和报告接口实际验证；Nginx使用公网Host/Origin的Cookie登录通过，开发机Chrome/Playwright直接访问公网验证登录、8分区、81字段导出、刷新、390px无溢出、榜单跳转iOS中国对应平台实体、历史报告4和未登录401，控制台错误0。服务器回访自身公网IP超时，改用本机Nginx加真实Host/Origin检查，公网浏览器从开发机独立验证。生产切换后再次核验957行冻结记录不变。UI写流程使用明确合成API响应，数据库写入则用独立JDBC测试；未向真实模型服务发起请求。
 
-构建后先上传新静态资源和 JAR 到新时间戳发布目录，校验 HTTP 200，再切换 `current` 符号链接并 `systemctl restart iaa-radar`。更新前备份 `/etc/iaa-radar/app.env`、数据库和 `MATERIAL_DIR`。回滚只切换到上一个发布目录并重启，不删除历史快照。Nginx 修改前执行 `nginx -t`。
+## 调度与来源边界
 
-正式采集调度、权限认证、规则试算/自动判定、版本级 IAA 冲突、微信/抖音授权接入仍属于后续阶段。V2.2 的只读试算、约束登记、材料校验和历史冻结已实现，但真实授权字段协议与 AI `/v1/chat/completions` 连通性尚未宣称完成。
+本次更新保留原生产配置：Apple每日采集/每周报告定时器按 `INSIGHT_DAILY_ENABLED` / `INSIGHT_WEEKLY_ENABLED` 控制；AppBrain服务器网络不可达仍关闭自动采集；微信/抖音公开前20仍为材料导入，不称为完整Top100。预览服务不执行调度。自然定时器长期稳定性未完成持续观察。
 
-## 2026-10-29 V2.2 发布记录
+既有免费来源验证包括Apple中国和AppBrain美英德法，缺失行保持PARTIAL，版本级IAA不足则无正式精选。旧报告不可被新字段、新模型或新配置改写。真实来源权限/保存协议、实机媒体、玩家样本与模型效果仍有缺口。
 
-发布目录为 `/opt/iaa-radar/releases/20261029-v22`，上线前已通过 JDBC 备份 29 张表、3061 行到 `/opt/iaa-radar/backups/db.pre-20261029-v22.sql`，并备份环境文件、图标目录。Flyway 已实际执行 V8；生产数据库表/字段中文注释核验为缺失0。服务当前指向该目录并为 `active`，公网 API `/api/v1/research/profile`、`/api/v1/reports` 和静态首页均返回 200。
+## 回滚
 
-正式生成报告 ID 5（周期 2026-10-26 至 2026-10-28，revision 2），保存了 V2.2 `researchSnapshot`、Skill/参数和 497 条候选审计；由于版本级 IAA 与连续历史证据不足，精选数量为0，不能把候选审计称为正式推荐。旧报告 ID 4 保持不变。
+停止新服务，将current切回上一发布目录，恢复对应备份环境文件后启动；新增V9～V11表保留，不drop、不清空历史、不改Flyway校验和。回滚到旧应用后如需继续保护旧接口，应由反向代理保留访问限制。历史V2 seed迁移已发布，不能从构建中删除。仅当需要完整灾难恢复时才使用数据库和材料备份；应先在独立库演练，本轮未执行全量恢复演练。
 
-上线过程中首次尝试因缺少历史 V2 文件自动回退，未改写业务数据；补回兼容迁移后再次切换成功。
-
-
-## 2026-10-27 UI 更新发布
-
-当前发布目录 `/opt/iaa-radar/releases/20261027-1840-ui`，保留上一版 `20261027-1515`。V6 追加两张表；Java/MySQL/Nginx运行方式不变。新增 `ICON_DIR=/opt/iaa-radar/shared/icons`，图标实际PNG文件由应用 `/api/v1/media/{urlHash}.png` 提供。材料接入后需执行图标提取和缓存步骤，当前未启用定时缓存任务。
-
-微信/抖音公开页面在开发机浏览器正常渲染后保存HTML，通过SFTP导入Java；没有解密隐藏响应或使用登录后数据。公开内容各20条，可按日期查看，缺失日不回填；图标引用和材料单独保留。
-
-## 历史记录：2026-10-27 市场洞察发布
-
-当前 `/opt/iaa-radar/releases/20261027-1935-insights`，上一版 `20261027-1840-ui` 保留。上线前通过 `JdbcBackup.java` 备份27张表（包含Flyway）、2138行至服务器 `/opt/iaa-radar/backups/pre-insight-20261027.sql`（600权限），不依赖MySQL CLI。环境文件已独立备份，未把凭据写入仓库。
-
-V7已在本地配置的MySQL3306与部署专用MySQL13306执行。生产现有28张业务表、262个字段，中文注释缺失0。预览服务验证后已停止，正式服务仍由systemd和Nginx运行；不需要Docker。
-
-实际启用 `INSIGHT_DAILY_ENABLED=true`、`INSIGHT_WEEKLY_ENABLED=true`：中国时间每天08:00采集Apple中国，周一09:00冻结上一周报告。`INSIGHT_APPBRAIN_ENABLED=false`：本次服务器探测连接失败（HTTP000、curl退出7）；已有四国快照仍可分析，不能宣称海外每日自动采集已经完成。微信/抖音仍走公开渲染材料导入。
-
-已实际执行新采集方法：Apple中国返回98条，按来源日2026-10-27发布快照6011、PARTIAL；未补为100条。已生成本期报告4（2026-10-26至2026-10-28，不含结束日）：5条市场观察、正式IAA0；所有7日增长指标保持null。并发相同输入重试复用报告4，报告3冻结内容和证据保持不变。自然定时器下一次触发尚待到时观察，手动调用已走相同服务方法。
-
-回滚应用切回上一个发布目录并恢复旧环境开关后重启；不要删除V7历史或修改旧迁移。备份包含业务数据，仅保存在服务器。新指标只对新快照记录附加口径，旧快照和旧报告不补写。
+核验备份已有冻结行：`java --class-path <mysql-connector-j.jar> scripts/JdbcVerifyPreserved.java <env-file> <backup.sql>`。只打印统计，不打印业务正文、密码或访问口令。

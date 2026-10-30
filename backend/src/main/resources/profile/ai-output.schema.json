@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:iaa:game-profile-ai:1.0.0",
+  "type": "object", "additionalProperties": false,
+  "required": ["claims", "unknownFields", "abstentionReason"],
+  "properties": {
+    "claims": {"type":"array", "maxItems":10,"items":{
+      "type":"object","additionalProperties":false,"required":["fieldKey","value","evidenceId","quote","locator"],
+      "properties":{"fieldKey":{"type":"string","maxLength":64},"value":{"type":["string","number","array","object"]},"evidenceId":{"type":"integer","minimum":1},"quote":{"type":"string","minLength":1,"maxLength":4000},"locator":{"type":"string","minLength":1,"maxLength":1000}}
+    }},
+    "unknownFields":{"type":"array","uniqueItems":true,"maxItems":10,"items":{"type":"string","maxLength":64}},
+    "abstentionReason":{"type":"string","maxLength":2000}
+  }
+}

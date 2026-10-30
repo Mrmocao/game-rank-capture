@@ -15,11 +15,14 @@ import java.util.*;
 @Service
 public class ProductQueryService {
     private final JdbcTemplate jdbc;
+    private final String tenant;
     private final NamedParameterJdbcTemplate named;
     private final Clock clock = Clock.systemUTC();
     private final ZoneId zone = ZoneId.of("Asia/Shanghai");
 
-    public ProductQueryService(JdbcTemplate jdbc) { this.jdbc=jdbc; this.named=new NamedParameterJdbcTemplate(jdbc); }
+    public ProductQueryService(JdbcTemplate jdbc) { this(jdbc,"default"); }
+    @org.springframework.beans.factory.annotation.Autowired
+    public ProductQueryService(JdbcTemplate jdbc,@org.springframework.beans.factory.annotation.Value("${PROFILE_TENANT_ID:default}") String tenant) { this.jdbc=jdbc;this.tenant=tenant; this.named=new NamedParameterJdbcTemplate(jdbc); }
 
     public LocalDate date(String value) { return BusinessDate.parseOrToday(value, clock, zone); }
 
@@ -48,25 +51,25 @@ public class ProductQueryService {
         LocalDate date = value == null || value.isBlank() ? latestAvailableDate() : date(value);
         if (date == null) date=LocalDate.now(clock.withZone(zone));
         page=Math.max(page,1); pageSize=Math.min(Math.max(pageSize,1),100);
-        StringBuilder where=new StringBuilder(" WHERE EXISTS(SELECT 1 FROM platform_version realv WHERE realv.product_id=p.id AND realv.external_id NOT LIKE 'demo-%') AND p.first_observed_at < :cutoff ");
-        MapSqlParameterSource p=new MapSqlParameterSource("date",date).addValue("cutoff",date.plusDays(1).atStartOfDay(zone).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
+        StringBuilder where=new StringBuilder(" WHERE EXISTS(SELECT 1 FROM platform_version realv WHERE realv.product_id=p.id AND realv.external_id NOT LIKE 'demo-%' AND EXISTS(SELECT 1 FROM ranking_entry re JOIN ranking_snapshot rs ON rs.id=re.snapshot_id JOIN chart_definition rc ON rc.id=rs.chart_id JOIN data_source rd ON rd.id=rc.source_id WHERE re.platform_version_id=realv.id AND rs.status='PUBLISHED' AND rd.access_method<>'SIMULATED' AND rs.business_date<=:date AND rs.captured_at<:cutoff AND rs.published_at<:cutoff)) AND p.first_observed_at < :cutoff ");
+        MapSqlParameterSource p=new MapSqlParameterSource("date",date).addValue("tenant",tenant).addValue("cutoff",date.plusDays(1).atStartOfDay(zone).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
         if (q!=null && !q.isBlank()) { where.append(" AND p.name LIKE :q "); p.addValue("q","%"+q.trim()+"%"); }
         if (poolState!=null && !poolState.isBlank()) { where.append(" AND p.pool_state=:poolState "); p.addValue("poolState",poolState); }
         if (selectionState!=null && !selectionState.isBlank()) {
-            if ("UNSELECTED".equals(selectionState)) where.append(" AND NOT EXISTS (SELECT 1 FROM selection_record sx WHERE sx.product_id=p.id) ");
-            else { where.append(" AND EXISTS (SELECT 1 FROM selection_record sx WHERE sx.product_id=p.id AND sx.status=:selectionState) "); p.addValue("selectionState",selectionState); }
+            if ("UNSELECTED".equals(selectionState)) where.append(" AND NOT EXISTS (SELECT 1 FROM selection_record sx WHERE sx.product_id=p.id AND sx.tenant_id=:tenant) ");
+            else { where.append(" AND EXISTS (SELECT 1 FROM selection_record sx WHERE sx.product_id=p.id AND sx.tenant_id=:tenant AND sx.status=:selectionState) "); p.addValue("selectionState",selectionState); }
         }
         if (platform!=null && !platform.isBlank()) { where.append(" AND EXISTS (SELECT 1 FROM platform_version fv WHERE fv.product_id=p.id AND fv.platform=:platform) "); p.addValue("platform",platform); }
-        if (region!=null && !region.isBlank() && chartId==null) { where.append(" AND EXISTS (SELECT 1 FROM platform_version rv JOIN ranking_entry region_entry ON region_entry.platform_version_id=rv.id JOIN ranking_snapshot region_snapshot ON region_snapshot.id=region_entry.snapshot_id JOIN chart_definition rc ON rc.id=region_snapshot.chart_id WHERE rv.product_id=p.id AND rc.region=:region AND region_snapshot.status='PUBLISHED' AND region_snapshot.business_date<=:date "); if(platform!=null&&!platform.isBlank())where.append(" AND rv.platform=:platform ");where.append(") ");p.addValue("region",region); }
+        if (region!=null && !region.isBlank() && chartId==null) { where.append(" AND EXISTS (SELECT 1 FROM platform_version rv JOIN ranking_entry region_entry ON region_entry.platform_version_id=rv.id JOIN ranking_snapshot region_snapshot ON region_snapshot.id=region_entry.snapshot_id JOIN chart_definition rc ON rc.id=region_snapshot.chart_id WHERE rv.product_id=p.id AND rc.region=:region AND region_snapshot.status='PUBLISHED' AND region_snapshot.business_date<=:date AND region_snapshot.published_at<:cutoff AND region_snapshot.captured_at<:cutoff "); if(platform!=null&&!platform.isBlank())where.append(" AND rv.platform=:platform ");where.append(") ");p.addValue("region",region); }
         if (chartId!=null) { where.append(" AND EXISTS (SELECT 1 FROM ranking_entry rx JOIN ranking_snapshot rsx ON rsx.id=rx.snapshot_id WHERE rsx.chart_id=:chartId AND rsx.business_date=:date AND rsx.status='PUBLISHED' AND rsx.revision=(SELECT MAX(r3.revision) FROM ranking_snapshot r3 WHERE r3.chart_id=:chartId AND r3.business_date=:date AND r3.status='PUBLISHED') AND rx.platform_version_id IN (SELECT id FROM platform_version WHERE product_id=p.id)) "); p.addValue("chartId",chartId); }
         Integer total=named.queryForObject("SELECT COUNT(*) FROM product p"+where,p,Integer.class);
         String sql="""
                 SELECT p.id,p.name,p.pool_state,p.first_observed_at,
-                (SELECT sm.source_url FROM snapshot_media sm JOIN ranking_snapshot rs ON rs.id=sm.snapshot_id JOIN platform_version rv ON rv.id=sm.platform_version_id WHERE rv.product_id=p.id AND rs.business_date=:date AND rs.status='PUBLISHED' ORDER BY rs.revision DESC,rs.id DESC LIMIT 1) thumbnail_url,
+                (SELECT sm.source_url FROM snapshot_media sm JOIN ranking_snapshot rs ON rs.id=sm.snapshot_id JOIN platform_version rv ON rv.id=sm.platform_version_id WHERE rv.product_id=p.id AND rs.business_date<=:date AND rs.captured_at<:cutoff AND rs.published_at<:cutoff AND rs.status='PUBLISHED' ORDER BY rs.business_date DESC,rs.revision DESC,rs.id DESC LIMIT 1) thumbnail_url,
                 COALESCE(s.total,0) selection_total,COALESCE(s.in_progress,0) selection_in_progress,COALESCE(s.completed,0) selection_completed
                 FROM product p LEFT JOIN (SELECT product_id,COUNT(*) total,
                 SUM(CASE WHEN status='IN_PROGRESS' THEN 1 ELSE 0 END) in_progress,
-                SUM(CASE WHEN status='COMPLETED' THEN 1 ELSE 0 END) completed FROM selection_record GROUP BY product_id) s ON s.product_id=p.id
+                SUM(CASE WHEN status='COMPLETED' THEN 1 ELSE 0 END) completed FROM selection_record WHERE tenant_id=:tenant GROUP BY product_id) s ON s.product_id=p.id
                 """+where+" ORDER BY p.first_observed_at DESC,p.id LIMIT :limit OFFSET :offset";
         p.addValue("limit",pageSize); p.addValue("offset",(long)(page-1)*pageSize);
         List<Map<String,Object>> rows=named.queryForList(sql,p); List<Map<String,Object>> items=new ArrayList<>();
@@ -82,17 +85,18 @@ public class ProductQueryService {
         var cutoff=d.plusDays(1).atStartOfDay(zone).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
         var start=d.atStartOfDay(zone).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
         var result=jdbc.queryForMap("SELECT COUNT(*) collected,COALESCE(SUM(p.pool_state='FORMAL'),0) formal,COALESCE(SUM(p.pool_state='PENDING_IDENTIFICATION'),0) pending,COALESCE(SUM(p.pool_state='OBSERVING'),0) observing,COALESCE(SUM(p.first_observed_at>=?),0) firstObserved FROM product p WHERE p.first_observed_at<? AND EXISTS(SELECT 1 FROM platform_version v WHERE v.product_id=p.id AND v.external_id NOT LIKE 'demo-%')",start,cutoff);
-        result.put("selections",jdbc.queryForObject("SELECT COUNT(*) FROM selection_record sr WHERE EXISTS(SELECT 1 FROM platform_version v WHERE v.product_id=sr.product_id AND v.external_id NOT LIKE 'demo-%')",Integer.class));
+        result.put("selections",jdbc.queryForObject("SELECT COUNT(*) FROM selection_record sr WHERE sr.tenant_id=? AND EXISTS(SELECT 1 FROM platform_version v WHERE v.product_id=sr.product_id AND v.external_id NOT LIKE 'demo-%')",Integer.class,tenant));
         result.put("date",d);return result;
     }
 
     public Map<String,Object> product(long id, String value) {
         LocalDate date=value==null||value.isBlank()?latestAvailableDate():date(value); if(date==null) date=LocalDate.now(clock.withZone(zone));
         Map<String,Object> p; try { p=jdbc.queryForMap("SELECT id,name,pool_state,first_observed_at,updated_at,version FROM product WHERE id=?",id); } catch(EmptyResultDataAccessException e){throw new ApiException(HttpStatus.NOT_FOUND,"PRODUCT_NOT_FOUND","产品不存在");}
-        Map<String,Object> out=new LinkedHashMap<>(); out.put("id",String.valueOf(p.get("id"))); out.put("name",p.get("name")); out.put("poolState",p.get("pool_state")); out.put("date",date); out.put("firstObservedDate",p.get("first_observed_at")); out.put("thumbnailUrl",IconCache.display(thumbnail(id,date))); out.put("rankings",rankingRows(id,date)); out.put("selections",jdbc.queryForList("SELECT id,reference_version_id,owner_name,status,selected_on,started_on,finished_on,note,version,updated_at FROM selection_record WHERE product_id=? ORDER BY updated_at DESC",id)); out.put("version",p.get("version")); return out;
+        Map<String,Object> out=new LinkedHashMap<>(); out.put("id",String.valueOf(p.get("id"))); out.put("name",p.get("name")); out.put("poolState",p.get("pool_state")); out.put("date",date); out.put("firstObservedDate",p.get("first_observed_at")); out.put("thumbnailUrl",IconCache.display(thumbnail(id,date))); out.put("rankings",rankingRows(id,date)); out.put("selections",jdbc.queryForList("SELECT id,reference_version_id,owner_name,status,selected_on,started_on,finished_on,note,version,updated_at FROM selection_record WHERE tenant_id=? AND product_id=? ORDER BY updated_at DESC",tenant,id)); out.put("version",p.get("version")); return out;
     }
 
     public List<Map<String,Object>> rankingRows(long productId, LocalDate date) {
+        Map<Long,String> modes=new HashMap<>();
         return jdbc.queryForList("""
           SELECT v.id version_id,v.platform,v.external_id,v.name version_name,c.id chart_id,c.name chart_name,c.region,c.kind,
             s.id snapshot_id,s.completeness,s.covered_top_n,e.rank_position rank_position,
@@ -107,7 +111,7 @@ public class ProductQueryService {
             AND olds.revision=(SELECT MAX(s2.revision) FROM ranking_snapshot s2 WHERE s2.chart_id=c.id AND s2.business_date=DATE_SUB(?,INTERVAL 7 DAY) AND s2.status='PUBLISHED')
           LEFT JOIN ranking_entry olde ON olde.snapshot_id=olds.id AND olde.platform_version_id=v.id
           WHERE v.product_id=? ORDER BY v.platform,c.region,c.id""",date,date,date,date,productId).stream().map(r->{
-            Map<String,Object> m=new LinkedHashMap<>(); m.put("versionId",String.valueOf(r.get("version_id")));m.put("platform",r.get("platform"));m.put("region",r.get("region"));m.put("versionName",r.get("version_name"));m.put("externalId",r.get("external_id"));m.put("chartId",r.get("chart_id") == null?null:String.valueOf(r.get("chart_id")));m.put("chartName",r.get("chart_name"));m.put("kind",r.get("kind"));m.put("rank",r.get("rank_position"));m.put("delta7d",r.get("delta_7d"));m.put("snapshotId",r.get("snapshot_id") == null?null:String.valueOf(r.get("snapshot_id")));m.put("dataState",r.get("data_state"));m.put("completeness",r.get("completeness"));m.put("monetization",monetization(((Number)r.get("version_id")).longValue(),date));return m;}).toList();
+            Map<String,Object> m=new LinkedHashMap<>(); m.put("versionId",String.valueOf(r.get("version_id")));m.put("platform",r.get("platform"));m.put("region",r.get("region"));m.put("versionName",r.get("version_name"));m.put("externalId",r.get("external_id"));m.put("chartId",r.get("chart_id") == null?null:String.valueOf(r.get("chart_id")));m.put("chartName",r.get("chart_name"));m.put("kind",r.get("kind"));m.put("rank",r.get("rank_position"));m.put("delta7d",r.get("delta_7d"));m.put("snapshotId",r.get("snapshot_id") == null?null:String.valueOf(r.get("snapshot_id")));m.put("dataState",r.get("data_state"));m.put("completeness",r.get("completeness"));m.put("monetization",modes.computeIfAbsent(((Number)r.get("version_id")).longValue(),id->monetization(id,date)));return m;}).toList();
     }
 
     private String monetization(long versionId, LocalDate asOf) { try { return jdbc.queryForObject("SELECT mode FROM monetization_assessment WHERE platform_version_id=? AND effective_at < DATE_ADD(?, INTERVAL 1 DAY) ORDER BY effective_at DESC,id DESC LIMIT 1",String.class,versionId,asOf); } catch (EmptyResultDataAccessException e){return "UNKNOWN";} }

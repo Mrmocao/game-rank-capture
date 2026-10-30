@@ -1,0 +1,20 @@
+CREATE TABLE profile_ai_run (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '授权材料AI提取运行ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '服务端工作区',
+ listing_id BIGINT NOT NULL COMMENT '固定目标平台市场语言范围',
+ evidence_id BIGINT NOT NULL COMMENT '唯一授权输入证据',
+ field_keys JSON NOT NULL COMMENT '允许提取的字段白名单',
+ model VARCHAR(200) NOT NULL COMMENT '模型标识，不含供应商密钥',
+ prompt_version VARCHAR(40) NOT NULL COMMENT '固定提示契约版本',
+ schema_version VARCHAR(40) NOT NULL COMMENT '模型输出Schema版本',
+ input_sha256 CHAR(64) NOT NULL COMMENT '范围、摘录、模型及字段输入hash',
+ output_sha256 CHAR(64) NULL COMMENT '经校验输出hash，失败时空',
+ status VARCHAR(24) NOT NULL COMMENT 'RUNNING、SUCCEEDED、ABSTAINED、FAILED或INTERRUPTED',
+ actor VARCHAR(100) NOT NULL COMMENT '发起人填报',
+ result_json JSON NULL COMMENT '材料ID、未知字段、失败代码和重试条件；不含原始供应商响应',
+ created_at DATETIME(3) NOT NULL COMMENT '实际发起UTC时间',
+ finished_at DATETIME(3) NULL COMMENT '完成UTC时间',
+ KEY idx_profile_ai_scope(tenant_id,listing_id,created_at),
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id),
+ FOREIGN KEY(evidence_id) REFERENCES profile_evidence(id)
+) COMMENT='授权材料AI提取审计，失败不修改档案事实';

@@ -23,7 +23,7 @@ GRANT ALL PRIVILEGES ON iaa_radar.* TO 'iaa'@'%';
 FLUSH PRIVILEGES;
 ```
 
-2026-10-27 已连接真实 `iaa_radar`，迁移至 V5。24张业务表、236字段中文注释完整，见 [实际数据字典](validation/database-dictionary-after.md)。当前不需要再次建库或手动重跑建表脚本；启动后端会应用尚未执行的增量迁移。
+当前 `iaa_radar` 已创建，2026-10-30配置库及生产库均迁移至V11；新增表/字段继续使用中文注释。当前不需要再次建库或手动重跑建表脚本；启动后端会通过JDBC应用尚未执行的Flyway增量迁移。配置库3306与生产专用库127.0.0.1:13306相互独立，勿混用报告ID。备份与核验命令见 [MIGRATION-NOTES.md](MIGRATION-NOTES.md)。
 
 如果你的数据库账号拥有建库权限，也可以把 JDBC URL 改成下面这样，让驱动自动建库：
 

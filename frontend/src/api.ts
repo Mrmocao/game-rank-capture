@@ -1,6 +1,6 @@
 export type Ranking = { versionId: string; platform: string; region: string; versionName: string; chartId: string|null; chartName: string|null; kind: string|null; rank: number|null; delta7d: number|null; snapshotId: string|null; dataState: string; completeness: string|null; monetization: string }
 export type Product = { id: string; name: string; poolState: string; firstObservedDate: string; stateAsOf: string; thumbnailUrl?: string|null; rankings: Ranking[]; selectionSummary: { total: number; inProgress: number; completed: number } }
-const json = async (url: string, options?: RequestInit) => { const r = await fetch(url, options); const body = await r.json(); if (!r.ok) throw new Error(body?.error?.message || `请求失败 ${r.status}`); return body.data }
+const json = async (url: string, options?: RequestInit) => { const r = await fetch(url, options); const body = await r.json().catch(()=>null); if(r.status===401&&!url.endsWith('/access'))window.dispatchEvent(new Event('workspace-login-required')); if (!r.ok) throw new Error(body?.error?.message || `请求失败 ${r.status}，请检查工作区登录和服务连接`); if(!body)throw new Error('服务返回了无法解析的响应'); return body.data }
 export const workspaceAccess = () => json('/api/v1/access')
 export const loginWorkspace = (token:string) => json('/api/v1/access',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})})
 export const profileRequest = json

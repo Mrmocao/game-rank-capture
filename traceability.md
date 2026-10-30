@@ -96,3 +96,36 @@
 |V22-05|研究页面、材料导入、只读试算、补证/约束和精选卡片|已实现|前端构建、桌面/390px Playwright；真实授权字段未完成|
 |V22-06|AI OpenAI-compatible 配置与状态脱敏|部分实现|配置保存已测；真实模型调用、Schema/引用一致性和弃权链路待 P3|
 |V22-07|真实微信/抖音/Google Play授权采集|外部阻塞|缺平台账号、字段协议、费用和再分发授权；保留公开材料与模拟契约测试|
+
+## V2.3 当前工程验收（2026-10-30）
+
+本节为当前状态，前文按日期记录的未完成项不覆盖本节。工程统一升级，不提供多产品版本切换；原型19章的本地浏览器演示不等于Java工程验收。推荐算法仍为2.2.0，V2.3的10款档案夹具与V2.2的18场景独立保留，不导入真实市场库。
+
+| 需求ID | 当前实现 | 本轮验证与边界 |
+| --- | --- | --- |
+| AC81 | App.vue榜单入口携带product/entity/market，GameProfile按精确范围打开 | 公网浏览器从iOS中国榜第一行进入档案，校验version与market=CN；产品入口、深链接、刷新亦通过；无appid观察不强行关联 |
+| AC82 | market_listing与release_record；档案8分区随listing切换 | Resolver独立平台资格测试、JDBC范围隔离；真实跨平台同款仍需身份依据 |
+| AC83 | observed_at及available_at双截止、知识日与时区，未来值不泄漏 | Resolver迟到/未来/未来替代测试，JDBC历史与导出；scope请求失败清空旧档案 |
+| AC84 | ProductQueryService保留当时已知产品，排名缺日不回填 | JDBC缺日档案检查；浏览器2026-10-30缺快照仍可读 |
+| AC85 | release敏感字段更新/过期失效，同release核查才恢复IAA | Resolver更新/重新核查/到期测试；评分聚合不误绑release |
+| AC86 | 双方有效事实保持conflict，复核明确supersedes才裁决 | Resolver+真实JDBC提交/复核/冲突回放；历史不被未来裁决覆盖 |
+| AC87 | observed/estimated/derived/manual/inference分别展示，AI独立Claim | 字段目录/Resolver；派生字段公开窗口、榜单及inputSnapshots |
+| AC88 | readable/applicable与AI草案分开，理由充分NA移出分母 | Resolver对0、null、NA及AI计数验证；81字段/12信息域检查 |
+| AC89 | rating_count、review_count与sample对象独立 | 拒绝用评分数充当样本；count/from/to/method/language受控校验；无真实样本不输出玩家结论 |
+| AC90 | profile_media_asset按实机/广告/示意区分，旧release过期、权限脱敏 | 真实JDBC外部引用/导出测试；当前只存外链，未实现上传/缓存/转码，不称可播放资源已验收 |
+| AC91 | 组织+listing+信息域去重，revision更新；进行中/待复核不重复 | JDBC连续计划和真实两事务并发测试；UI合成响应补证/更新流程 |
+| AC92 | 提交pending_review，不即刻改事实；复核AI仍为draft | JDBC提交/审核/AI成功与弃权回滚；UI合成提交和复核，未写真实游戏事实 |
+| AC93 | evidence保存URL/定位/时间/权限/hash，review保存原因与修订 | JDBC来源与历史审计、导出；未授权材料正文拒绝访问 |
+| AC94 | selection_record独立owner与reference_listing_id，当前协作单列 | JDBC多人/幂等/并发修订和历史日期；UI合成双负责人互不覆盖 |
+| AC95 | game-profile-2.3.0导出，marketProfile与currentCollaboration分离 | 浏览器实际下载解析81字段/schema/范围；JDBC导出哈希和历史冻结 |
+| AC96 | WorkspaceAccess、固定tenant、材料权限、事务锁与revision | WorkspaceAccessTest、真实JDBC组织/材料/并发测试；生产共享工作区口令，不等于企业SSO和人员角色 |
+| AC97 | ProfileAiClient+ProfileAiService，Schema/引用/字段/版本校验，失败保留run与任务 | 6项本地mock HTTP用例+JDBC成功/失败/弃权；真实中转模型尚未调用，不宣称模型质量已验收 |
+| AC98 | 精确产品/entity/market/release/截止时刻映射推荐，冻结profileFacts | JDBC recommendationProjection范围/时间/合成隔离；V22引擎15项回归；无真实IAA不生成正式资格 |
+
+执行命令：`RUN_LIVE_MYSQL_TESTS=true`下Maven测试汇总78项、0失败/错误/跳过；`npm --prefix frontend run build`、Maven package通过。测试中的MySQL输入均为明确合成材料并回滚；独立并发测试使用专用SYNTHETIC范围并在finally清理。AI传输mock与真实供应商调用严格区分。
+
+浏览器：现有Chrome/Playwright，Browser plugin不可用。真实本地读流程验证登录→产品库→8分区→历史→JSON下载→刷新/返回→390px；无控制台错误及移动横向溢出。写UI用明确SYNTHETIC响应验证，数据库事务由独立JDBC测试覆盖；证据文件在本地临时目录，不上传仓库。
+
+生产已切换20261030-v23，公网Chrome/Playwright重复上述只读流程，加验榜单到iOS中国独立实体、历史报告4、未登录401；81字段、移动无溢出、控制台错误0。没有在真实游戏档案写入虚构材料。切换后再次比对957条冻结记录不变。浏览器证据位于本地临时目录iaa-v23-qa/production-result.json及截图。
+
+数据库：V9～V11已实际执行，未修改已执行迁移。生产备份33表3372行，迁移后逐行核验957条历史报告/榜单记录保持不变。当前迁移、环境、部署、回滚边界见MIGRATION-NOTES及DEPLOYMENT；全量备份恢复演练、真实模型质量、完整平台授权与长期自然调度仍未完成。

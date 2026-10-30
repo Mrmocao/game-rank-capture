@@ -8,7 +8,9 @@ import java.time.*;
 @RestController @RequestMapping("/api/v1")
 public class GameProfileController {
     private final GameProfileService profiles;
-    public GameProfileController(GameProfileService profiles){this.profiles=profiles;}
+    private final com.youkia.iaa.service.ProfileAiService ai;
+    public GameProfileController(GameProfileService profiles,com.youkia.iaa.service.ProfileAiService ai){this.profiles=profiles;this.ai=ai;}
+    @PostMapping("/profile/ai-extract") public ApiResponse<?> extract(@RequestBody JsonNode body){return ApiResponse.of(ai.extract(body));}
     @GetMapping("/profile/definitions") public ApiResponse<?> definitions(){return ApiResponse.of(profiles.definitions());}
     @GetMapping("/profile/products") public ApiResponse<?> products(@RequestParam LocalDate date,@RequestParam(required=false) String q,@RequestParam(required=false) String platform,@RequestParam(required=false) String region,@RequestParam(required=false) String qualification,@RequestParam(required=false) String gap,@RequestParam(required=false) Long chartId,@RequestParam(defaultValue="1") int page,@RequestParam(defaultValue="20") int pageSize){return ApiResponse.of(profiles.products(date,q,platform,region,qualification,gap,chartId,page,pageSize));}
     @GetMapping("/products/{id}/profile") public ApiResponse<?> profile(@PathVariable long id,@RequestParam(required=false) Long listingId,@RequestParam(required=false) Long versionId,@RequestParam(required=false) String market,@RequestParam LocalDate asOf,@RequestParam(defaultValue="Asia/Shanghai") String timezone){return ApiResponse.of(profiles.profile(id,listingId,versionId,market,asOf,timezone));}

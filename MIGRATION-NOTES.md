@@ -1,10 +1,10 @@
 # 迁移与开发 seed
 
-> 当前最新迁移为 V8。本文采用追加式记录；V1～V7 的历史说明保留用于追溯，新增部署按 V8 继续执行，不修改已执行迁移的校验和。
+> 当前最新迁移为 V11。V9～V11 已在配置库与生产库通过 Flyway/JDBC 执行；历史说明按当时状态保留，不代表当前待办。不修改任何已执行迁移的校验和。
 
 `backend/src/main/resources/db/migration/V1__initial_schema.sql` 来自交接 DDL，并保留追加式历史和快照 revision 约束，同时包含 AI 中转配置表。`backend/src/main/resources/db/demo/V2__demo_seed.sql` 只在 `dev` profile 执行，通过固定 `demo-` 外部 ID 和 `DEMO` 来源标记，重复执行不会产生重复版本。`V3__ai_provider_config.sql` 为旧数据库补齐 AI 配置表，使用 `IF NOT EXISTS`。
 
-生产启动必须先备份数据库，再执行 Flyway。回滚使用应用兼容回滚或恢复备份；不删除历史快照。开发环境清理可执行 `docker compose down -v` 后重新启动，这会删除本地 MySQL 数据。
+生产启动必须先备份数据库，再执行 Flyway。回滚使用应用兼容回滚或恢复备份；不删除历史快照。部署和检查均通过JDBC，不需要Docker或MySQL CLI。
 
 2026-10-27 已通过JDBC在真实MySQL执行并验证V4/V5。V4补表注释和关键列；V5补全剩余列（177条MODIFY，含3条原英文说明中文化），现为24表、236字段中文说明，缺失0。不改已执行迁移校验和。V5前后字段类型、默认值、可空、字符排序、键标记相同；未删表或业务记录。
 
@@ -49,8 +49,21 @@ npm run build --prefix frontend
 生产库历史中已存在 `V2 demo seed`，而整理后的源码曾只保留 `db/demo/V2__demo_seed.sql`，导致新 JAR 启动时 Flyway 报“applied migration not resolved locally”。已从上一发布包恢复原始 `db/migration/V2__demo_seed.sql`（不修改其内容/校验和），并将开发重复 seed 重命名为 `db/demo/R__demo_seed.sql`，避免同一版本号冲突。生产只扫描 `db/migration`，开发 profile 额外执行可重复的演示 seed。
 
 
-## V9 游戏档案（开发中，2026-10-30）
+## V9 游戏档案（已执行，2026-10-30）
 
-新增市场条目、应用发布版本、档案证据、字段观察、AI草案、材料提交与复核、补全任务和媒体引用表；新字段有中文注释。V1～V8 历史迁移不修改。V9 已加入 Flyway 默认扫描目录，下一次启动会自动尝试执行；本次仅编译和现有测试通过，尚未通过 JDBC 执行或验证。请先备份数据库及材料，在隔离数据库完成迁移和业务验证后部署，不能把代码同步视为生产迁移已完成。
+新增市场条目、应用发布版本、档案证据、字段观察、AI草案、材料提交与复核、补全任务和媒体引用9张表；新字段有中文注释。V1～V8 历史迁移不修改。配置库和生产库已由应用Flyway/JDBC实际执行V9，真实材料复核、历史回放、任务和权限通过JDBC回滚集成验证。稳定平台实体 `platform_version` 与实际应用发布 `release_record` 严格区分。
 
-PROFILE_TENANT_ID 由服务器固定组织范围；PROFILE_ACCESS_TOKEN 留空为无认证开发模式。当前前端尚未接入登录表单，启用口令后仅可通过 POST /api/v1/access 获取会话或使用 Bearer 调用API。生产启用和完整页面验收仍为待办。
+PROFILE_TENANT_ID 由服务器固定组织范围；PROFILE_ACCESS_TOKEN 留空仅为无认证开发模式。前端已接入登录表单，POST /api/v1/access 获取HttpOnly会话；脚本使用Bearer。旧API也受认证保护，自动化调用应同步配置。
+
+## V10 选用范围 / V11 AI运行审计（已执行）
+
+V10在 `selection_record` 增加 `tenant_id`、`reference_listing_id`、索引和外键。旧选用记录归default工作区，无法确认的市场范围保留NULL，不自动补写。新写入验证组织、产品、平台实体和listing匹配；并发重试/修订使用事务与行锁。V11新增 `profile_ai_run`，保存输入证据、字段、模型/提示/Schema版本、hash、状态和安全失败代码，不保存供应商密钥或原始错误响应。
+
+开发配置库连接3306；生产应用专用库连接127.0.0.1:13306，两者独立。生产迁移前 `JdbcBackup.java` 输出33表、3372行，备份 `/opt/iaa-radar/backups/before-v23-20261030.sql` 权限600。预览应用在禁用调度的独立端口执行V9～V11后，通过 `JdbcVerifyPreserved.java` 将迁移前的957行weekly_report/report_item/ranking_snapshot/ranking_entry逐行对比：内容保持不变。此检查确认备份中已有行，没有把新追加行认作篡改；不替代完整恢复演练。
+
+```text
+java --class-path <mysql-connector-j.jar> scripts/JdbcBackup.java <env-file> <new-backup.sql>
+java --class-path <mysql-connector-j.jar> scripts/JdbcVerifyPreserved.java <env-file> <backup.sql>
+```
+
+DDL参考 `contracts/schema.sql` 已与V9～V11对齐；实际安装由Flyway负责，勿对已安装库重复执行CREATE/ALTER。升级失败切回旧应用和原环境文件，保留新增结构及历史，禁止drop表、清空历史、Flyway repair或修改旧SQL。备份恢复须在独立库演练，目前未执行全量恢复演练。

@@ -31,10 +31,10 @@ public final class GameProfileResolver {
             else if(!current.isEmpty()){var h=current.getLast();out.putAll(h);out.put("value",null);out.put("status",!trustedRights(h)?"not_authorized":h.get("status"));}
             else{out.put("status",stale?"stale":visible.isEmpty()&&!history.isEmpty()?"not_yet_known":"missing");out.put("value",null);out.put("reason",stale?"旧核查版本已变化或证据过期":"尚无该范围的有效资料");}
         }
-        out.put("historyCount",visible.size());return out;
+        out.put("definitionVersion",definition.path("definitionVersion").asText());out.put("historyCount",visible.size());return out;
     }
     private static boolean trustedRights(Map<String,Object> x){return !"not_authorized".equals(x.get("rights"));}
-    public static LocalDateTime time(Object value){if(value instanceof LocalDateTime d)return d;if(value instanceof java.sql.Timestamp t)return t.toLocalDateTime();String s=String.valueOf(value);return s.length()==10?LocalDate.parse(s).atStartOfDay():LocalDateTime.parse(s.replace(' ','T').replace("Z",""));}
+    public static LocalDateTime time(Object value){if(value instanceof LocalDateTime d)return d;if(value instanceof java.sql.Timestamp t)return t.toLocalDateTime();String s=String.valueOf(value).replace(' ','T');if(s.length()==10)return LocalDate.parse(s).atStartOfDay();try{return OffsetDateTime.parse(s).withOffsetSameInstant(ZoneOffset.UTC).toLocalDateTime();}catch(java.time.format.DateTimeParseException ignored){return LocalDateTime.parse(s);}}
     public static Map<String,Object> coverage(Map<String,Map<String,Object>> fields){
         long na=fields.values().stream().filter(x->"not_applicable".equals(x.get("status"))).count();
         long readable=fields.values().stream().filter(x->"available".equals(x.get("status"))).count();
@@ -42,14 +42,20 @@ public final class GameProfileResolver {
         return Map.of("readable",readable,"applicable",fields.size()-na,"aiDrafts",drafts,"missing",fields.size()-na-readable,"notApplicable",na,"notice","资料量仅表示适用字段可读程度，不是机会分、数据可信度或成功概率");
     }
     public static Map<String,Object> qualification(Map<String,Map<String,Object>> fields){
-        var mode=fields.get("mode");String status=String.valueOf(mode.get("status"));Object value=mode.get("value");
+        if(fields.values().stream().anyMatch(f->Boolean.TRUE.equals(f.get("isSynthetic"))||f.get("isSynthetic") instanceof Number n&&n.intValue()!=0))return Map.of("status","simulation","label","模拟材料，不构成正式资格","eligible",false);
+        var mode=fields.getOrDefault("mode",Map.of());String status=String.valueOf(mode.get("status"));String value=text(mode.get("value"));
         if(status.equals("conflict")||status.equals("stale"))return Map.of("status",status,"label","待重新核查","eligible",false);
-        if("available".equals(status)&&!"inference".equals(mode.get("kind"))&&Set.of("mixed","IAP").contains(String.valueOf(value)))return Map.of("status","mixed","label","混合/内购变现","eligible",false);
-        boolean eligible="IAA".equals(value)&&"available".equals(status)&&!"inference".equals(mode.get("kind"))&&Boolean.TRUE.equals(mode.get("reviewed"));
+        if("available".equals(status)&&!"inference".equals(mode.get("kind"))&&Set.of("mixed","IAP").contains(value))return Map.of("status","mixed","label","混合/内购变现","eligible",false);
+        var iap=fields.get("iap_basis");
+        if(verified(iap))return Map.of("status","conflict","label","已发现内购依据，需复核变现结论","eligible",false);
+        boolean eligible="IAA".equals(value)&&verified(mode);
         for(String k:List.of("no_iap_basis","monetization_valid","ad_formats")){
-            var f=fields.get(k);eligible&=f!=null&&"available".equals(f.get("status"))&&!"inference".equals(f.get("kind"))&&Boolean.TRUE.equals(f.get("reviewed"));
+            var f=fields.get(k);eligible&=verified(f)&&Objects.equals(mode.get("releaseId"),f.get("releaseId"));
         }
-        var iap=fields.get("iap_basis");if(iap!=null&&"conflict".equals(iap.get("status")))eligible=false;
+        if(iap!=null&&"conflict".equals(iap.get("status")))eligible=false;
+        eligible&=mode.get("releaseId")!=null;
         return Map.of("status",eligible?"IAA":"unknown","label",eligible?"纯IAA有依据":"变现待核查","eligible",eligible);
     }
+    private static boolean verified(Map<String,Object> f){if(f==null||!"available".equals(f.get("status"))||!Set.of("manual","observed").contains(String.valueOf(f.get("kind")))||!Boolean.TRUE.equals(f.get("reviewed")))return false;Object v=f.get("value");return v!=null&&!text(v).isBlank()&&!(v instanceof JsonNode j&&(j.isNull()||j.isArray()&&j.isEmpty()))&&!(v instanceof Collection<?> c&&c.isEmpty());}
+    public static String text(Object v){return v==null?"":v instanceof JsonNode j&&j.isValueNode()?j.asText():String.valueOf(v);}
 }

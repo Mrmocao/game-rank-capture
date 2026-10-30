@@ -13,8 +13,10 @@ import java.util.*;
 /** Append-only manual evidence workspace. All persisted availability timestamps are server assigned. */
 @Service
 public class ResearchService {
-    private final JdbcTemplate jdbc;private final ObjectMapper mapper;
-    public ResearchService(JdbcTemplate jdbc,ObjectMapper mapper){this.jdbc=jdbc;this.mapper=mapper;}
+    private final JdbcTemplate jdbc;private final ObjectMapper mapper;private final GameProfileService profiles;
+    public ResearchService(JdbcTemplate jdbc,ObjectMapper mapper){this(jdbc,mapper,new GameProfileService(jdbc,mapper,"default"));}
+    @org.springframework.beans.factory.annotation.Autowired
+    public ResearchService(JdbcTemplate jdbc,ObjectMapper mapper,GameProfileService profiles){this.jdbc=jdbc;this.mapper=mapper;this.profiles=profiles;}
     public Map<String,Object> profile(){var row=jdbc.queryForMap("SELECT * FROM research_profile ORDER BY revision DESC LIMIT 1");row.put("parameters",read(row.remove("profile_json")));return row;}
     @Transactional public Map<String,Object> publish(JsonNode body){
         String actor=required(body,"actor");JsonNode parameters=body.path("parameters");var p=V22RecommendationEngine.Profile.from(map(parameters));
@@ -108,6 +110,7 @@ public class ResearchService {
         rows.forEach(r->{r.put("material",read(r.remove("payload")));r.put("state",LocalDate.parse(r.get("valid_until").toString()).isBefore(day)?"stale":"observed");});return rows;
     }
     /** Filter event time and server availability separately. Blank fields never imply a passed gate. */
+    public void prepareProfiles(){profiles.synchronizeListings();}
     public Map<String,Object> enrich(Map<String,Object> c,LocalDate day,LocalDateTime availableCutoff){
         long v=((Number)c.get("version_id")).longValue();String market=String.valueOf(c.get("region"));
         Map<String,Object> input=new LinkedHashMap<>();input.put("id",v+":"+c.get("chart_id"));input.put("productId",c.get("product_id"));input.put("name",c.get("product_name"));
@@ -136,6 +139,7 @@ public class ResearchService {
                 }
             }else input.put("states",Map.of("reviews","stale","cost","stale","ads","stale","gap","stale"));
         }
+        profiles.enrichRecommendation(input,((Number)c.get("product_id")).longValue(),v,market,day,availableCutoff);
         var constraints=jdbc.queryForList("SELECT id,code,detail_json,packet_id FROM research_constraint WHERE platform_version_id=? AND market=? AND effective_date<=? AND created_at<=? AND (resolved_at IS NULL OR resolved_at>?) ORDER BY id",v,market,day,availableCutoff,availableCutoff);
         List<Map<String,Object>> blockers=new ArrayList<>();
         for(var constraint:constraints){var detail=map(read(constraint.get("detail_json")));detail.put("code",constraint.get("code"));detail.put("constraintId",constraint.get("id"));detail.put("current",true);blockers.add(detail);if("NON_IAA".equals(constraint.get("code")))input.put("mode",detail.get("mode"));}

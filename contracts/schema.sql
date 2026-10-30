@@ -514,3 +514,233 @@ CREATE TABLE insight_collection_attempt (
  finished_at DATETIME(3) NULL COMMENT '结束时间UTC',
  INDEX idx_insight_attempt(source_key,started_at)
 ) COMMENT='每日免费来源尝试及失败留痕，失败不生成榜单';
+
+
+-- 增量DDL参考：V8__research_workspace.sql；实际安装由Flyway执行。
+CREATE TABLE research_profile (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '研究方案版本ID',
+ revision INT NOT NULL UNIQUE COMMENT '递增版本号，已发布参数不可覆盖',
+ profile_json JSON NOT NULL COMMENT '六维权重、数量、工期与分层阈值',
+ content_sha256 CHAR(64) NOT NULL COMMENT '方案JSON哈希',
+ created_by VARCHAR(100) NOT NULL COMMENT '登记人',
+ created_at DATETIME(3) NOT NULL COMMENT '系统登记时间UTC'
+) COMMENT='当前研究方案的不可变发布记录';
+INSERT INTO research_profile(revision,profile_json,content_sha256,created_by,created_at)
+VALUES(1,'{"weights":[25,15,20,20,10,10],"target":8,"familyCap":2,"budget":20,"maxReviewWidth":0.3,"z":1.96,"growthScale":0.3,"explorationSlots":2,"minTopDays":7,"minCoverage":0.75,"maxUtilityWidth":25}',
+SHA2('research-default-2.2.0',256),'migration',UTC_TIMESTAMP(3));
+CREATE TABLE research_packet (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '人工研究材料修订ID',
+ platform_version_id BIGINT NOT NULL COMMENT '明确归属的平台版本ID',
+ market VARCHAR(8) NOT NULL COMMENT '独立市场代码CN、US、GB、DE、FR',
+ effective_date DATE NOT NULL COMMENT '材料适用业务日起点，非登记日期',
+ valid_until DATE NOT NULL COMMENT '适用期最后业务日，过期不沿用当前结论',
+ available_at DATETIME(3) NOT NULL COMMENT '系统实际获知时间UTC，服务端赋值防回放泄漏',
+ payload JSON NOT NULL COMMENT '证据原文定位、人工核验、玩法、评价与成本；不接受综合分',
+ content_sha256 CHAR(64) NOT NULL COMMENT '规范化负载哈希，同材料幂等',
+ created_by VARCHAR(100) NOT NULL COMMENT '实名或可追溯登记人，非系统认证身份',
+ UNIQUE KEY uq_research_packet(platform_version_id,market,content_sha256),
+ KEY idx_research_asof(platform_version_id,market,effective_date,available_at),
+ FOREIGN KEY(platform_version_id) REFERENCES platform_version(id)
+) COMMENT='版本市场研究材料，事实与人工判断分字段，追加修订不覆盖';
+CREATE TABLE research_constraint (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '已知约束ID',
+ platform_version_id BIGINT NOT NULL COMMENT '约束适用平台版本',
+ market VARCHAR(8) NOT NULL COMMENT '约束适用市场',
+ packet_id BIGINT NOT NULL COMMENT '约束首次材料修订',
+ code VARCHAR(40) NOT NULL COMMENT 'MAJOR_EVENT、COST_FLOOR_OVER、NON_IAA',
+ detail_json JSON NOT NULL COMMENT '成本下界或事件原文、引用、作用范围',
+ effective_date DATE NOT NULL COMMENT '约束生效业务日',
+ created_at DATETIME(3) NOT NULL COMMENT '系统知道约束的时间UTC',
+ resolved_at DATETIME(3) NULL COMMENT '解除登记时间UTC，未解除持续有效',
+ resolution_json JSON NULL COMMENT '解除人、原因、新证据引用和生效日',
+ UNIQUE KEY uq_constraint_packet(packet_id,code),
+ FOREIGN KEY(platform_version_id) REFERENCES platform_version(id),
+ FOREIGN KEY(packet_id) REFERENCES research_packet(id)
+) COMMENT='已知负面约束独立留存，来源失效或新材料缺失不能撤销';
+CREATE TABLE research_outcome (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '实验反馈记录ID',
+ selection_id BIGINT NOT NULL COMMENT '对应独立选用记录',
+ request_key VARCHAR(100) NOT NULL UNIQUE COMMENT '反馈幂等键',
+ payload JSON NOT NULL COMMENT '假设、协议、样本、窗口、结果、成本和未知原因',
+ content_sha256 CHAR(64) NOT NULL COMMENT '请求内容哈希，同键不同内容拒绝',
+ created_by VARCHAR(100) NOT NULL COMMENT '反馈登记人',
+ created_at DATETIME(3) NOT NULL COMMENT '反馈登记时间UTC',
+ FOREIGN KEY(selection_id) REFERENCES selection_record(id)
+) COMMENT='选用后实验反馈追加记录，制作完成不等同验证通过';
+ALTER TABLE weekly_report
+ ADD COLUMN research_profile_id BIGINT NULL COMMENT '生成使用的研究方案版本',
+ ADD COLUMN research_snapshot JSON NULL COMMENT '冻结研究输入、分层、补证、健康和完整组合输出',
+ ADD COLUMN available_cutoff DATETIME(3) NULL COMMENT '本次可用材料截止UTC；回放不得使用此后材料';
+
+
+-- 增量DDL参考：V9__game_profiles.sql；实际安装由Flyway执行。
+CREATE TABLE market_listing (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '平台发行市场ID，与应用版本区分',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '组织标识，服务端限定',
+ platform_version_id BIGINT NOT NULL COMMENT '沿用既有平台实体稳定ID',
+ market VARCHAR(8) NOT NULL COMMENT '发行市场CN、US、GB、DE、FR',
+ language VARCHAR(20) NOT NULL COMMENT '资料语言，不跨语言混合评价',
+ source_id BIGINT NULL COMMENT '最初确认市场的来源ID',
+ first_observed_at DATETIME(3) NOT NULL COMMENT '该市场首次观察UTC',
+ available_at DATETIME(3) NOT NULL COMMENT '系统获知该发行范围的UTC时间',
+ UNIQUE KEY uq_listing(tenant_id,platform_version_id,market,language),
+ FOREIGN KEY(platform_version_id) REFERENCES platform_version(id)
+) COMMENT='组织内平台实体的独立市场发行范围';
+CREATE TABLE release_record (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '应用发行版本ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '独立市场发行范围',
+ app_version VARCHAR(100) NOT NULL COMMENT '来源或人工核验的应用版本号',
+ released_at DATETIME(3) NOT NULL COMMENT '该版本生效或观察时间UTC',
+ available_at DATETIME(3) NOT NULL COMMENT '系统获知时间UTC，历史回放门槛',
+ evidence_id BIGINT NULL COMMENT '版本依据ID',
+ UNIQUE KEY uq_release(tenant_id,listing_id,app_version),
+ KEY idx_release_time(listing_id,available_at,released_at),
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id)
+) COMMENT='应用更新历史；不以平台实体ID代替应用版本';
+CREATE TABLE profile_evidence (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '档案证据ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '证据所属发行范围',
+ source_name VARCHAR(200) NOT NULL COMMENT '来源名称',
+ origin_family VARCHAR(200) NOT NULL COMMENT '同源家族，转载不当独立来源',
+ source_url VARCHAR(2000) NULL COMMENT '仅http或https外链，不自动抓取',
+ locator VARCHAR(1000) NOT NULL COMMENT '原文或片段定位',
+ excerpt TEXT NOT NULL COMMENT '权限允许保留的原文摘要',
+ content_sha256 CHAR(64) NOT NULL COMMENT '来源摘要及定位内容哈希',
+ rights VARCHAR(32) NOT NULL COMMENT 'public_excerpt、authorized、internal、not_authorized',
+ observed_at DATETIME(3) NOT NULL COMMENT '实际观察UTC时间',
+ available_at DATETIME(3) NOT NULL COMMENT '服务器登记UTC时间',
+ is_synthetic BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否模拟材料，隔离于真实推荐',
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id)
+) COMMENT='档案证据、来源权限与材料定位';
+CREATE TABLE profile_field_observation (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '追加式字段观察ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '市场及语言范围',
+ release_id BIGINT NULL COMMENT '版本敏感字段适用版本',
+ field_key VARCHAR(64) NOT NULL COMMENT '受81项字段定义目录约束',
+ typed_value JSON NULL COMMENT 'Java验证后的类型值，缺失为NULL',
+ data_status VARCHAR(32) NOT NULL COMMENT 'available、missing、not_authorized、not_supported、stale、conflict、not_applicable',
+ value_kind VARCHAR(24) NOT NULL COMMENT 'observed、manual、estimated、derived',
+ observed_at DATETIME(3) NOT NULL COMMENT '实际观察UTC时间',
+ available_at DATETIME(3) NOT NULL COMMENT '服务器首次可用UTC时间',
+ valid_until DATETIME(3) NULL COMMENT '有效期UTC，不预设统一七天',
+ evidence_id BIGINT NOT NULL COMMENT '该字段证据ID',
+ reviewer VARCHAR(100) NOT NULL COMMENT '可追溯复核人',
+ reason VARCHAR(2000) NOT NULL COMMENT '核查、冲突、不适用或修订原因',
+ supersedes_id BIGINT NULL COMMENT '显式裁决替代的旧观察ID，不静默覆盖',
+ definition_version VARCHAR(40) NOT NULL COMMENT '字段定义版本',
+ KEY idx_profile_field(tenant_id,listing_id,field_key,available_at),
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id),
+ FOREIGN KEY(release_id) REFERENCES release_record(id),
+ FOREIGN KEY(evidence_id) REFERENCES profile_evidence(id),
+ FOREIGN KEY(supersedes_id) REFERENCES profile_field_observation(id)
+) COMMENT='已复核事实与人工核查的时序观察';
+CREATE TABLE profile_claim (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '分析草案ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '平台市场语言范围',
+ release_id BIGINT NULL COMMENT '适用应用版本',
+ field_key VARCHAR(64) NOT NULL COMMENT '字段定义键',
+ typed_value JSON NOT NULL COMMENT '经类型校验的分析假设',
+ evidence_id BIGINT NOT NULL COMMENT '输入材料引用',
+ observed_at DATETIME(3) NOT NULL COMMENT '输入材料观察时间UTC',
+ available_at DATETIME(3) NOT NULL COMMENT '草案实际形成时间UTC',
+ valid_until DATETIME(3) NULL COMMENT '草案有效期UTC',
+ model_metadata JSON NOT NULL COMMENT '模型、提示、schema、输入哈希和弃权信息',
+ status VARCHAR(24) NOT NULL DEFAULT 'draft' COMMENT '草案状态，不能自动提升资格',
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id),
+ FOREIGN KEY(evidence_id) REFERENCES profile_evidence(id)
+) COMMENT='AI或分析草案独立保存，不混入审核事实';
+CREATE TABLE profile_material_submission (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '待复核材料ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '目标发行范围',
+ request_key VARCHAR(100) NOT NULL COMMENT '提交幂等键',
+ input_sha256 CHAR(64) NOT NULL COMMENT '完整提交内容哈希',
+ field_key VARCHAR(64) NOT NULL COMMENT '目标字段',
+ payload JSON NOT NULL COMMENT '类型值、原文、来源、版本、权限、提交人',
+ status VARCHAR(24) NOT NULL COMMENT 'pending_review、approved、rejected、conflict、needs_material',
+ created_at DATETIME(3) NOT NULL COMMENT '服务器收到材料时间UTC',
+ revision INT NOT NULL DEFAULT 0 COMMENT '并发复核乐观锁',
+ UNIQUE KEY uq_submission(tenant_id,request_key),
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id)
+) COMMENT='材料草稿及复核状态，提交不改变字段事实';
+CREATE TABLE profile_material_review (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '复核审计ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ submission_id BIGINT NOT NULL COMMENT '被复核材料ID',
+ reviewer VARCHAR(100) NOT NULL COMMENT '复核人',
+ decision VARCHAR(24) NOT NULL COMMENT '批准、拒绝、冲突或补材料决策',
+ reason VARCHAR(2000) NOT NULL COMMENT '原文、范围、权限与冲突检查说明',
+ observation_id BIGINT NULL COMMENT '批准或冲突形成的追加式观察ID',
+ created_at DATETIME(3) NOT NULL COMMENT '复核登记UTC时间',
+ FOREIGN KEY(submission_id) REFERENCES profile_material_submission(id)
+) COMMENT='材料复核操作的不可变审计历史';
+CREATE TABLE profile_enrichment_task (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '补全任务ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '平台市场语言范围',
+ domain_key VARCHAR(40) NOT NULL COMMENT '信息域任务分组',
+ field_keys JSON NOT NULL COMMENT '本次任务对应的缺口字段',
+ planned_cutoff DATE NOT NULL COMMENT '任务生成的知识截止日',
+ gap_sha256 CHAR(64) NOT NULL COMMENT '缺口版本内容哈希',
+ owner_name VARCHAR(100) NOT NULL DEFAULT '' COMMENT '负责人',
+ priority VARCHAR(8) NOT NULL COMMENT 'P0、P1、P2',
+ status VARCHAR(24) NOT NULL COMMENT 'pending、in_progress、pending_review、unavailable、completed',
+ note VARCHAR(2000) NOT NULL DEFAULT '' COMMENT '进度、不可得原因或结果',
+ retry_condition VARCHAR(1000) NOT NULL DEFAULT '' COMMENT '暂不可得时的复查条件',
+ revision INT NOT NULL DEFAULT 0 COMMENT '乐观锁修订号',
+ created_at DATETIME(3) NOT NULL COMMENT '生成时间UTC',
+ updated_at DATETIME(3) NOT NULL COMMENT '最后进度更新时间UTC',
+ KEY idx_task_scope(tenant_id,listing_id,domain_key,status),
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id)
+) COMMENT='缺口补全与负责人进度，任务状态不改变事实';
+CREATE TABLE profile_media_asset (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '媒体资源ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '平台市场语言范围',
+ release_id BIGINT NULL COMMENT '对应应用版本',
+ evidence_id BIGINT NOT NULL COMMENT '素材来源与权限证据',
+ media_kind VARCHAR(32) NOT NULL COMMENT 'gameplay_screenshot、gameplay_video、ad_video、diagram',
+ source_url VARCHAR(2000) NULL COMMENT '外部来源链接，不充当已缓存资源',
+ asset_ref VARCHAR(1000) NULL COMMENT '受控文件或对象存储引用',
+ thumbnail_ref VARCHAR(1000) NULL COMMENT '受控缩略图引用',
+ content_sha256 CHAR(64) NULL COMMENT '实际文件哈希，未下载时为空',
+ status VARCHAR(32) NOT NULL COMMENT 'external_only、available、missing、not_authorized、stale',
+ observed_at DATETIME(3) NOT NULL COMMENT '拍摄或发布观察时间UTC',
+ available_at DATETIME(3) NOT NULL COMMENT '系统可用时间UTC',
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id),
+ FOREIGN KEY(evidence_id) REFERENCES profile_evidence(id)
+) COMMENT='实机与广告素材独立记录，缺失不生成伪图片';
+
+
+-- 增量DDL参考：V10__selection_listing_scope.sql；实际安装由Flyway执行。
+ALTER TABLE selection_record
+ ADD COLUMN tenant_id VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '所属工作区，旧记录归默认组织',
+ ADD COLUMN reference_listing_id BIGINT NULL COMMENT '参考平台市场语言条目；旧记录未知不回填',
+ ADD KEY idx_selection_tenant(tenant_id,product_id,owner_name),
+ ADD CONSTRAINT fk_selection_listing FOREIGN KEY(reference_listing_id) REFERENCES market_listing(id);
+
+-- 增量DDL参考：V11__profile_ai_runs.sql；实际安装由Flyway执行。
+CREATE TABLE profile_ai_run (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '授权材料AI提取运行ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '服务端工作区',
+ listing_id BIGINT NOT NULL COMMENT '固定目标平台市场语言范围',
+ evidence_id BIGINT NOT NULL COMMENT '唯一授权输入证据',
+ field_keys JSON NOT NULL COMMENT '允许提取的字段白名单',
+ model VARCHAR(200) NOT NULL COMMENT '模型标识，不含供应商密钥',
+ prompt_version VARCHAR(40) NOT NULL COMMENT '固定提示契约版本',
+ schema_version VARCHAR(40) NOT NULL COMMENT '模型输出Schema版本',
+ input_sha256 CHAR(64) NOT NULL COMMENT '范围、摘录、模型及字段输入hash',
+ output_sha256 CHAR(64) NULL COMMENT '经校验输出hash，失败时空',
+ status VARCHAR(24) NOT NULL COMMENT 'RUNNING、SUCCEEDED、ABSTAINED、FAILED或INTERRUPTED',
+ actor VARCHAR(100) NOT NULL COMMENT '发起人填报',
+ result_json JSON NULL COMMENT '材料ID、未知字段、失败代码和重试条件；不含原始供应商响应',
+ created_at DATETIME(3) NOT NULL COMMENT '实际发起UTC时间',
+ finished_at DATETIME(3) NULL COMMENT '完成UTC时间',
+ KEY idx_profile_ai_scope(tenant_id,listing_id,created_at),
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id),
+ FOREIGN KEY(evidence_id) REFERENCES profile_evidence(id)
+) COMMENT='授权材料AI提取审计，失败不修改档案事实';

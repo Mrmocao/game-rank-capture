@@ -31,6 +31,7 @@ public final class ProfileFieldCatalog {
             case "number"->value.isNumber()&&Double.isFinite(value.asDouble())&&value.asDouble()>=0;
             case "list"->value.isArray()&&value.size()<=100&&java.util.stream.StreamSupport.stream(value.spliterator(),false).allMatch(x->x.isTextual()&&!x.asText().isBlank()&&x.asText().length()<=2000);
             case "range"->value.isObject()&&value.path("lower").isNumber()&&value.path("upper").isNumber()&&value.path("lower").asDouble()>=0&&value.path("upper").asDouble()>=value.path("lower").asDouble();
+            case "object"->value.isObject();
             case "enum"->value.isTextual()&&Set.of("IAA","mixed","IAP","unknown").contains(value.asText());
             case "date"->{try{LocalDate.parse(value.asText());yield value.isTextual();}catch(Exception e){yield false;}}
             case "reference"->{try{safeUrl(value.asText());yield value.isTextual();}catch(Exception e){yield false;}}
@@ -39,6 +40,10 @@ public final class ProfileFieldCatalog {
         if(!valid)throw new IllegalArgumentException("字段类型或范围无效："+key+"（"+f.path("type").asText()+"）");
         if(Set.of("rank","peak").contains(key)&&(!value.isIntegralNumber()||value.asInt()<1))throw new IllegalArgumentException("名次必须为正整数，缺失不能填0");
         if(Set.of("rating_count","review_count","observed_days","mentions","creators").contains(key)&&!value.isIntegralNumber())throw new IllegalArgumentException("计数必须为整数");
+        if(key.equals("sample")){
+            if(!value.path("count").isIntegralNumber()||value.path("count").asLong()<0||value.path("method").asText().isBlank()||value.path("language").asText().isBlank())throw new IllegalArgumentException("评价样本需明确count、method、language，不能借用评分数");
+            try{if(LocalDate.parse(value.path("from").asText()).isAfter(LocalDate.parse(value.path("to").asText())))throw new IllegalArgumentException();}catch(Exception e){throw new IllegalArgumentException("评价样本需有效的from/to观察窗口");}
+        }
     }
     public static String safeUrl(String value){
         if(value==null||value.isBlank())return null;

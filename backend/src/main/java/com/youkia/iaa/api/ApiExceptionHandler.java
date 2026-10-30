@@ -16,4 +16,6 @@ public class ApiExceptionHandler {
     }
     @ExceptionHandler(IllegalArgumentException.class)
     ResponseEntity<?> handleBad(IllegalArgumentException ex) { return ResponseEntity.badRequest().body(Map.of("error", Map.of("code","INVALID_ARGUMENT","message",ex.getMessage(),"fieldErrors",List.of()),"requestId",UUID.randomUUID().toString())); }
+    @ExceptionHandler({java.time.DateTimeException.class,org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class,org.springframework.web.bind.MissingServletRequestParameterException.class,org.springframework.http.converter.HttpMessageNotReadableException.class,org.springframework.web.bind.MethodArgumentNotValidException.class})
+    ResponseEntity<?> handleMalformed(Exception ex){return ResponseEntity.badRequest().body(Map.of("error",Map.of("code","INVALID_ARGUMENT","message","参数、日期、JSON或必填字段无效，请按接口定义提交","fieldErrors",List.of()),"requestId",UUID.randomUUID().toString()));}
 }
