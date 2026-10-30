@@ -53,6 +53,7 @@ public class CollectionCatalogService {
         String q = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
         String wantedState = state == null ? "" : state.trim();
         String wantedPlatform = platform == null ? "" : platform.trim();
+        Map<String, Map<String, Object>> runtime = runtimeSummary();
         List<Map<String, Object>> items = new ArrayList<>();
         for (JsonNode source : catalog.path("sources")) {
             String name = source.path("name").asText();
@@ -61,7 +62,16 @@ public class CollectionCatalogService {
             if (!q.isBlank() && !searchable.contains(q)) continue;
             if (!wantedState.isBlank() && !wantedState.equals(source.path("state").asText())) continue;
             if (!wantedPlatform.isBlank() && !wantedPlatform.equals(source.path("platform").asText())) continue;
-            items.add(toMap(source));
+            Map<String, Object> item = toMap(source);
+            List<String> keys = runtimeKeys(sourceId);
+            item.put("runtimeKeys", keys);
+            Map<String, Object> last = latestRuntime(keys, runtime);
+            item.put("runtime", last == null ? Map.of(
+                    "runCount", 0,
+                    "state", "NOT_EXECUTED",
+                    "label", "尚未执行"
+            ) : last);
+            items.add(item);
         }
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("schemaVersion", catalog.path("schemaVersion").asText());
@@ -69,6 +79,7 @@ public class CollectionCatalogService {
         result.put("sourceCount", catalog.path("sourceCount").asInt(items.size()));
         result.put("portalFieldTemplate", portalFields.path("schemaVersion").asText());
         result.put("portalFieldCount", portalFields.path("fieldCount").asInt());
+        result.put("productionEnabledCount", items.stream().filter(item -> Boolean.TRUE.equals(item.get("productionEnabled")) && Boolean.TRUE.equals(item.get("enabled"))).count());
         result.put("registryStorage", "source_definition / Flyway V12");
         result.put("items", items);
         result.put("notice", "来源登记是能力和权限目录；未执行来源显示尚未执行，不生成成功率。真实运行以run_id和执行日志为准。");
@@ -80,6 +91,7 @@ public class CollectionCatalogService {
             if (source.path("sourceId").asText().equals(id)) {
                 Map<String, Object> result = new LinkedHashMap<>(toMap(source));
                 result.put("portalFields", source.path("platform").asText().equals("WEB_PORTAL") ? portalFields.path("fields") : mapper.createArrayNode());
+                result.put("runtimeKeys", runtimeKeys(id));
                 result.put("relatedRuns", runs(null, null, id).get("items"));
                 return result;
             }
@@ -92,7 +104,11 @@ public class CollectionCatalogService {
         List<Object> args = new ArrayList<>();
         if (date != null) { sql.append(" AND requested_date=?"); args.add(date); }
         if (status != null && !status.isBlank()) { sql.append(" AND status=?"); args.add(status); }
-        if (sourceId != null && !sourceId.isBlank()) { sql.append(" AND source_key=?"); args.add(sourceId); }
+        if (sourceId != null && !sourceId.isBlank()) {
+            List<String> keys = runtimeKeys(sourceId);
+            sql.append(" AND source_key IN (").append("?,".repeat(keys.size()).replaceAll(",$", "")).append(")");
+            args.addAll(keys);
+        }
         sql.append(" ORDER BY id DESC LIMIT 200");
         List<Map<String, Object>> items = jdbc.queryForList(sql.toString(), args.toArray());
         for (Map<String, Object> item : items) {
@@ -114,7 +130,56 @@ public class CollectionCatalogService {
 
     private String sourceName(String id) {
         for (JsonNode source : catalog.path("sources")) if (source.path("sourceId").asText().equals(id)) return source.path("name").asText();
+        for (JsonNode source : catalog.path("sources")) if (runtimeKeys(source.path("sourceId").asText()).contains(id)) return source.path("name").asText();
         return "未登记来源";
+    }
+
+    /** Runtime adapters use stable operational keys while the catalog uses Sxx IDs. */
+    private List<String> runtimeKeys(String sourceId) {
+        return switch (sourceId) {
+            case "S03" -> List.of("APPLE_CN");
+            case "S06" -> List.of("APPBRAIN_US", "APPBRAIN_GB", "APPBRAIN_DE", "APPBRAIN_FR");
+            default -> List.of(sourceId);
+        };
+    }
+
+    private Map<String, Map<String, Object>> runtimeSummary() {
+        try {
+            List<Map<String, Object>> rows = jdbc.queryForList("""
+                    SELECT source_key, COUNT(*) run_count,
+                           MAX(started_at) last_started_at,
+                           MAX(finished_at) last_finished_at,
+                           MAX(CASE WHEN status='SUCCESS' THEN finished_at END) last_success_at,
+                           SUBSTRING_INDEX(GROUP_CONCAT(status ORDER BY id DESC), ',', 1) last_status
+                    FROM insight_collection_attempt GROUP BY source_key
+                    """);
+            Map<String, Map<String, Object>> out = new LinkedHashMap<>();
+            for (Map<String, Object> row : rows) out.put(String.valueOf(row.get("source_key")), row);
+            return out;
+        } catch (Exception ignored) {
+            return Map.of();
+        }
+    }
+
+    private Map<String, Object> latestRuntime(List<String> keys, Map<String, Map<String, Object>> runtime) {
+        if (keys.isEmpty()) return null;
+        long count = 0;
+        Map<String, Object> latest = null;
+        for (String key : keys) {
+            Map<String, Object> row = runtime.get(key);
+            if (row == null) continue;
+            count += ((Number) row.getOrDefault("run_count", 0)).longValue();
+            if (latest == null || String.valueOf(row.get("last_started_at")).compareTo(String.valueOf(latest.get("last_started_at"))) > 0) latest = row;
+        }
+        if (latest == null) return null;
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("runCount", count);
+        out.put("state", latest.get("last_status"));
+        out.put("label", executionState(String.valueOf(latest.get("last_status"))));
+        out.put("lastStartedAt", latest.get("last_started_at"));
+        out.put("lastFinishedAt", latest.get("last_finished_at"));
+        out.put("lastSuccessAt", latest.get("last_success_at"));
+        return out;
     }
 
     private String executionState(String state) {

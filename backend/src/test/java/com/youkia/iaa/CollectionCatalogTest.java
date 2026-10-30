@@ -22,6 +22,10 @@ class CollectionCatalogTest {
         assertEquals("4399小游戏", source.get("name"));
         assertEquals(Boolean.FALSE, source.get("enabled"));
         assertEquals("unknown", source.get("pureIaa"));
+        var apple = service.source("S03");
+        assertEquals("V3_POC", apple.get("verificationLevel"));
+        assertEquals(Boolean.TRUE, apple.get("productionEnabled"));
+        assertTrue(((java.util.List<?>) apple.get("runtimeKeys")).contains("APPLE_CN"));
     }
 
     @Test

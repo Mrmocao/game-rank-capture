@@ -1,6 +1,6 @@
 # 数据源登记册与当前核验边界
 
-日期：2026-10-30；V2.7补充12个门户候选，详见第29章。采集方案1.0的既有登记继续保留。完整42项登记见21-source-register.csv。本轮进行了公开网页/官方文档核对，没有在生产环境完成采集器联调、权限验收或7日稳定性测试。
+日期：2026-10-30；V2.7补充12个门户候选，详见第29章。采集方案1.0的既有登记继续保留。完整42项登记见21-source-register.csv。Apple公开RSS（S03）已在生产环境完成4次真实运行核验（3次完整100条、1次98条部分覆盖），达到V3_POC；尚未达到连续7日V4_PILOT。其余来源仍按登记级别处理。
 
 | 标识 | 含义 | 可以得出的结论 |
 | --- | --- | --- |
@@ -12,12 +12,13 @@
 | V4_PILOT | 预留：连续7日试运行通过 | 达到该源承诺范围的试运行标准，仍不保证以后不变 |
 | INTERNAL_PLANNED | 内部人工/计算能力待开发 | 不是外部网站可以抓到的信息 |
 
-权威性、技术可访问性、使用许可、统计可比性是四个独立维度。官方网页也可能仅展示部分榜；第三方公开页面也需要追溯原始出处。所有连接器默认production_enabled=false，只有逐源准入后开启。
+权威性、技术可访问性、使用许可、统计可比性是四个独立维度。官方网页也可能仅展示部分榜；第三方公开页面也需要追溯原始出处。新来源默认`production_enabled=false`；已通过V3_POC的S03是当前唯一登记为生产可运行的公开来源，仍不代表获得商业再分发或纯IAA证据授权。
 
 ## 已核实的关键依据
 
 1. Apple元数据接口文档：https://performance-partners.apple.com/search-api 。支持搜索/ID查找和国家参数；本轮只做文档核对。
 2. Apple中国区游戏免费榜：https://apps.apple.com/cn/iphone/charts/6014?chart=top-free 。本次网页读取显示1–25名；不能把期望Top100写成实际完整覆盖。
+   生产运行使用同源公开RSS/JSON：https://itunes.apple.com/cn/rss/topfreeapplications/limit=100/genre=6014/json；2026-10-27至30已实际保存4次运行记录，3次返回100条、1次返回98条，均保留来源更新时点与原始哈希。
 3. Apple公开详情样例：https://apps.apple.com/cn/app/id791532221 。可见评分、评分计数、部分评论、内购标签和版本信息。示例是字段验证，不是纯IAA推荐。
 4. Google Play公开详情样例：https://play.google.com/store/apps/details?id=com.block.juggle&hl=en&gl=US 。本次显示广告与内购同时存在；“含广告”不足以证明纯IAA。
 5. Google自有应用评论接口：https://developers.google.com/android-publisher/reply-to-reviews 。开发者权限范围不能自动延伸到竞品。
