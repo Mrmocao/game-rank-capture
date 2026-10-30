@@ -1,0 +1,1749 @@
+{
+  "id": 7,
+  "name": "森林拼图示例",
+  "icon": "🌳",
+  "genre": "拼图益智",
+  "date": "2026-10-28",
+  "versionKey": "P7-GP-US",
+  "platform": "Google Play",
+  "market": "美国",
+  "chart": "示例游戏免费榜",
+  "currentVersion": "1.1.0",
+  "firstSeen": "2026-10-19",
+  "known": true,
+  "fields": {
+    "name": {
+      "key": "name",
+      "label": "游戏名称",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "森林拼图示例",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "aliases": {
+      "key": "aliases",
+      "label": "别名",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": [
+        "森林拼图示例（测试别名）"
+      ],
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "external_id": {
+      "key": "external_id",
+      "label": "平台稳定ID",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "DEMO-P7-GP-US",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "developer": {
+      "key": "developer",
+      "label": "开发主体",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "示例工作室 08",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "publisher": {
+      "key": "publisher",
+      "label": "发行主体",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "示例发行主体 03",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "market": {
+      "key": "market",
+      "label": "发行市场",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "美国",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "language": {
+      "key": "language",
+      "label": "支持语言",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "英文",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "store_url": {
+      "key": "store_url",
+      "label": "商店详情入口",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [],
+      "reason": "虚构游戏，没有真实商店或启动链接",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "launch_url": {
+      "key": "launch_url",
+      "label": "启动 / 试玩入口",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [],
+      "reason": "虚构游戏，没有真实商店或启动链接",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "description": {
+      "key": "description",
+      "label": "官方简介",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "将森林主题碎片拼回场景，在旋转与轮廓约束中完成图案。 围绕清晰的单局目标，逐步增加规则和内容变化。此为虚构商店简介。",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "category": {
+      "key": "category",
+      "label": "商店分类",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "休闲 / 拼图益智",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "release_at": {
+      "key": "release_at",
+      "label": "实际上线日期",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "2026-09-17",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "first_seen": {
+      "key": "first_seen",
+      "label": "系统首次观察",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "2026-10-19",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "version": {
+      "key": "version",
+      "label": "当前版本",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "1.1.0",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-28",
+      "observedAt": "2026-10-28",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-STORE-28"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "updated_at": {
+      "key": "updated_at",
+      "label": "版本更新日期",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "2026-10-28",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-28",
+      "observedAt": "2026-10-28",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-STORE-28"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "release_notes": {
+      "key": "release_notes",
+      "label": "更新说明",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "增加目标组合与新手提示（虚构更新）。",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-28",
+      "observedAt": "2026-10-28",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-STORE-28"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "package_size": {
+      "key": "package_size",
+      "label": "包体大小",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "177 MB",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "min_os": {
+      "key": "min_os",
+      "label": "设备要求",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "Android 8.0及以上",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "summary": {
+      "key": "summary",
+      "label": "一句话玩法",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": null,
+      "kind": "manual",
+      "status": "stale",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-GAMEPLAY-25"
+      ],
+      "reason": "资料对应旧版本 1.0.0，当前版本 1.1.0",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "core_loop": {
+      "key": "core_loop",
+      "label": "核心循环",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": null,
+      "kind": "manual",
+      "status": "stale",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-GAMEPLAY-25"
+      ],
+      "reason": "资料对应旧版本 1.0.0，当前版本 1.1.0",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "controls": {
+      "key": "controls",
+      "label": "操作方式",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "拖拽、旋转碎片",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "win_fail": {
+      "key": "win_fail",
+      "label": "胜负与失败条件",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "全部碎片归位过关；默认无强制倒计时",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "session": {
+      "key": "session",
+      "label": "单局时长",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "3～7分钟",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "levels": {
+      "key": "levels",
+      "label": "关卡供给",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "插画切片 + 拼合规则",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "meta": {
+      "key": "meta",
+      "label": "外围系统",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "主题图鉴",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "audience": {
+      "key": "audience",
+      "label": "目标人群定位",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "偏好短局规划与解谜的用户；属于研究假设",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "style": {
+      "key": "style",
+      "label": "美术风格",
+      "domain": "experience",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "自然森林插画",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-EXPERIENCE-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "render": {
+      "key": "render",
+      "label": "表现形式",
+      "domain": "experience",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "2D",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-EXPERIENCE-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "orientation": {
+      "key": "orientation",
+      "label": "画面方向",
+      "domain": "experience",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "竖屏",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-EXPERIENCE-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "animation": {
+      "key": "animation",
+      "label": "动画与反馈",
+      "domain": "experience",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "碎片吸附、图案完成反馈",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-EXPERIENCE-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "network": {
+      "key": "network",
+      "label": "联网与服务依赖",
+      "domain": "experience",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "演示试玩可运行单局；账号、广告和存档服务依赖待核实",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-EXPERIENCE-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "performance": {
+      "key": "performance",
+      "label": "性能与加载体验",
+      "domain": "experience",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "示例试玩中首局操作顺畅；无设备覆盖和加载测速结论",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-EXPERIENCE-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "mode": {
+      "key": "mode",
+      "label": "变现模式",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "manual",
+      "status": "stale",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-MONETIZATION-25"
+      ],
+      "reason": "资料对应旧版本 1.0.0，当前版本 1.1.0",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "ad_formats": {
+      "key": "ad_formats",
+      "label": "广告形式",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "manual",
+      "status": "stale",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-MONETIZATION-25"
+      ],
+      "reason": "资料对应旧版本 1.0.0，当前版本 1.1.0",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "ad_triggers": {
+      "key": "ad_triggers",
+      "label": "广告触发与奖励",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "manual",
+      "status": "stale",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-MONETIZATION-25"
+      ],
+      "reason": "资料对应旧版本 1.0.0，当前版本 1.1.0",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "ad_frequency": {
+      "key": "ad_frequency",
+      "label": "观察广告频次",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "manual",
+      "status": "stale",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-MONETIZATION-25"
+      ],
+      "reason": "资料对应旧版本 1.0.0，当前版本 1.1.0",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "iap_basis": {
+      "key": "iap_basis",
+      "label": "内购证据",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "manual",
+      "status": "stale",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-MONETIZATION-25"
+      ],
+      "reason": "资料对应旧版本 1.0.0，当前版本 1.1.0",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "no_iap_basis": {
+      "key": "no_iap_basis",
+      "label": "排除内购依据",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "manual",
+      "status": "stale",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-MONETIZATION-25"
+      ],
+      "reason": "资料对应旧版本 1.0.0，当前版本 1.1.0",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "monetization_valid": {
+      "key": "monetization_valid",
+      "label": "资格适用范围",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "manual",
+      "status": "stale",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-MONETIZATION-25"
+      ],
+      "reason": "资料对应旧版本 1.0.0，当前版本 1.1.0",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "chart_status": {
+      "key": "chart_status",
+      "label": "当前榜单状态",
+      "domain": "market",
+      "tab": "market",
+      "layer": "基础档案",
+      "value": "已采集该榜单快照",
+      "status": "available",
+      "kind": "derived",
+      "reason": "由同一平台、地区、榜单的已知快照计算",
+      "evidenceIds": [],
+      "availableAt": "2026-10-28",
+      "observedAt": "2026-10-28"
+    },
+    "rank": {
+      "key": "rank",
+      "label": "所选榜单名次",
+      "domain": "market",
+      "tab": "market",
+      "layer": "基础档案",
+      "value": 31,
+      "status": "available",
+      "kind": "derived",
+      "reason": "由同一平台、地区、榜单的已知快照计算",
+      "evidenceIds": [],
+      "availableAt": "2026-10-28",
+      "observedAt": "2026-10-28"
+    },
+    "peak": {
+      "key": "peak",
+      "label": "监测期最好名次",
+      "domain": "market",
+      "tab": "market",
+      "layer": "基础档案",
+      "value": 31,
+      "status": "available",
+      "kind": "derived",
+      "reason": "由同一平台、地区、榜单的已知快照计算",
+      "evidenceIds": [],
+      "availableAt": "2026-10-28",
+      "observedAt": "2026-10-28"
+    },
+    "observed_days": {
+      "key": "observed_days",
+      "label": "有效快照数",
+      "domain": "market",
+      "tab": "market",
+      "layer": "基础档案",
+      "value": "4 个有排名的采样日（非连续天数）",
+      "status": "available",
+      "kind": "derived",
+      "reason": "由同一平台、地区、榜单的已知快照计算",
+      "evidenceIds": [],
+      "availableAt": "2026-10-28",
+      "observedAt": "2026-10-28"
+    },
+    "downloads": {
+      "key": "downloads",
+      "label": "下载量估计",
+      "domain": "market",
+      "tab": "market",
+      "layer": "基础档案",
+      "value": null,
+      "kind": "fact",
+      "status": "not_authorized",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "未接入可验证的授权或供应商数据；不能从名次推算",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "active": {
+      "key": "active",
+      "label": "活跃用户估计",
+      "domain": "market",
+      "tab": "market",
+      "layer": "基础档案",
+      "value": null,
+      "kind": "fact",
+      "status": "not_authorized",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "未接入可验证的授权或供应商数据；不能从名次推算",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "rating": {
+      "key": "rating",
+      "label": "来源展示评分",
+      "domain": "reviews",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "4.3 / 5",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-REVIEWS-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "rating_count": {
+      "key": "rating_count",
+      "label": "来源评分数",
+      "domain": "reviews",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": 3350,
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-REVIEWS-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "review_count": {
+      "key": "review_count",
+      "label": "来源文字评价数",
+      "domain": "reviews",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": 2290,
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-REVIEWS-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "sample": {
+      "key": "sample",
+      "label": "本次分析样本",
+      "domain": "reviews",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "12个去重内容簇：正面9、负面1、中性2",
+      "kind": "derived",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-REVIEWS-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "likes": {
+      "key": "likes",
+      "label": "认可的体验",
+      "domain": "reviews",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "规则直观、操作反馈清晰；需结合具体主题原文",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-REVIEWS-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "complaints": {
+      "key": "complaints",
+      "label": "主要抱怨与期待",
+      "domain": "reviews",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "先补玩家样本，避免把少量好评外推为普遍偏好",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-REVIEWS-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "mentions": {
+      "key": "mentions",
+      "label": "固定范围提及",
+      "domain": "social",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "固定示例来源：本周48个去重内容簇",
+      "kind": "derived",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-SOCIAL-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "social_growth": {
+      "key": "social_growth",
+      "label": "同口径传播变化",
+      "domain": "social",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "前期32 → 本期48，来源与窗口一致（示例）",
+      "kind": "derived",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-SOCIAL-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "search": {
+      "key": "search",
+      "label": "搜索趋势",
+      "domain": "social",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": null,
+      "kind": "fact",
+      "status": "not_authorized",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "暂无该来源的授权数据",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "creators": {
+      "key": "creators",
+      "label": "创作者内容",
+      "domain": "social",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "2个独立实机内容线索；未确认商业合作状态",
+      "kind": "derived",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-SOCIAL-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "event": {
+      "key": "event",
+      "label": "事件与回应",
+      "domain": "social",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "本次示例核查未发现待处置重大事件；不保证全网无事件",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-SOCIAL-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "independence": {
+      "key": "independence",
+      "label": "来源独立性",
+      "domain": "social",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "转载归为一个根来源族，传播量与独立证据分别统计",
+      "kind": "derived",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-SOCIAL-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "creative_assets": {
+      "key": "creative_assets",
+      "label": "素材入口",
+      "domain": "creatives",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "value": "创意分镜示意，真实视频入口待补",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-CREATIVES-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "hook": {
+      "key": "hook",
+      "label": "素材前段吸引点",
+      "domain": "creatives",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "value": "先展示受阻场面，再展示一次清晰操作的解决过程",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-CREATIVES-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "creative_variants": {
+      "key": "creative_variants",
+      "label": "观察到的创意变体",
+      "domain": "creatives",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "value": "3种示例创意方向；不是实际投放数量",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-CREATIVES-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "creative_window": {
+      "key": "creative_window",
+      "label": "首次 / 末次观察",
+      "domain": "creatives",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "value": "示例观察：2026-10-19至10-25，非完整投放周期",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-CREATIVES-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "ad_market": {
+      "key": "ad_market",
+      "label": "投放地区与渠道",
+      "domain": "creatives",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "投放来源未接入，不能从创意推断投放市场",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "ad_match": {
+      "key": "ad_match",
+      "label": "广告与实机一致性",
+      "domain": "creatives",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "value": "已有分镜与玩法机制相符，尚缺真实广告和实机双向核验",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-CREATIVES-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "family": {
+      "key": "family",
+      "label": "玩法家族",
+      "domain": "competition",
+      "tab": "competition",
+      "layer": "深度情报",
+      "value": "拼图益智",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-COMPETITION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "peers": {
+      "key": "peers",
+      "label": "对照产品",
+      "domain": "competition",
+      "tab": "competition",
+      "layer": "深度情报",
+      "value": [
+        "极速收纳示例",
+        "塔楼融合示例"
+      ],
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-COMPETITION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "supply": {
+      "key": "supply",
+      "label": "监测范围内供给",
+      "domain": "competition",
+      "tab": "competition",
+      "layer": "深度情报",
+      "value": "仅展示已监测同类，不代表全市场竞争总量",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-COMPETITION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "differences": {
+      "key": "differences",
+      "label": "产品差异",
+      "domain": "competition",
+      "tab": "competition",
+      "layer": "深度情报",
+      "value": "通过目标、操作约束、内容题材建立对照",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-COMPETITION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "declines": {
+      "key": "declines",
+      "label": "下滑与失败案例",
+      "domain": "competition",
+      "tab": "competition",
+      "layer": "深度情报",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "需要团队或竞品研究补证",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "gap": {
+      "key": "gap",
+      "label": "未满足需求",
+      "domain": "competition",
+      "tab": "competition",
+      "layer": "深度情报",
+      "value": "先补玩家样本，避免把少量好评外推为普遍偏好",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-COMPETITION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "prototype": {
+      "key": "prototype",
+      "label": "最小原型范围",
+      "domain": "feasibility",
+      "tab": "competition",
+      "layer": "精选依据",
+      "value": "两张插画、三档切片与旋转",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-FEASIBILITY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "workload": {
+      "key": "workload",
+      "label": "功能 / 内容工作量",
+      "domain": "feasibility",
+      "tab": "competition",
+      "layer": "精选依据",
+      "value": [
+        "核心交互",
+        "关卡/目标配置",
+        "引导与反馈",
+        "广告接入占位"
+      ],
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-FEASIBILITY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "dependencies": {
+      "key": "dependencies",
+      "label": "关键技术与资产依赖",
+      "domain": "feasibility",
+      "tab": "competition",
+      "layer": "精选依据",
+      "value": "可复用基础框架；真实技术栈、原作引擎和服务端实现未知",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-FEASIBILITY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "effort": {
+      "key": "effort",
+      "label": "工期情景范围",
+      "domain": "feasibility",
+      "tab": "competition",
+      "layer": "精选依据",
+      "value": "7～12人日；假设1名客户端+可复用基础素材，非上线版本工期",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-FEASIBILITY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "hypothesis": {
+      "key": "hypothesis",
+      "label": "优先验证假设",
+      "domain": "feasibility",
+      "tab": "competition",
+      "layer": "精选依据",
+      "value": "先补玩家样本，避免把少量好评外推为普遍偏好",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-FEASIBILITY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "stop_rule": {
+      "key": "stop_rule",
+      "label": "继续 / 停止条件",
+      "domain": "feasibility",
+      "tab": "competition",
+      "layer": "精选依据",
+      "value": "试玩前登记理解、参与和成本指标；若核心假设失败则缩范围或停止，阈值待团队确定",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P7-GP-US-FEASIBILITY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "selection_records": {
+      "key": "selection_records",
+      "label": "当前选用记录",
+      "domain": "internal",
+      "tab": "records",
+      "layer": "精选依据",
+      "value": "0 条当前协作记录",
+      "status": "available",
+      "kind": "derived",
+      "reason": "协作记录展示当前状态，不纳入历史市场判断",
+      "evidenceIds": [],
+      "availableAt": null,
+      "observedAt": null
+    },
+    "test_plan": {
+      "key": "test_plan",
+      "label": "内部测试方案",
+      "domain": "internal",
+      "tab": "records",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "尚未取得内部实际测试记录，不能由外部热度代填",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "actual_cost": {
+      "key": "actual_cost",
+      "label": "实际工期与费用",
+      "domain": "internal",
+      "tab": "records",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "尚未取得内部实际测试记录，不能由外部热度代填",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "retention": {
+      "key": "retention",
+      "label": "内部留存结果",
+      "domain": "internal",
+      "tab": "records",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "尚未取得内部实际测试记录，不能由外部热度代填",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "economics": {
+      "key": "economics",
+      "label": "内部广告收益 / LTV",
+      "domain": "internal",
+      "tab": "records",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "尚未取得内部实际测试记录，不能由外部热度代填",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "outcome": {
+      "key": "outcome",
+      "label": "实验结论与反馈",
+      "domain": "internal",
+      "tab": "records",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "尚未取得内部实际测试记录，不能由外部热度代填",
+      "validUntil": null,
+      "appVersion": null
+    }
+  },
+  "domains": [
+    {
+      "id": "identity",
+      "name": "基础身份",
+      "tab": "overview",
+      "layer": "基础档案",
+      "readable": 7,
+      "applicable": 9,
+      "missing": 2,
+      "ai": 0,
+      "percent": 78
+    },
+    {
+      "id": "store",
+      "name": "商店资料与版本",
+      "tab": "overview",
+      "layer": "基础档案",
+      "readable": 9,
+      "applicable": 9,
+      "missing": 0,
+      "ai": 0,
+      "percent": 100
+    },
+    {
+      "id": "gameplay",
+      "name": "核心玩法",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "readable": 6,
+      "applicable": 8,
+      "missing": 2,
+      "ai": 2,
+      "percent": 75
+    },
+    {
+      "id": "experience",
+      "name": "美术与体验",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "readable": 6,
+      "applicable": 6,
+      "missing": 0,
+      "ai": 0,
+      "percent": 100
+    },
+    {
+      "id": "monetization",
+      "name": "广告与变现",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "readable": 0,
+      "applicable": 7,
+      "missing": 7,
+      "ai": 0,
+      "percent": 0
+    },
+    {
+      "id": "market",
+      "name": "市场表现",
+      "tab": "market",
+      "layer": "基础档案",
+      "readable": 4,
+      "applicable": 6,
+      "missing": 2,
+      "ai": 0,
+      "percent": 67
+    },
+    {
+      "id": "reviews",
+      "name": "玩家评价",
+      "tab": "voices",
+      "layer": "深度情报",
+      "readable": 6,
+      "applicable": 6,
+      "missing": 0,
+      "ai": 2,
+      "percent": 100
+    },
+    {
+      "id": "social",
+      "name": "舆情与传播",
+      "tab": "voices",
+      "layer": "深度情报",
+      "readable": 5,
+      "applicable": 6,
+      "missing": 1,
+      "ai": 0,
+      "percent": 83
+    },
+    {
+      "id": "creatives",
+      "name": "广告素材与投放",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "readable": 5,
+      "applicable": 6,
+      "missing": 1,
+      "ai": 5,
+      "percent": 83
+    },
+    {
+      "id": "competition",
+      "name": "同类竞争",
+      "tab": "competition",
+      "layer": "深度情报",
+      "readable": 5,
+      "applicable": 6,
+      "missing": 1,
+      "ai": 5,
+      "percent": 83
+    },
+    {
+      "id": "feasibility",
+      "name": "制作适配与机会",
+      "tab": "competition",
+      "layer": "精选依据",
+      "readable": 6,
+      "applicable": 6,
+      "missing": 0,
+      "ai": 3,
+      "percent": 100
+    },
+    {
+      "id": "internal",
+      "name": "内部选用与验证",
+      "tab": "records",
+      "layer": "精选依据",
+      "readable": 1,
+      "applicable": 6,
+      "missing": 5,
+      "ai": 0,
+      "percent": 17
+    }
+  ],
+  "coverage": {
+    "readable": 60,
+    "applicable": 81,
+    "missing": 21,
+    "ai": 17,
+    "percent": 74
+  },
+  "qualification": {
+    "state": "unknown",
+    "label": "纯 IAA 待核查",
+    "eligible": false,
+    "reason": "资料对应旧版本 1.0.0，当前版本 1.1.0"
+  },
+  "series": [
+    {
+      "date": "2026-10-19",
+      "rank": 58
+    },
+    {
+      "date": "2026-10-22",
+      "rank": 49
+    },
+    {
+      "date": "2026-10-25",
+      "rank": 40
+    },
+    {
+      "date": "2026-10-28",
+      "rank": 31
+    }
+  ],
+  "review": {
+    "n": 12,
+    "positive": 9,
+    "negative": 1,
+    "neutral": 2,
+    "unknown": 0,
+    "from": "2026-10-19",
+    "to": "2026-10-25",
+    "scope": "P7-GP-US",
+    "sampling": "演示固定范围聚合夹具；非全体玩家估计"
+  },
+  "comments": [
+    {
+      "text": "完成一次清晰目标后还想继续尝试。",
+      "sentiment": "正面",
+      "topic": "核心循环"
+    },
+    {
+      "text": "希望提示和复活由自己选择，减少被打断。",
+      "sentiment": "负面",
+      "topic": "广告体验"
+    },
+    {
+      "text": "后续规则变化需要更多，题材可以更丰富。",
+      "sentiment": "中性",
+      "topic": "内容供给"
+    }
+  ],
+  "peers": [
+    6,
+    8
+  ],
+  "evidence": [
+    {
+      "id": "DEMO-P7-GP-US-IDENTITY-19",
+      "title": "森林拼图示例 · Google Play 美国 · 基础身份示例材料",
+      "scope": "P7-GP-US",
+      "observedAt": "2026-10-19",
+      "availableAt": "2026-10-19",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P7-GP-US-STORE-19",
+      "title": "森林拼图示例 · Google Play 美国 · 商店资料与版本示例材料",
+      "scope": "P7-GP-US",
+      "observedAt": "2026-10-19",
+      "availableAt": "2026-10-19",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P7-GP-US-STORE-28",
+      "title": "森林拼图示例 · Google Play 美国 · 商店资料与版本示例材料",
+      "scope": "P7-GP-US",
+      "observedAt": "2026-10-28",
+      "availableAt": "2026-10-28",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P7-GP-US-GAMEPLAY-25",
+      "title": "森林拼图示例 · Google Play 美国 · 核心玩法示例材料",
+      "scope": "P7-GP-US",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P7-GP-US-EXPERIENCE-25",
+      "title": "森林拼图示例 · Google Play 美国 · 美术与体验示例材料",
+      "scope": "P7-GP-US",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P7-GP-US-MONETIZATION-25",
+      "title": "森林拼图示例 · Google Play 美国 · 广告与变现示例材料",
+      "scope": "P7-GP-US",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P7-GP-US-REVIEWS-25",
+      "title": "森林拼图示例 · Google Play 美国 · 玩家评价示例材料",
+      "scope": "P7-GP-US",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P7-GP-US-SOCIAL-25",
+      "title": "森林拼图示例 · Google Play 美国 · 舆情与传播示例材料",
+      "scope": "P7-GP-US",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P7-GP-US-CREATIVES-25",
+      "title": "森林拼图示例 · Google Play 美国 · 广告素材与投放示例材料",
+      "scope": "P7-GP-US",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P7-GP-US-COMPETITION-25",
+      "title": "森林拼图示例 · Google Play 美国 · 同类竞争示例材料",
+      "scope": "P7-GP-US",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P7-GP-US-FEASIBILITY-25",
+      "title": "森林拼图示例 · Google Play 美国 · 制作适配与机会示例材料",
+      "scope": "P7-GP-US",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    }
+  ]
+}

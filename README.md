@@ -4,6 +4,14 @@ GitHub 仓库：[Mrmocao/game-rank-capture](https://github.com/Mrmocao/game-rank
 
 采用 Java 21 + Spring Boot 3.5.6 + MySQL 8 + Flyway，前端采用 Vue 3 + TypeScript + Vite + Element Plus。交接设计、原始契约和验收场景位于 [`docs/`](docs/) 与 [`contracts/`](contracts/)。
 
+## 当前源码同步状态（2026-10-30）
+
+本次 GitHub 同步包含最新 V2.3 设计包及游戏档案的开发中代码，线上仍为下文记录的 V2.2 发布。新增档案字段目录、解析服务、API、工作区访问控制、V9 迁移和 `GameProfile.vue`；档案组件尚未接入主页面，工作区登录表单尚未接入，档案与推荐模型尚未完成联调，不能视为已验收功能。
+
+本次执行 `mvn -q -f backend/pom.xml test`：41 项，35 项通过、6 项跳过、0 失败；`npm --prefix frontend run build` 通过，保留现有大包提示。未运行真实 MySQL 集成检查，未执行 V9 迁移，未验证新档案页面或生产部署。V9 会在应用下次启动时由 Flyway 执行，部署前须备份并完成 JDBC 迁移与业务验收，详见 [MIGRATION-NOTES.md](MIGRATION-NOTES.md)。
+
+后续仍以 [ARCHITECTURE-DESIGN.md](ARCHITECTURE-DESIGN.md) 为唯一维护入口，继续完成页面接入、证据复核与冲突测试、推荐输入关联和真实数据库验证；本次同步仅保存当前开发进度，不切换线上应用。
+
 当前交付包含 V2.2 研究工作区、可重复的开发模拟数据和产品库、榜单观察、详情、多人选用、周报冻结、候选审计与 CSV 导出的闭环。模拟数据在来源、运行和产品名中明确标记 `DEMO`，不代表真实来源、IAA 结论或生产运行。
 
 外部信息抓取的独立模块见 [`external-capture/`](external-capture/README.md)，模块边界与现有耦合审阅见 [采集模块抽象](docs/09-EXTERNAL-CAPTURE.md)。该模块独立构建运行，输出来源观察与证据文件，不依赖业务入库、规则或周报；现有后端尚未迁移到该模块。

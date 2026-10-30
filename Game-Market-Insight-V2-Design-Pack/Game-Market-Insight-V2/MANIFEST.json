@@ -1,20 +1,21 @@
 {
-  "version": "2.2",
-  "date": "2026-10-29",
+  "version": "2.3",
+  "date": "2026-10-30",
   "prototype_url": "https://iaa-radar-product-lab.mochao1009.chatgpt.site",
-  "prototype_commit": "5d09d4d4c913296684cb1c501a567bf70130f888",
+  "prototype_commit": "a1e7de2037e80153023033fe10e302d57e5e9c1d",
   "algorithm_version": "2.2.0",
-  "nature": "Product design, fault-tolerant recommendation specification and synthetic calculation fixtures; no real market backtest",
+  "profile_version": "2.3.0",
+  "nature": "Product design and synthetic profile/algorithm fixtures; no real collection, AI, backend or market validation",
   "files": [
     {
       "path": "PRODUCT-DESIGN-V2.html",
-      "bytes": 164885,
-      "sha256": "35c1f31f3208d5674c5d2c71776cbd7a3c5f378e2d7be07308197be588088783"
+      "bytes": 196985,
+      "sha256": "537f78dfc6c921ce2b647cf453ad3dd2f33affa7429cab31c7d6fe516b2f2fb4"
     },
     {
       "path": "README.md",
-      "bytes": 2552,
-      "sha256": "679cdd836b09f9842e8143750cad427601d958f04346a22f4fb53aefc4d4afe4"
+      "bytes": 2097,
+      "sha256": "194adecd0a428b675e3792a0fd0c2167fc25ab0a7caac1bf0f93a52d2e5964ed"
     },
     {
       "path": "contracts/demo-data.json",
@@ -30,6 +31,36 @@
       "path": "contracts/evidence.example.json",
       "bytes": 900,
       "sha256": "2f6b812bc756998feb80c03cfbefb32c0d99f4ef9fe93bbb5beec1cc6890e226"
+    },
+    {
+      "path": "contracts/profile-v23-conflict.json",
+      "bytes": 48757,
+      "sha256": "023fc448b009fb8978405433d95d5f31a8ae8a03a3ef8c946f3101a5920303fa"
+    },
+    {
+      "path": "contracts/profile-v23-current.json",
+      "bytes": 48998,
+      "sha256": "69af47d3c70e66e2a4a29f2857a56e1586450b30b24151dc2507a3076d2a1b98"
+    },
+    {
+      "path": "contracts/profile-v23-fixtures.json",
+      "bytes": 1351558,
+      "sha256": "a8e81c0acf084540f2b499ab9a788703f87ce98bafa7fb1c6277233f43c4799a"
+    },
+    {
+      "path": "contracts/profile-v23-history.json",
+      "bytes": 33835,
+      "sha256": "018f461c5b921b2cc2dd1a327bcd62502946b5bf1df5a81f668a671fd1ba4e29"
+    },
+    {
+      "path": "contracts/profile-v23-missing.json",
+      "bytes": 43210,
+      "sha256": "dbd6adae9f3a27568b86c67c6a01de1b9502a6071ac3d97dae9284ad51af1fba"
+    },
+    {
+      "path": "contracts/profile-v23-stale.json",
+      "bytes": 48573,
+      "sha256": "59067643b336e50d7e4488051136cee6e8928bfc2471d51e0bdfb2c6344839c1"
     },
     {
       "path": "contracts/weekly-v21-cases.json",
@@ -63,8 +94,8 @@
     },
     {
       "path": "docs/01-product-design.md",
-      "bytes": 8409,
-      "sha256": "ae13c36a960a42667e4cd78105a6efbf077cb13c0f2f52cb8ee57ec6cdfa577f"
+      "bytes": 8798,
+      "sha256": "2b28a74ddb998c985f5828188c074e9b963da2d11de868b6c3456bf296fb6811"
     },
     {
       "path": "docs/02-information-catalog.csv",
@@ -88,23 +119,23 @@
     },
     {
       "path": "docs/05-pages-and-ai.md",
-      "bytes": 7344,
-      "sha256": "7a8fd46d5edca06cd20f70a16c8852c548bfd8eb1947888df31ac8e0ab172328"
+      "bytes": 7733,
+      "sha256": "affb193a81db946b1402eacb76f354eff1df0aa37d4930d0ac720379510d2dd7"
     },
     {
       "path": "docs/06-data-contracts.md",
-      "bytes": 10156,
-      "sha256": "a7b00ddc263d60a62cb286b8a5db48866cf05972d07e9efc0201d248e948293a"
+      "bytes": 10545,
+      "sha256": "b98459ac18f7cbf79f7e4f0f5aa555a770754c6d783495534c5e4535d8b72ae7"
     },
     {
       "path": "docs/07-codex-handoff.md",
-      "bytes": 5168,
-      "sha256": "86cb6bf2c0cb33a363f6351872eb96708dddd599855a331949d46ba2a4eb9b8f"
+      "bytes": 5562,
+      "sha256": "3a6eb34199f900134fb66051823221255e0394a83e287b248b108548f69555af"
     },
     {
       "path": "docs/08-acceptance.md",
-      "bytes": 7714,
-      "sha256": "cc19e85baa56b4538f3330493afa7cf807987eff1fd66f6ac9b2c56fc0c585b9"
+      "bytes": 9519,
+      "sha256": "0d62dc710fea4b995b410b2aefa7f5d46e7ef5778fda3a947ed5f4288daf3145"
     },
     {
       "path": "docs/09-prototype-verification.md",
@@ -150,6 +181,26 @@
       "path": "docs/16-v22-verification.md",
       "bytes": 4160,
       "sha256": "62058f795f0949e07999a931108825e7374b8082fe59e714cbc1c923c9a5ce20"
+    },
+    {
+      "path": "docs/17-game-profile-design.md",
+      "bytes": 12081,
+      "sha256": "f883df3e34188b32c9d72bfc27af0f027ab44e826ed529dc9210030b89b9b5ce"
+    },
+    {
+      "path": "docs/17-profile-fields.csv",
+      "bytes": 25704,
+      "sha256": "0d6e94e7e1807ef508eacac72e034c02686a2570196797681e58f29693ce3fba"
+    },
+    {
+      "path": "docs/18-profile-data-contracts.md",
+      "bytes": 9093,
+      "sha256": "1eb021161045b33c13f90a1e57ab8314a6adffb0b8db771d2e985f5465792695"
+    },
+    {
+      "path": "docs/19-v23-verification.md",
+      "bytes": 3757,
+      "sha256": "0ad4aed0a39641c88579bd112abe29725a3e635619ea2eaf8384c57e9068faf8"
     }
   ]
 }

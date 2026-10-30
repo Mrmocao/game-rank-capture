@@ -47,3 +47,10 @@ npm run build --prefix frontend
 ## 生产兼容修复（2026-10-29）
 
 生产库历史中已存在 `V2 demo seed`，而整理后的源码曾只保留 `db/demo/V2__demo_seed.sql`，导致新 JAR 启动时 Flyway 报“applied migration not resolved locally”。已从上一发布包恢复原始 `db/migration/V2__demo_seed.sql`（不修改其内容/校验和），并将开发重复 seed 重命名为 `db/demo/R__demo_seed.sql`，避免同一版本号冲突。生产只扫描 `db/migration`，开发 profile 额外执行可重复的演示 seed。
+
+
+## V9 游戏档案（开发中，2026-10-30）
+
+新增市场条目、应用发布版本、档案证据、字段观察、AI草案、材料提交与复核、补全任务和媒体引用表；新字段有中文注释。V1～V8 历史迁移不修改。V9 已加入 Flyway 默认扫描目录，下一次启动会自动尝试执行；本次仅编译和现有测试通过，尚未通过 JDBC 执行或验证。请先备份数据库及材料，在隔离数据库完成迁移和业务验证后部署，不能把代码同步视为生产迁移已完成。
+
+PROFILE_TENANT_ID 由服务器固定组织范围；PROFILE_ACCESS_TOKEN 留空为无认证开发模式。当前前端尚未接入登录表单，启用口令后仅可通过 POST /api/v1/access 获取会话或使用 Bearer 调用API。生产启用和完整页面验收仍为待办。

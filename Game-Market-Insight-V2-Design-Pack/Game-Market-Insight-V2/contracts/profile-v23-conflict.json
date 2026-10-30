@@ -1,0 +1,1750 @@
+{
+  "id": 1,
+  "name": "螺丝收纳局",
+  "icon": "🔩",
+  "genre": "物理解谜",
+  "date": "2026-10-28",
+  "versionKey": "P1-WX-CN",
+  "platform": "微信",
+  "market": "中国",
+  "chart": "示例人气榜",
+  "currentVersion": "1.0.0",
+  "firstSeen": "2026-10-19",
+  "known": true,
+  "fields": {
+    "name": {
+      "key": "name",
+      "label": "游戏名称",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "螺丝收纳局",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "aliases": {
+      "key": "aliases",
+      "label": "别名",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": [
+        "螺丝收纳局（测试别名）"
+      ],
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "external_id": {
+      "key": "external_id",
+      "label": "平台稳定ID",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "DEMO-P1-WX-CN",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "developer": {
+      "key": "developer",
+      "label": "开发主体",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "示例工作室 02",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "publisher": {
+      "key": "publisher",
+      "label": "发行主体",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "示例发行主体 01",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "market": {
+      "key": "market",
+      "label": "发行市场",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "中国",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "language": {
+      "key": "language",
+      "label": "支持语言",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "简体中文",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-IDENTITY-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "store_url": {
+      "key": "store_url",
+      "label": "商店详情入口",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [],
+      "reason": "虚构游戏，没有真实商店或启动链接",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "launch_url": {
+      "key": "launch_url",
+      "label": "启动 / 试玩入口",
+      "domain": "identity",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [],
+      "reason": "虚构游戏，没有真实商店或启动链接",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "description": {
+      "key": "description",
+      "label": "官方简介",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "按颜色和遮挡关系拆除螺丝，将零件放入有限收纳槽。 围绕清晰的单局目标，逐步增加规则和内容变化。此为虚构商店简介。",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "category": {
+      "key": "category",
+      "label": "商店分类",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "休闲 / 物理解谜",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "release_at": {
+      "key": "release_at",
+      "label": "实际上线日期",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "2026-09-11",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "first_seen": {
+      "key": "first_seen",
+      "label": "系统首次观察",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "2026-10-19",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "version": {
+      "key": "version",
+      "label": "当前版本",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "1.0.0",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "updated_at": {
+      "key": "updated_at",
+      "label": "版本更新日期",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "2026-10-18",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "release_notes": {
+      "key": "release_notes",
+      "label": "更新说明",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": "优化操作反馈和关卡提示（虚构更新）。",
+      "kind": "fact",
+      "status": "available",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-STORE-19"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "package_size": {
+      "key": "package_size",
+      "label": "包体大小",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": null,
+      "kind": "fact",
+      "status": "not_applicable",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [],
+      "reason": "小游戏分包口径另行定义",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "min_os": {
+      "key": "min_os",
+      "label": "设备要求",
+      "domain": "store",
+      "tab": "overview",
+      "layer": "基础档案",
+      "value": null,
+      "kind": "fact",
+      "status": "not_applicable",
+      "availableAt": "2026-10-19",
+      "observedAt": "2026-10-19",
+      "evidenceIds": [],
+      "reason": "小游戏宿主兼容性待另行测试",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "summary": {
+      "key": "summary",
+      "label": "一句话玩法",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "按颜色和遮挡关系拆除螺丝，将零件放入有限收纳槽。",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "core_loop": {
+      "key": "core_loop",
+      "label": "核心循环",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": [
+        "观察遮挡",
+        "选择螺丝",
+        "放入槽位",
+        "解除结构"
+      ],
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "controls": {
+      "key": "controls",
+      "label": "操作方式",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "点击螺丝，选择可用槽位",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "win_fail": {
+      "key": "win_fail",
+      "label": "胜负与失败条件",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "拆除全部目标结构过关；槽位用尽则失败",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "session": {
+      "key": "session",
+      "label": "单局时长",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "1～3分钟",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "levels": {
+      "key": "levels",
+      "label": "关卡供给",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "结构模板 + 遮挡组合",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "meta": {
+      "key": "meta",
+      "label": "外围系统",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "每日挑战、关卡地图",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "audience": {
+      "key": "audience",
+      "label": "目标人群定位",
+      "domain": "gameplay",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "偏好短局规划与解谜的用户；属于研究假设",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-GAMEPLAY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "style": {
+      "key": "style",
+      "label": "美术风格",
+      "domain": "experience",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "柔和工业玩具",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-EXPERIENCE-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "render": {
+      "key": "render",
+      "label": "表现形式",
+      "domain": "experience",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "轻3D",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-EXPERIENCE-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "orientation": {
+      "key": "orientation",
+      "label": "画面方向",
+      "domain": "experience",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "竖屏",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-EXPERIENCE-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "animation": {
+      "key": "animation",
+      "label": "动画与反馈",
+      "domain": "experience",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "零件掉落、槽位配色与完成反馈",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-EXPERIENCE-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "network": {
+      "key": "network",
+      "label": "联网与服务依赖",
+      "domain": "experience",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "演示试玩可运行单局；账号、广告和存档服务依赖待核实",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-EXPERIENCE-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "performance": {
+      "key": "performance",
+      "label": "性能与加载体验",
+      "domain": "experience",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "value": "示例试玩中首局操作顺畅；无设备覆盖和加载测速结论",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-EXPERIENCE-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "mode": {
+      "key": "mode",
+      "label": "变现模式",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "manual",
+      "status": "conflict",
+      "availableAt": "2026-10-28",
+      "observedAt": "2026-10-28",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-MONETIZATION-28"
+      ],
+      "reason": "新版材料出现去广告付费线索，与此前IAA核查冲突；等待裁决",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "ad_formats": {
+      "key": "ad_formats",
+      "label": "广告形式",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": [
+        "激励视频",
+        "插屏"
+      ],
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-MONETIZATION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "ad_triggers": {
+      "key": "ad_triggers",
+      "label": "广告触发与奖励",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": [
+        "失败后自选复活",
+        "提示或额外空间"
+      ],
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-MONETIZATION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "ad_frequency": {
+      "key": "ad_frequency",
+      "label": "观察广告频次",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": "10局结构化试玩：自选激励6次、插屏3次；仅此样本",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-MONETIZATION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "iap_basis": {
+      "key": "iap_basis",
+      "label": "内购证据",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": "当前核查包未发现付费项；须结合排除内购依据",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-MONETIZATION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "no_iap_basis": {
+      "key": "no_iap_basis",
+      "label": "排除内购依据",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": "发行说明与指定版本的结构化核查一致；依据包已复核",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-MONETIZATION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "monetization_valid": {
+      "key": "monetization_valid",
+      "label": "资格适用范围",
+      "domain": "monetization",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "value": "微信 · 中国 · 1.0.0，当前示例观察有效",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-MONETIZATION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": "1.0.0"
+    },
+    "chart_status": {
+      "key": "chart_status",
+      "label": "当前榜单状态",
+      "domain": "market",
+      "tab": "market",
+      "layer": "基础档案",
+      "value": "已采集该榜单快照",
+      "status": "available",
+      "kind": "derived",
+      "reason": "由同一平台、地区、榜单的已知快照计算",
+      "evidenceIds": [],
+      "availableAt": "2026-10-28",
+      "observedAt": "2026-10-28"
+    },
+    "rank": {
+      "key": "rank",
+      "label": "所选榜单名次",
+      "domain": "market",
+      "tab": "market",
+      "layer": "基础档案",
+      "value": 12,
+      "status": "available",
+      "kind": "derived",
+      "reason": "由同一平台、地区、榜单的已知快照计算",
+      "evidenceIds": [],
+      "availableAt": "2026-10-28",
+      "observedAt": "2026-10-28"
+    },
+    "peak": {
+      "key": "peak",
+      "label": "监测期最好名次",
+      "domain": "market",
+      "tab": "market",
+      "layer": "基础档案",
+      "value": 12,
+      "status": "available",
+      "kind": "derived",
+      "reason": "由同一平台、地区、榜单的已知快照计算",
+      "evidenceIds": [],
+      "availableAt": "2026-10-28",
+      "observedAt": "2026-10-28"
+    },
+    "observed_days": {
+      "key": "observed_days",
+      "label": "有效快照数",
+      "domain": "market",
+      "tab": "market",
+      "layer": "基础档案",
+      "value": "4 个有排名的采样日（非连续天数）",
+      "status": "available",
+      "kind": "derived",
+      "reason": "由同一平台、地区、榜单的已知快照计算",
+      "evidenceIds": [],
+      "availableAt": "2026-10-28",
+      "observedAt": "2026-10-28"
+    },
+    "downloads": {
+      "key": "downloads",
+      "label": "下载量估计",
+      "domain": "market",
+      "tab": "market",
+      "layer": "基础档案",
+      "value": null,
+      "kind": "fact",
+      "status": "not_authorized",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "未接入可验证的授权或供应商数据；不能从名次推算",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "active": {
+      "key": "active",
+      "label": "活跃用户估计",
+      "domain": "market",
+      "tab": "market",
+      "layer": "基础档案",
+      "value": null,
+      "kind": "fact",
+      "status": "not_authorized",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "未接入可验证的授权或供应商数据；不能从名次推算",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "rating": {
+      "key": "rating",
+      "label": "来源展示评分",
+      "domain": "reviews",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": null,
+      "kind": "fact",
+      "status": "not_supported",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "本示例来源没有对应评分口径",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "rating_count": {
+      "key": "rating_count",
+      "label": "来源评分数",
+      "domain": "reviews",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": null,
+      "kind": "fact",
+      "status": "not_supported",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "本示例来源没有对应评分口径",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "review_count": {
+      "key": "review_count",
+      "label": "来源文字评价数",
+      "domain": "reviews",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": null,
+      "kind": "fact",
+      "status": "not_supported",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "本示例来源没有对应评分口径",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "sample": {
+      "key": "sample",
+      "label": "本次分析样本",
+      "domain": "reviews",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "225个去重内容簇：正面157、负面36、中性32",
+      "kind": "derived",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-REVIEWS-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "likes": {
+      "key": "likes",
+      "label": "认可的体验",
+      "domain": "reviews",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "规则直观、操作反馈清晰；需结合具体主题原文",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-REVIEWS-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "complaints": {
+      "key": "complaints",
+      "label": "主要抱怨与期待",
+      "domain": "reviews",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "降低强制广告打断，验证自主选择激励的完成率",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-REVIEWS-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "mentions": {
+      "key": "mentions",
+      "label": "固定范围提及",
+      "domain": "social",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "固定示例来源：本周48个去重内容簇",
+      "kind": "derived",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-SOCIAL-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "social_growth": {
+      "key": "social_growth",
+      "label": "同口径传播变化",
+      "domain": "social",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "前期32 → 本期48，来源与窗口一致（示例）",
+      "kind": "derived",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-SOCIAL-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "search": {
+      "key": "search",
+      "label": "搜索趋势",
+      "domain": "social",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": null,
+      "kind": "fact",
+      "status": "not_authorized",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "暂无该来源的授权数据",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "creators": {
+      "key": "creators",
+      "label": "创作者内容",
+      "domain": "social",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "2个独立实机内容线索；未确认商业合作状态",
+      "kind": "derived",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-SOCIAL-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "event": {
+      "key": "event",
+      "label": "事件与回应",
+      "domain": "social",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "本次示例核查未发现待处置重大事件；不保证全网无事件",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-SOCIAL-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "independence": {
+      "key": "independence",
+      "label": "来源独立性",
+      "domain": "social",
+      "tab": "voices",
+      "layer": "深度情报",
+      "value": "转载归为一个根来源族，传播量与独立证据分别统计",
+      "kind": "derived",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-SOCIAL-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "creative_assets": {
+      "key": "creative_assets",
+      "label": "素材入口",
+      "domain": "creatives",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "value": "创意分镜示意，真实视频入口待补",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-CREATIVES-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "hook": {
+      "key": "hook",
+      "label": "素材前段吸引点",
+      "domain": "creatives",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "value": "先展示受阻场面，再展示一次清晰操作的解决过程",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-CREATIVES-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "creative_variants": {
+      "key": "creative_variants",
+      "label": "观察到的创意变体",
+      "domain": "creatives",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "value": "3种示例创意方向；不是实际投放数量",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-CREATIVES-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "creative_window": {
+      "key": "creative_window",
+      "label": "首次 / 末次观察",
+      "domain": "creatives",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "value": "示例观察：2026-10-19至10-25，非完整投放周期",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-CREATIVES-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "ad_market": {
+      "key": "ad_market",
+      "label": "投放地区与渠道",
+      "domain": "creatives",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "投放来源未接入，不能从创意推断投放市场",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "ad_match": {
+      "key": "ad_match",
+      "label": "广告与实机一致性",
+      "domain": "creatives",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "value": "已有分镜与玩法机制相符，尚缺真实广告和实机双向核验",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-CREATIVES-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "family": {
+      "key": "family",
+      "label": "玩法家族",
+      "domain": "competition",
+      "tab": "competition",
+      "layer": "深度情报",
+      "value": "结构拆解",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-COMPETITION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "peers": {
+      "key": "peers",
+      "label": "对照产品",
+      "domain": "competition",
+      "tab": "competition",
+      "layer": "深度情报",
+      "value": [
+        "叠叠小岛",
+        "方块消消乐示例"
+      ],
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-COMPETITION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "supply": {
+      "key": "supply",
+      "label": "监测范围内供给",
+      "domain": "competition",
+      "tab": "competition",
+      "layer": "深度情报",
+      "value": "仅展示已监测同类，不代表全市场竞争总量",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-COMPETITION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "differences": {
+      "key": "differences",
+      "label": "产品差异",
+      "domain": "competition",
+      "tab": "competition",
+      "layer": "深度情报",
+      "value": "通过目标、操作约束、内容题材建立对照",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-COMPETITION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "declines": {
+      "key": "declines",
+      "label": "下滑与失败案例",
+      "domain": "competition",
+      "tab": "competition",
+      "layer": "深度情报",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "需要团队或竞品研究补证",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "gap": {
+      "key": "gap",
+      "label": "未满足需求",
+      "domain": "competition",
+      "tab": "competition",
+      "layer": "深度情报",
+      "value": "降低强制广告打断，验证自主选择激励的完成率",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-COMPETITION-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "prototype": {
+      "key": "prototype",
+      "label": "最小原型范围",
+      "domain": "feasibility",
+      "tab": "competition",
+      "layer": "精选依据",
+      "value": "一个结构关卡、有限槽位、10个布局",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-FEASIBILITY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "workload": {
+      "key": "workload",
+      "label": "功能 / 内容工作量",
+      "domain": "feasibility",
+      "tab": "competition",
+      "layer": "精选依据",
+      "value": [
+        "核心交互",
+        "关卡/目标配置",
+        "引导与反馈",
+        "广告接入占位"
+      ],
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-FEASIBILITY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "dependencies": {
+      "key": "dependencies",
+      "label": "关键技术与资产依赖",
+      "domain": "feasibility",
+      "tab": "competition",
+      "layer": "精选依据",
+      "value": "可复用基础框架；真实技术栈、原作引擎和服务端实现未知",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-FEASIBILITY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "effort": {
+      "key": "effort",
+      "label": "工期情景范围",
+      "domain": "feasibility",
+      "tab": "competition",
+      "layer": "精选依据",
+      "value": "10～16人日；假设1名客户端+可复用基础素材，非上线版本工期",
+      "kind": "manual",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-FEASIBILITY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "hypothesis": {
+      "key": "hypothesis",
+      "label": "优先验证假设",
+      "domain": "feasibility",
+      "tab": "competition",
+      "layer": "精选依据",
+      "value": "降低强制广告打断，验证自主选择激励的完成率",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-FEASIBILITY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "stop_rule": {
+      "key": "stop_rule",
+      "label": "继续 / 停止条件",
+      "domain": "feasibility",
+      "tab": "competition",
+      "layer": "精选依据",
+      "value": "试玩前登记理解、参与和成本指标；若核心假设失败则缩范围或停止，阈值待团队确定",
+      "kind": "inference",
+      "status": "available",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [
+        "DEMO-P1-WX-CN-FEASIBILITY-25"
+      ],
+      "reason": "",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "selection_records": {
+      "key": "selection_records",
+      "label": "当前选用记录",
+      "domain": "internal",
+      "tab": "records",
+      "layer": "精选依据",
+      "value": "0 条当前协作记录",
+      "status": "available",
+      "kind": "derived",
+      "reason": "协作记录展示当前状态，不纳入历史市场判断",
+      "evidenceIds": [],
+      "availableAt": null,
+      "observedAt": null
+    },
+    "test_plan": {
+      "key": "test_plan",
+      "label": "内部测试方案",
+      "domain": "internal",
+      "tab": "records",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "尚未取得内部实际测试记录，不能由外部热度代填",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "actual_cost": {
+      "key": "actual_cost",
+      "label": "实际工期与费用",
+      "domain": "internal",
+      "tab": "records",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "尚未取得内部实际测试记录，不能由外部热度代填",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "retention": {
+      "key": "retention",
+      "label": "内部留存结果",
+      "domain": "internal",
+      "tab": "records",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "尚未取得内部实际测试记录，不能由外部热度代填",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "economics": {
+      "key": "economics",
+      "label": "内部广告收益 / LTV",
+      "domain": "internal",
+      "tab": "records",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "尚未取得内部实际测试记录，不能由外部热度代填",
+      "validUntil": null,
+      "appVersion": null
+    },
+    "outcome": {
+      "key": "outcome",
+      "label": "实验结论与反馈",
+      "domain": "internal",
+      "tab": "records",
+      "layer": "精选依据",
+      "value": null,
+      "kind": "fact",
+      "status": "missing",
+      "availableAt": "2026-10-25",
+      "observedAt": "2026-10-25",
+      "evidenceIds": [],
+      "reason": "尚未取得内部实际测试记录，不能由外部热度代填",
+      "validUntil": null,
+      "appVersion": null
+    }
+  },
+  "domains": [
+    {
+      "id": "identity",
+      "name": "基础身份",
+      "tab": "overview",
+      "layer": "基础档案",
+      "readable": 7,
+      "applicable": 9,
+      "missing": 2,
+      "ai": 0,
+      "percent": 78
+    },
+    {
+      "id": "store",
+      "name": "商店资料与版本",
+      "tab": "overview",
+      "layer": "基础档案",
+      "readable": 7,
+      "applicable": 7,
+      "missing": 0,
+      "ai": 0,
+      "percent": 100
+    },
+    {
+      "id": "gameplay",
+      "name": "核心玩法",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "readable": 8,
+      "applicable": 8,
+      "missing": 0,
+      "ai": 2,
+      "percent": 100
+    },
+    {
+      "id": "experience",
+      "name": "美术与体验",
+      "tab": "gameplay",
+      "layer": "深度情报",
+      "readable": 6,
+      "applicable": 6,
+      "missing": 0,
+      "ai": 0,
+      "percent": 100
+    },
+    {
+      "id": "monetization",
+      "name": "广告与变现",
+      "tab": "monetization",
+      "layer": "精选依据",
+      "readable": 6,
+      "applicable": 7,
+      "missing": 1,
+      "ai": 0,
+      "percent": 86
+    },
+    {
+      "id": "market",
+      "name": "市场表现",
+      "tab": "market",
+      "layer": "基础档案",
+      "readable": 4,
+      "applicable": 6,
+      "missing": 2,
+      "ai": 0,
+      "percent": 67
+    },
+    {
+      "id": "reviews",
+      "name": "玩家评价",
+      "tab": "voices",
+      "layer": "深度情报",
+      "readable": 3,
+      "applicable": 6,
+      "missing": 3,
+      "ai": 2,
+      "percent": 50
+    },
+    {
+      "id": "social",
+      "name": "舆情与传播",
+      "tab": "voices",
+      "layer": "深度情报",
+      "readable": 5,
+      "applicable": 6,
+      "missing": 1,
+      "ai": 0,
+      "percent": 83
+    },
+    {
+      "id": "creatives",
+      "name": "广告素材与投放",
+      "tab": "monetization",
+      "layer": "深度情报",
+      "readable": 5,
+      "applicable": 6,
+      "missing": 1,
+      "ai": 5,
+      "percent": 83
+    },
+    {
+      "id": "competition",
+      "name": "同类竞争",
+      "tab": "competition",
+      "layer": "深度情报",
+      "readable": 5,
+      "applicable": 6,
+      "missing": 1,
+      "ai": 5,
+      "percent": 83
+    },
+    {
+      "id": "feasibility",
+      "name": "制作适配与机会",
+      "tab": "competition",
+      "layer": "精选依据",
+      "readable": 6,
+      "applicable": 6,
+      "missing": 0,
+      "ai": 3,
+      "percent": 100
+    },
+    {
+      "id": "internal",
+      "name": "内部选用与验证",
+      "tab": "records",
+      "layer": "精选依据",
+      "readable": 1,
+      "applicable": 6,
+      "missing": 5,
+      "ai": 0,
+      "percent": 17
+    }
+  ],
+  "coverage": {
+    "readable": 63,
+    "applicable": 79,
+    "missing": 16,
+    "ai": 17,
+    "percent": 80
+  },
+  "qualification": {
+    "state": "conflict",
+    "label": "变现证据冲突",
+    "eligible": false,
+    "reason": "新版材料出现去广告付费线索，与此前IAA核查冲突；等待裁决"
+  },
+  "series": [
+    {
+      "date": "2026-10-19",
+      "rank": 21
+    },
+    {
+      "date": "2026-10-22",
+      "rank": 18
+    },
+    {
+      "date": "2026-10-25",
+      "rank": 15
+    },
+    {
+      "date": "2026-10-28",
+      "rank": 12
+    }
+  ],
+  "review": {
+    "n": 225,
+    "positive": 157,
+    "negative": 36,
+    "neutral": 32,
+    "unknown": 0,
+    "from": "2026-10-19",
+    "to": "2026-10-25",
+    "scope": "P1-WX-CN",
+    "sampling": "演示固定范围聚合夹具；非全体玩家估计"
+  },
+  "comments": [
+    {
+      "text": "完成一次清晰目标后还想继续尝试。",
+      "sentiment": "正面",
+      "topic": "核心循环"
+    },
+    {
+      "text": "希望提示和复活由自己选择，减少被打断。",
+      "sentiment": "负面",
+      "topic": "广告体验"
+    },
+    {
+      "text": "后续规则变化需要更多，题材可以更丰富。",
+      "sentiment": "中性",
+      "topic": "内容供给"
+    }
+  ],
+  "peers": [
+    0,
+    2
+  ],
+  "evidence": [
+    {
+      "id": "DEMO-P1-WX-CN-IDENTITY-19",
+      "title": "螺丝收纳局 · 微信 中国 · 基础身份示例材料",
+      "scope": "P1-WX-CN",
+      "observedAt": "2026-10-19",
+      "availableAt": "2026-10-19",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P1-WX-CN-STORE-19",
+      "title": "螺丝收纳局 · 微信 中国 · 商店资料与版本示例材料",
+      "scope": "P1-WX-CN",
+      "observedAt": "2026-10-19",
+      "availableAt": "2026-10-19",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P1-WX-CN-GAMEPLAY-25",
+      "title": "螺丝收纳局 · 微信 中国 · 核心玩法示例材料",
+      "scope": "P1-WX-CN",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P1-WX-CN-EXPERIENCE-25",
+      "title": "螺丝收纳局 · 微信 中国 · 美术与体验示例材料",
+      "scope": "P1-WX-CN",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P1-WX-CN-MONETIZATION-28",
+      "title": "螺丝收纳局 · 微信 中国 · 广告与变现示例材料",
+      "scope": "P1-WX-CN",
+      "observedAt": "2026-10-28",
+      "availableAt": "2026-10-28",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P1-WX-CN-MONETIZATION-25",
+      "title": "螺丝收纳局 · 微信 中国 · 广告与变现示例材料",
+      "scope": "P1-WX-CN",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P1-WX-CN-REVIEWS-25",
+      "title": "螺丝收纳局 · 微信 中国 · 玩家评价示例材料",
+      "scope": "P1-WX-CN",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P1-WX-CN-SOCIAL-25",
+      "title": "螺丝收纳局 · 微信 中国 · 舆情与传播示例材料",
+      "scope": "P1-WX-CN",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P1-WX-CN-CREATIVES-25",
+      "title": "螺丝收纳局 · 微信 中国 · 广告素材与投放示例材料",
+      "scope": "P1-WX-CN",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P1-WX-CN-COMPETITION-25",
+      "title": "螺丝收纳局 · 微信 中国 · 同类竞争示例材料",
+      "scope": "P1-WX-CN",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    },
+    {
+      "id": "DEMO-P1-WX-CN-FEASIBILITY-25",
+      "title": "螺丝收纳局 · 微信 中国 · 制作适配与机会示例材料",
+      "scope": "P1-WX-CN",
+      "observedAt": "2026-10-25",
+      "availableAt": "2026-10-25",
+      "url": null,
+      "isSynthetic": true,
+      "excerpt": "人工编写的原型夹具，用于展示结构和证据追溯；不是实际采集的网页、评论或试玩记录。"
+    }
+  ]
+}

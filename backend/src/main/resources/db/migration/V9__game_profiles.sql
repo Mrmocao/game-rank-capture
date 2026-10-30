@@ -1,0 +1,140 @@
+CREATE TABLE market_listing (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '平台发行市场ID，与应用版本区分',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '组织标识，服务端限定',
+ platform_version_id BIGINT NOT NULL COMMENT '沿用既有平台实体稳定ID',
+ market VARCHAR(8) NOT NULL COMMENT '发行市场CN、US、GB、DE、FR',
+ language VARCHAR(20) NOT NULL COMMENT '资料语言，不跨语言混合评价',
+ source_id BIGINT NULL COMMENT '最初确认市场的来源ID',
+ first_observed_at DATETIME(3) NOT NULL COMMENT '该市场首次观察UTC',
+ available_at DATETIME(3) NOT NULL COMMENT '系统获知该发行范围的UTC时间',
+ UNIQUE KEY uq_listing(tenant_id,platform_version_id,market,language),
+ FOREIGN KEY(platform_version_id) REFERENCES platform_version(id)
+) COMMENT='组织内平台实体的独立市场发行范围';
+CREATE TABLE release_record (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '应用发行版本ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '独立市场发行范围',
+ app_version VARCHAR(100) NOT NULL COMMENT '来源或人工核验的应用版本号',
+ released_at DATETIME(3) NOT NULL COMMENT '该版本生效或观察时间UTC',
+ available_at DATETIME(3) NOT NULL COMMENT '系统获知时间UTC，历史回放门槛',
+ evidence_id BIGINT NULL COMMENT '版本依据ID',
+ UNIQUE KEY uq_release(tenant_id,listing_id,app_version),
+ KEY idx_release_time(listing_id,available_at,released_at),
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id)
+) COMMENT='应用更新历史；不以平台实体ID代替应用版本';
+CREATE TABLE profile_evidence (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '档案证据ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '证据所属发行范围',
+ source_name VARCHAR(200) NOT NULL COMMENT '来源名称',
+ origin_family VARCHAR(200) NOT NULL COMMENT '同源家族，转载不当独立来源',
+ source_url VARCHAR(2000) NULL COMMENT '仅http或https外链，不自动抓取',
+ locator VARCHAR(1000) NOT NULL COMMENT '原文或片段定位',
+ excerpt TEXT NOT NULL COMMENT '权限允许保留的原文摘要',
+ content_sha256 CHAR(64) NOT NULL COMMENT '来源摘要及定位内容哈希',
+ rights VARCHAR(32) NOT NULL COMMENT 'public_excerpt、authorized、internal、not_authorized',
+ observed_at DATETIME(3) NOT NULL COMMENT '实际观察UTC时间',
+ available_at DATETIME(3) NOT NULL COMMENT '服务器登记UTC时间',
+ is_synthetic BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否模拟材料，隔离于真实推荐',
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id)
+) COMMENT='档案证据、来源权限与材料定位';
+CREATE TABLE profile_field_observation (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '追加式字段观察ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '市场及语言范围',
+ release_id BIGINT NULL COMMENT '版本敏感字段适用版本',
+ field_key VARCHAR(64) NOT NULL COMMENT '受81项字段定义目录约束',
+ typed_value JSON NULL COMMENT 'Java验证后的类型值，缺失为NULL',
+ data_status VARCHAR(32) NOT NULL COMMENT 'available、missing、not_authorized、not_supported、stale、conflict、not_applicable',
+ value_kind VARCHAR(24) NOT NULL COMMENT 'observed、manual、estimated、derived',
+ observed_at DATETIME(3) NOT NULL COMMENT '实际观察UTC时间',
+ available_at DATETIME(3) NOT NULL COMMENT '服务器首次可用UTC时间',
+ valid_until DATETIME(3) NULL COMMENT '有效期UTC，不预设统一七天',
+ evidence_id BIGINT NOT NULL COMMENT '该字段证据ID',
+ reviewer VARCHAR(100) NOT NULL COMMENT '可追溯复核人',
+ reason VARCHAR(2000) NOT NULL COMMENT '核查、冲突、不适用或修订原因',
+ supersedes_id BIGINT NULL COMMENT '显式裁决替代的旧观察ID，不静默覆盖',
+ definition_version VARCHAR(40) NOT NULL COMMENT '字段定义版本',
+ KEY idx_profile_field(tenant_id,listing_id,field_key,available_at),
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id),
+ FOREIGN KEY(release_id) REFERENCES release_record(id),
+ FOREIGN KEY(evidence_id) REFERENCES profile_evidence(id),
+ FOREIGN KEY(supersedes_id) REFERENCES profile_field_observation(id)
+) COMMENT='已复核事实与人工核查的时序观察';
+CREATE TABLE profile_claim (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '分析草案ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '平台市场语言范围',
+ release_id BIGINT NULL COMMENT '适用应用版本',
+ field_key VARCHAR(64) NOT NULL COMMENT '字段定义键',
+ typed_value JSON NOT NULL COMMENT '经类型校验的分析假设',
+ evidence_id BIGINT NOT NULL COMMENT '输入材料引用',
+ observed_at DATETIME(3) NOT NULL COMMENT '输入材料观察时间UTC',
+ available_at DATETIME(3) NOT NULL COMMENT '草案实际形成时间UTC',
+ valid_until DATETIME(3) NULL COMMENT '草案有效期UTC',
+ model_metadata JSON NOT NULL COMMENT '模型、提示、schema、输入哈希和弃权信息',
+ status VARCHAR(24) NOT NULL DEFAULT 'draft' COMMENT '草案状态，不能自动提升资格',
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id),
+ FOREIGN KEY(evidence_id) REFERENCES profile_evidence(id)
+) COMMENT='AI或分析草案独立保存，不混入审核事实';
+CREATE TABLE profile_material_submission (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '待复核材料ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '目标发行范围',
+ request_key VARCHAR(100) NOT NULL COMMENT '提交幂等键',
+ input_sha256 CHAR(64) NOT NULL COMMENT '完整提交内容哈希',
+ field_key VARCHAR(64) NOT NULL COMMENT '目标字段',
+ payload JSON NOT NULL COMMENT '类型值、原文、来源、版本、权限、提交人',
+ status VARCHAR(24) NOT NULL COMMENT 'pending_review、approved、rejected、conflict、needs_material',
+ created_at DATETIME(3) NOT NULL COMMENT '服务器收到材料时间UTC',
+ revision INT NOT NULL DEFAULT 0 COMMENT '并发复核乐观锁',
+ UNIQUE KEY uq_submission(tenant_id,request_key),
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id)
+) COMMENT='材料草稿及复核状态，提交不改变字段事实';
+CREATE TABLE profile_material_review (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '复核审计ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ submission_id BIGINT NOT NULL COMMENT '被复核材料ID',
+ reviewer VARCHAR(100) NOT NULL COMMENT '复核人',
+ decision VARCHAR(24) NOT NULL COMMENT '批准、拒绝、冲突或补材料决策',
+ reason VARCHAR(2000) NOT NULL COMMENT '原文、范围、权限与冲突检查说明',
+ observation_id BIGINT NULL COMMENT '批准或冲突形成的追加式观察ID',
+ created_at DATETIME(3) NOT NULL COMMENT '复核登记UTC时间',
+ FOREIGN KEY(submission_id) REFERENCES profile_material_submission(id)
+) COMMENT='材料复核操作的不可变审计历史';
+CREATE TABLE profile_enrichment_task (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '补全任务ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '平台市场语言范围',
+ domain_key VARCHAR(40) NOT NULL COMMENT '信息域任务分组',
+ field_keys JSON NOT NULL COMMENT '本次任务对应的缺口字段',
+ planned_cutoff DATE NOT NULL COMMENT '任务生成的知识截止日',
+ gap_sha256 CHAR(64) NOT NULL COMMENT '缺口版本内容哈希',
+ owner_name VARCHAR(100) NOT NULL DEFAULT '' COMMENT '负责人',
+ priority VARCHAR(8) NOT NULL COMMENT 'P0、P1、P2',
+ status VARCHAR(24) NOT NULL COMMENT 'pending、in_progress、pending_review、unavailable、completed',
+ note VARCHAR(2000) NOT NULL DEFAULT '' COMMENT '进度、不可得原因或结果',
+ retry_condition VARCHAR(1000) NOT NULL DEFAULT '' COMMENT '暂不可得时的复查条件',
+ revision INT NOT NULL DEFAULT 0 COMMENT '乐观锁修订号',
+ created_at DATETIME(3) NOT NULL COMMENT '生成时间UTC',
+ updated_at DATETIME(3) NOT NULL COMMENT '最后进度更新时间UTC',
+ KEY idx_task_scope(tenant_id,listing_id,domain_key,status),
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id)
+) COMMENT='缺口补全与负责人进度，任务状态不改变事实';
+CREATE TABLE profile_media_asset (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '媒体资源ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属组织',
+ listing_id BIGINT NOT NULL COMMENT '平台市场语言范围',
+ release_id BIGINT NULL COMMENT '对应应用版本',
+ evidence_id BIGINT NOT NULL COMMENT '素材来源与权限证据',
+ media_kind VARCHAR(32) NOT NULL COMMENT 'gameplay_screenshot、gameplay_video、ad_video、diagram',
+ source_url VARCHAR(2000) NULL COMMENT '外部来源链接，不充当已缓存资源',
+ asset_ref VARCHAR(1000) NULL COMMENT '受控文件或对象存储引用',
+ thumbnail_ref VARCHAR(1000) NULL COMMENT '受控缩略图引用',
+ content_sha256 CHAR(64) NULL COMMENT '实际文件哈希，未下载时为空',
+ status VARCHAR(32) NOT NULL COMMENT 'external_only、available、missing、not_authorized、stale',
+ observed_at DATETIME(3) NOT NULL COMMENT '拍摄或发布观察时间UTC',
+ available_at DATETIME(3) NOT NULL COMMENT '系统可用时间UTC',
+ FOREIGN KEY(listing_id) REFERENCES market_listing(id),
+ FOREIGN KEY(evidence_id) REFERENCES profile_evidence(id)
+) COMMENT='实机与广告素材独立记录，缺失不生成伪图片';

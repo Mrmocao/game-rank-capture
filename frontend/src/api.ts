@@ -1,6 +1,10 @@
 export type Ranking = { versionId: string; platform: string; region: string; versionName: string; chartId: string|null; chartName: string|null; kind: string|null; rank: number|null; delta7d: number|null; snapshotId: string|null; dataState: string; completeness: string|null; monetization: string }
 export type Product = { id: string; name: string; poolState: string; firstObservedDate: string; stateAsOf: string; thumbnailUrl?: string|null; rankings: Ranking[]; selectionSummary: { total: number; inProgress: number; completed: number } }
 const json = async (url: string, options?: RequestInit) => { const r = await fetch(url, options); const body = await r.json(); if (!r.ok) throw new Error(body?.error?.message || `请求失败 ${r.status}`); return body.data }
+export const workspaceAccess = () => json('/api/v1/access')
+export const loginWorkspace = (token:string) => json('/api/v1/access',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})})
+export const profileRequest = json
+export const newRequestKey = () => requestId()
 // getRandomValues also works on the current HTTP deployment; randomUUID requires HTTPS.
 const requestId = () => {
   const bytes = crypto.getRandomValues(new Uint8Array(16))
@@ -28,3 +32,6 @@ export const publishRule = (rulesJson:string) => json('/api/v1/admin/rules/publi
 
 export const getStats = (date:string) => json(`/api/v1/products/stats?date=${encodeURIComponent(date)}`)
 export const getPublicRankings = (platform:string,date:string) => json(`/api/v1/public-rankings?platform=${platform}&date=${encodeURIComponent(date)}`)
+export const getProfileProducts = (params:Record<string,string|number|undefined>) => {const q=new URLSearchParams();Object.entries(params).forEach(([k,v])=>v!==undefined&&v!==''&&q.set(k,String(v)));return json(`/api/v1/profile/products?${q}`)}
+export const getGameProfile = (product:string,listing:string,date:string,version?:string,market?:string) => {const q=new URLSearchParams({asOf:date,timezone:'Asia/Shanghai'});if(listing)q.set('listingId',listing);if(version)q.set('versionId',version);if(market)q.set('market',market);return json(`/api/v1/products/${product}/profile?${q}`)}
+export const updateSelection = (id:string,payload:unknown) => json(`/api/v1/selections/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})

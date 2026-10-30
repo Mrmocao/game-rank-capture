@@ -48,7 +48,7 @@ public class ProductQueryService {
         LocalDate date = value == null || value.isBlank() ? latestAvailableDate() : date(value);
         if (date == null) date=LocalDate.now(clock.withZone(zone));
         page=Math.max(page,1); pageSize=Math.min(Math.max(pageSize,1),100);
-        StringBuilder where=new StringBuilder(" WHERE EXISTS(SELECT 1 FROM platform_version realv WHERE realv.product_id=p.id AND realv.external_id NOT LIKE 'demo-%') AND p.first_observed_at < :cutoff AND EXISTS (SELECT 1 FROM ranking_snapshot visible WHERE visible.business_date=:date AND visible.status='PUBLISHED') ");
+        StringBuilder where=new StringBuilder(" WHERE EXISTS(SELECT 1 FROM platform_version realv WHERE realv.product_id=p.id AND realv.external_id NOT LIKE 'demo-%') AND p.first_observed_at < :cutoff ");
         MapSqlParameterSource p=new MapSqlParameterSource("date",date).addValue("cutoff",date.plusDays(1).atStartOfDay(zone).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
         if (q!=null && !q.isBlank()) { where.append(" AND p.name LIKE :q "); p.addValue("q","%"+q.trim()+"%"); }
         if (poolState!=null && !poolState.isBlank()) { where.append(" AND p.pool_state=:poolState "); p.addValue("poolState",poolState); }

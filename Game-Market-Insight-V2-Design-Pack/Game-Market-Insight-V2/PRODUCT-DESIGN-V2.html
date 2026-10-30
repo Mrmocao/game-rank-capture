@@ -1,5 +1,5 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>游戏市场洞察 V2.2 · 产品设计文档</title><style>*{box-sizing:border-box}body{margin:0;background:#f4f7fc;color:#24344b;font:15px/1.85 system-ui,"Microsoft YaHei",sans-serif}header{background:#fff;border-bottom:1px solid #e4e9f2;padding:26px 42px}header h1{font-size:28px;margin:0}header p{color:#708096;margin:5px 0}a{color:#2677d9;text-decoration:none;overflow-wrap:anywhere}nav{position:fixed;top:192px;bottom:20px;overflow:auto;width:270px;padding:0 24px}nav a{display:block;padding:9px 12px;font-size:13px;border-bottom:1px solid #e4e9f2}main{max-width:1400px;margin:24px 30px 40px 280px}section{background:white;padding:28px 36px;margin-bottom:24px;border:1px solid #e5eaf2;border-radius:8px;scroll-margin-top:20px}h2{font-size:25px;color:#184c87;margin:5px 0 22px}h3{font-size:19px;border-bottom:1px solid #e4e9f2;padding-bottom:8px;margin-top:32px}h4{font-size:16px}p,li{max-width:100ch}table{width:100%;border-collapse:collapse;font-size:13px;line-height:1.65;margin:15px 0}td,th{padding:11px 13px;border:1px solid #e1e7ef;text-align:left;vertical-align:top}th{background:#f1f6fd;color:#41658f}.tablewrap{overflow:auto}code{font-family:ui-monospace,monospace;background:#f1f5fa;padding:2px 4px;font-size:12px}pre{overflow:auto;background:#f1f5fa;padding:18px;border-radius:5px;line-height:1.6}pre code{padding:0}small{color:#7d8da1}.toplink{float:right;padding:8px 16px;background:#edf5ff;border-radius:5px}@media(max-width:900px){header{padding:20px}nav{position:static;width:auto;padding:15px}main{margin:12px}section{padding:20px}.toplink{float:none;display:inline-block}}@media print{body{background:white;font-size:11px}header{padding:0}nav{display:none}main{margin:0}section{border:0;padding:0;break-before:page}a{color:inherit}h3{break-after:avoid}tr{break-inside:avoid}.toplink{display:none}}</style></head><body><header><a class="toplink" href="https://iaa-radar-product-lab.mochao1009.chatgpt.site">打开交互原型 ↗</a><h1>游戏市场洞察 · V2.2 产品设计</h1><p>信息范围 · 玩家声音 · 精选算法 · 回测校准 · 开发交接　｜　2026-10-29</p><small>评审稿。示例非真实市场数据；采集接入为后续阶段。</small></header><nav><a href="#doc-01">游戏市场洞察平台 · 产品设计 V2.2</a><a href="#doc-02">信息范围与字段目录</a><a href="#doc-03">玩家评价与舆情设计</a><a href="#doc-04">每周精选算法与决策方案 V2.1（V2.1历史对照）</a><a href="#doc-05">页面、交互与AI决策点</a><a href="#doc-06">数据与分析契约（逻辑层）</a><a href="#doc-07">给 Codex 的开发交接</a><a href="#doc-08">业务验收清单</a><a href="#doc-09">V2基础原型验证记录（历史）</a><a href="#doc-10">回测、校准与上线验证 V2.2</a><a href="#doc-11">可独立复算的算例 V2.1（V2.1历史对照）</a><a href="#doc-12">V2.2 参数依据与校准登记</a><a href="#doc-13">V2.1 验证记录与实现边界（V2.1历史对照）</a><a href="#doc-14">V2.2 每周精选：缺失数据容错与分层推荐</a><a href="#doc-15">V2.2 容错演算案例与预期结果</a><a href="#doc-16">V2.2 容错方案验证与实现边界</a></nav><main><section id="doc-01"><h2>游戏市场洞察平台 · 产品设计 V2.2</h2>
-<p>版本：2026-10-29｜评审稿｜适用正式技术方向：Java + MySQL Web 系统</p>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>游戏市场洞察 V2.3 · 产品设计文档</title><style>*{box-sizing:border-box}body{margin:0;background:#f4f7fc;color:#24344b;font:15px/1.85 system-ui,"Microsoft YaHei",sans-serif}header{background:#fff;border-bottom:1px solid #e4e9f2;padding:26px 42px}header h1{font-size:28px;margin:0}header p{color:#708096;margin:5px 0}a{color:#2677d9;text-decoration:none;overflow-wrap:anywhere}nav{position:fixed;top:192px;bottom:20px;overflow:auto;width:270px;padding:0 24px}nav a{display:block;padding:9px 12px;font-size:13px;border-bottom:1px solid #e4e9f2}main{max-width:1400px;margin:24px 30px 40px 280px}section{background:white;padding:28px 36px;margin-bottom:24px;border:1px solid #e5eaf2;border-radius:8px;scroll-margin-top:20px}h2{font-size:25px;color:#184c87;margin:5px 0 22px}h3{font-size:19px;border-bottom:1px solid #e4e9f2;padding-bottom:8px;margin-top:32px}h4{font-size:16px}p,li{max-width:100ch}table{width:100%;border-collapse:collapse;font-size:13px;line-height:1.65;margin:15px 0}td,th{padding:11px 13px;border:1px solid #e1e7ef;text-align:left;vertical-align:top}th{background:#f1f6fd;color:#41658f}.tablewrap{overflow:auto}code{font-family:ui-monospace,monospace;background:#f1f5fa;padding:2px 4px;font-size:12px}pre{overflow:auto;background:#f1f5fa;padding:18px;border-radius:5px;line-height:1.6}pre code{padding:0}small{color:#7d8da1}.toplink{float:right;padding:8px 16px;background:#edf5ff;border-radius:5px}@media(max-width:900px){header{padding:20px}nav{position:static;width:auto;padding:15px}main{margin:12px}section{padding:20px}.toplink{float:none;display:inline-block}}@media print{body{background:white;font-size:11px}header{padding:0}nav{display:none}main{margin:0}section{border:0;padding:0;break-before:page}a{color:inherit}h3{break-after:avoid}tr{break-inside:avoid}.toplink{display:none}}</style></head><body><header><a class="toplink" href="https://iaa-radar-product-lab.mochao1009.chatgpt.site">打开交互原型 ↗</a><h1>游戏市场洞察 · V2.3 产品设计</h1><p>游戏档案 · 字段与证据 · 玩家声音 · 容错精选 · 开发交接　｜　2026-10-29</p><small>评审稿。示例非真实市场数据；采集接入为后续阶段。</small></header><nav><a href="#doc-01">游戏市场洞察平台 · 产品设计 V2.3</a><a href="#doc-02">信息范围与字段目录</a><a href="#doc-03">玩家评价与舆情设计</a><a href="#doc-04">每周精选算法与决策方案 V2.1（V2.1历史对照）</a><a href="#doc-05">页面、交互与AI决策点</a><a href="#doc-06">数据与分析契约（逻辑层）</a><a href="#doc-07">给 Codex 的开发交接</a><a href="#doc-08">业务验收清单</a><a href="#doc-09">V2基础原型验证记录（历史）</a><a href="#doc-10">回测、校准与上线验证 V2.2</a><a href="#doc-11">可独立复算的算例 V2.1（V2.1历史对照）</a><a href="#doc-12">V2.2 参数依据与校准登记</a><a href="#doc-13">V2.1 验证记录与实现边界（V2.1历史对照）</a><a href="#doc-14">V2.2 每周精选：缺失数据容错与分层推荐</a><a href="#doc-15">V2.2 容错演算案例与预期结果</a><a href="#doc-16">V2.2 容错方案验证与实现边界</a><a href="#doc-17">V2.3 游戏情报档案：产品与交互设计</a><a href="#doc-18">V2.3 游戏档案数据契约与Java/MySQL交接</a><a href="#doc-19">V2.3 原型范围与验证记录</a></nav><main><section id="doc-01"><h2>游戏市场洞察平台 · 产品设计 V2.3</h2>
+<p>版本：2026-10-30｜评审稿｜适用正式技术方向：Java + MySQL Web 系统</p>
 <h3>1. 这次解决什么</h3>
 <p>从广泛的市场信息中发现值得团队验证的休闲游戏机会，每周给出少量、可解释、可行动的推荐。产品要回答：需求是否真实存在、为什么现在值得做、玩家到底喜欢什么、原作有哪些可改进之处、团队做得出来吗、下一步先验证什么。</p>
 <p>“容易复刻爆款”落为“市场需求已有证据、核心机制可实现、团队成本可承受、存在差异空间的验证优先级”。系统不输出承诺收益或成功概率。借鉴玩法与需求，自行制作代码、美术、关卡和品牌素材。</p>
@@ -22,10 +22,12 @@
 <h3>6. 本版可验证的产品目标</h3>
 <p>研究者能从推荐卡在两次下钻内到达证据；选定日期后所有市场快照受该日约束；未观察到与未上榜可区分；所有精选说明反对/未知项；评价页面显示分母、样本范围与时间；高热负面案例被识别为复核；同款多人选用互不覆盖。</p>
 <p>本期不定义全网抓取承诺、模型预测收益、无人监督自动采购数据、复杂审批或重型项目管理。</p>
-<p>当前V2.2以14容错方案、15演算和16验证记录为准；04、11、13保留V2.1历史对照。旧V2固定分仅作产品浏览示例。</p>
+<p>当前V2.2以14容错方案、15演算和16验证记录为准；04、11、13保留V2.1历史对照。V2.3产品浏览已改用范围明确的资料与资格；不再使用旧固定分。</p>
 <h3>V2.2：不等资料齐全才服务研究者</h3>
 <p>每个已知候选都有结论和行动：重点验证、条件推荐、线索推荐、暂缓或范围不匹配。软指标缺失使用范围，不补0、不填50、不按单个产品重分权重。资料不足时可先做低成本研究；IAA未知仍不正式作为纯IAA合格产品入库。完整信息目录不等于每次推荐的必填表。</p>
-<p>每周清单允许条件推荐组成全期；没有验证合格项时输出线索与补证报告，不制造成功判断。新增可靠材料可升级或撤销推荐。更广覆盖不保证更高准确性，质量、相关性和真实反馈同样必要。具体规则、计算和补证优先级见14，18例演算见15。</p></section><section id="doc-02"><h2>信息范围与字段目录</h2>
+<p>每周清单允许条件推荐组成全期；没有验证合格项时输出线索与补证报告，不制造成功判断。新增可靠材料可升级或撤销推荐。更广覆盖不保证更高准确性，质量、相关性和真实反馈同样必要。具体规则、计算和补证优先级见14，18例演算见15。</p>
+<h3>V2.3 单款档案覆盖条款</h3>
+<p>当前单款游戏信息设计以17、18、19章为准：12信息域、81展示字段、8分区，平台/市场/版本/截止时间独立；来源事实与AI草案分别保存。完整资料量不等于推荐分，缺失和新反证不能被填补文案掩盖。V2.2推荐公式与分层规则保持不变。</p></section><section id="doc-02"><h2>信息范围与字段目录</h2>
 <p>本版定义10个信息域、60个展示字段组、120个原子字段；另有通用来源/时间/口径/覆盖/权限元数据。这是需求目录，不是已接入字段统计。CSV可供产品和开发继续维护。</p>
 <h3>产品身份与生命周期</h3>
 <p>粒度：产品/平台版本。用途：去重与生命周期。</p>
@@ -207,12 +209,14 @@ P = 100 × L</code></pre>
 <h3>4. 原型与正式系统的边界</h3>
 <div class="tablewrap"><table><tr><th>项目</th><th>本次可操作（基础页面、V2.2与历史对照分开）</th><th>正式系统待开发</th></tr><tr><td>页面/导航/筛选/详情</td><td>已实现</td><td>接API、账号和权限</td></tr><tr><td>日期和平台排名</td><td>4个日期的虚构夹具、缺失态、独立排名</td><td>实际每日快照和真实市场数据</td></tr><tr><td>评价与舆情</td><td>假评论筛选、方法说明、事件下钻</td><td>抽样、原文保存、真实AI与指标计算</td></tr><tr><td>信息范围</td><td>10域/60字段组浏览、搜索、范围草稿</td><td>原子字段配置、来源覆盖状态、审计</td></tr><tr><td>推荐</td><td>V2.2按18例计算范围、分层、补证与11种缺失/故障场景；V2.1保留对照</td><td>真实证据校验、分轨分市场组合、内部结果回测</td></tr><tr><td>周报</td><td>V2.2输入、未知状态、范围、层级、动作冻结与JSON导出</td><td>服务端任务、完整证据快照、历史回放</td></tr><tr><td>选用</td><td>浏览器内多人记录、状态/日期/反馈</td><td>共享数据库、修改历史、协作权限</td></tr><tr><td>采集、AI、定时任务</td><td>未启用</td><td>在后续接入阶段实现</td></tr></table></div>
 <p>不能把原型的固定分数、固定门槛、模拟来源或浏览器存储复制成生产逻辑。原型没有发起购买或对外推送。</p>
-<p>当前V2.2以14容错方案、15演算和16验证记录为准；04、11、13保留V2.1历史对照。旧V2固定分仅作产品浏览示例。</p>
+<p>当前V2.2以14容错方案、15演算和16验证记录为准；04、11、13保留V2.1历史对照。V2.3产品浏览已改用范围明确的资料与资格；不再使用旧固定分。</p>
 <h3>V2.2 本次新增的可操作界面</h3>
 <p>每周精选有“本周推荐 / 缺失数据试验 / 容错规则与依据”，另有V2.1历史对照入口。试验台可选择18个虚构案例和11种全队列情景，对单项设为未采集、过期、冲突、无权限或恢复原始有效样例。实时展示该产品范围和层级，并可查看整期名单。</p>
 <p>结果页同时保留验证清单、线索、未入选和暂缓理由。详情展示六维上下界、权重贡献、已知限制、补证影响上界。配置中可改六维权重、名额、探索名额、工期预算、重点覆盖和范围宽度；无效配置阻止保存。保存周报冻结本地完整输入/结果，改变场景不改旧快照。</p>
 <p>覆盖百分比不叫准确率；区间不叫成功率。试验台的“恢复”是恢复虚构夹具，不是启动采集。“仅保留榜单”仅指软分析输入，已核实的身份/IAA/实机及已知约束仍保留。“有效缓存”模拟适用于原截止窗口的已存证据，不实现后台缓存。</p>
-<p>生产页面还应按运行展示来源异常、重试、各组织权限和服务器修订；这些未在静态原型中接通。完整规则见14，实测边界见16。</p></section><section id="doc-06"><h2>数据与分析契约（逻辑层）</h2>
+<p>生产页面还应按运行展示来源异常、重试、各组织权限和服务器修订；这些未在静态原型中接通。完整规则见14，实测边界见16。</p>
+<h3>V2.3 单款档案覆盖条款</h3>
+<p>当前单款游戏信息设计以17、18、19章为准：12信息域、81展示字段、8分区，平台/市场/版本/截止时间独立；来源事实与AI草案分别保存。完整资料量不等于推荐分，缺失和新反证不能被填补文案掩盖。V2.2推荐公式与分层规则保持不变。</p></section><section id="doc-06"><h2>数据与分析契约（逻辑层）</h2>
 <h3>1. 存放原则</h3>
 <p>Java负责业务API、权限、资格规则、数值计算、报告版本及任务协调；MySQL保存结构化事实、引用、关系、版本、决策和填报记录。原始网页/截图/视频等大对象放对象存储，MySQL记录定位、hash、授权、有效期与删除状态。具体存储供应商、抓取组件和物理分表在后续实现阶段决定。</p>
 <p>事实、AI推断、人工判断分开保存。事实有来源；分析有输入和版本；人工纠正为新记录，不静默覆盖旧事实。原始材料不可用时，依权限保留可引用摘要和链接，标注无法回放，不能假称完整证据。</p>
@@ -246,7 +250,7 @@ POST /api/selections/{selectionId}/outcomes</code></pre>
 <h3>6. 扩展方式</h3>
 <p>新增平台先扩展平台/市场/榜单定义，不能在业务代码里增加多套排名逻辑。新增指标先登记字段定义、单位、来源约束和适用对象。新增AI能力实现任务契约并提供弃权路径。新增研究目标复制方案为新版本，不修改历史版本。配置按组织隔离并分编辑权限，保留修改人和审计。</p>
 <p>暂不指定微服务拆分、消息队列选型、向量数据库或供应商SDK；业务契约先稳定，避免因工具选择限制信息范围。</p>
-<p>当前V2.2以14容错方案、15演算和16验证记录为准；04、11、13保留V2.1历史对照。旧V2固定分仅作产品浏览示例。</p>
+<p>当前V2.2以14容错方案、15演算和16验证记录为准；04、11、13保留V2.1历史对照。V2.3产品浏览已改用范围明确的资料与资格；不再使用旧固定分。</p>
 <h3>V2.1 数值与推荐接口补充</h3>
 <p>每个维度返回raw_inputs、formula_id、score或null、unit、numerator/denominator、coverage、evidence_ids、assumptions、analysis_version。玩家维度另返sampling_scope、dedup_version、aspect_version、k、n、ambiguous_count、z、interval_low/high；工期返scope、range、scenario_upper、estimator与假设，不能仅存“难度80”。</p>
 <p>RecommendationRun另保存cohort_key、case_set_hash、profile_version、cutoff、candidate_ids、eligible_ids、selected_ids、excluded原因、scenario_set与rank_range。完整/有限证据使用不同track；不同行业/市场方案的总分不混排。所有输入校验在Java服务端重新执行；前端仅作交互试算。</p>
@@ -257,7 +261,9 @@ POST /api/selections/{selectionId}/outcomes</code></pre>
 <p>数值不使用数据库默认0表达unknown。MySQL层保存上下界为可审计定点精度，计算层统一舍入规范；内部未舍入结果用于排序，展示保留1～2位小数，边界比较用登记的容差。算法输出不是可直接发布的AI文本。</p>
 <p>建议新增：GET /api/recommendation-runs/{id}/health、GET /api/recommendation-runs/{id}/evidence-tasks、POST /api/recommendation-simulations（明确isSimulation，不能覆盖事实）。正式每周任务至少返回每条已识别记录的结论；空候选返回系统恢复任务。</p>
 <p>缓存键包含实体版本、指标定义、来源、市场、窗口、证据版本和权限。源失败时只复用适用的证据，不能刷新observed_at或available_at。对过期事实的推断必须另存inference，不能改写事实。修正冲突/解除约束都产生修订，旧周报不变。</p>
-<p>处理顺序：校验公共方案 → 按截止日/权限冻结证据 → 隔离坏记录 → 判定已知约束/身份/需求 → 逐维范围 → 分层 → 同队列保守与探索组合 → 补证任务 → 规则报告 → AI可选叙述 → 一致性检查 → 冻结。AI失败仍可用规则报告完成任务。</p></section><section id="doc-07"><h2>给 Codex 的开发交接</h2>
+<p>处理顺序：校验公共方案 → 按截止日/权限冻结证据 → 隔离坏记录 → 判定已知约束/身份/需求 → 逐维范围 → 分层 → 同队列保守与探索组合 → 补证任务 → 规则报告 → AI可选叙述 → 一致性检查 → 冻结。AI失败仍可用规则报告完成任务。</p>
+<h3>V2.3 单款档案覆盖条款</h3>
+<p>当前单款游戏信息设计以17、18、19章为准：12信息域、81展示字段、8分区，平台/市场/版本/截止时间独立；来源事实与AI草案分别保存。完整资料量不等于推荐分，缺失和新反证不能被填补文案掩盖。V2.2推荐公式与分层规则保持不变。</p></section><section id="doc-07"><h2>给 Codex 的开发交接</h2>
 <h3>1. 请先理解本次交付</h3>
 <p>这是V2.2产品需求与交互原型，核心是信息范围和推荐判断。原型为静态HTML/CSS/JS，展示虚构数据，本地记录使用浏览器存储。正式系统按用户确定的Java+MySQL实现，当前没有后端、采集器、真实AI或自动周任务。</p>
 <p>此包替代V1的产品范围、信息模型、推荐和页面定义；保留跨平台独立榜单、日期、两级菜单、多人选用等已确认约定。与V1技术文件冲突时按本包产品契约调整，不能直接执行旧建表脚本便声称V2完成。</p>
@@ -284,12 +290,12 @@ POST /api/selections/{selectionId}/outcomes</code></pre>
 </ul>
 <h3>4. 模拟数据的使用</h3>
 <p><code>contracts/demo-data.json</code>与在线原型的<code>data-v2.js</code>是同一虚构数据集：10款产品、60条手写示意摘录、4个榜单日期。聚合评论计数是独立夹具，不是60条摘录的统计结果。正式数据处理测试应另建完整可计算样本集合。</p>
-<p>原型基础产品库保留V2固定分示例；每周精选V2.2使用18个独立虚构测试案例；V2.1另保留历史测试集，数值由公开公式计算，事件/IAA等事实输入仍为模拟。开发应以14中的范围、分层和资格规则实现，并沿用04证据锚点的定义，不能把演示逻辑当成正式算法。正面样本少与重大舆情冲突须区分。</p>
+<p>原型基础产品库已升级为V2.3完整档案；每周精选V2.2使用18个独立虚构测试案例；V2.1另保留历史测试集，数值由公开公式计算，事件/IAA等事实输入仍为模拟。开发应以14中的范围、分层和资格规则实现，并沿用04证据锚点的定义，不能把演示逻辑当成正式算法。正面样本少与重大舆情冲突须区分。</p>
 <h3>5. 文档中的开放设计参数</h3>
 <p>可继续调优但不阻塞产品评审：市场验证阈值、证据有效期、评价低样本阈值、周报类别覆盖目标、同玩法上限、团队成本预算、已推荐冷却周期、来源覆盖标准。先版本化配置，后用真实试验反馈校准。数据源供应商/预算/访问权尚未确认，不声称接口可得。</p>
 <h3>6. 交付验收</h3>
 <p>先执行08中的业务验收，再按团队工程规范做Java服务与数据库迁移检查。验证优先关注错误可能改变研究结论的边界：时间泄漏、重复证据、版本混淆、样本分母、非IAA误入、旧周报被修改。不要用大量只断言样式或重复实现的测试替代这些检查。</p>
-<p>当前V2.2以14容错方案、15演算和16验证记录为准；04、11、13保留V2.1历史对照。旧V2固定分仅作产品浏览示例。</p>
+<p>当前V2.2以14容错方案、15演算和16验证记录为准；04、11、13保留V2.1历史对照。V2.3产品浏览已改用范围明确的资料与资格；不再使用旧固定分。</p>
 <h3>V2.2 首轮开发任务</h3>
 <ul>
 <li>实现MissingState、FeatureRange、KnownConstraint、RecommendationAction及验证协议版本，先保存来源和缺失原因。</li>
@@ -298,14 +304,20 @@ POST /api/selections/{selectionId}/outcomes</code></pre>
 <li>实现坏记录隔离、同窗口有效证据复用、已知问题持续、无合格候选的行动报告、报告修订。</li>
 <li>用真实证据验证来源权限、替代需求协议、AI弃权与抽样口径；在接真实采集前，先以人工导入材料验证业务链。</li>
 </ul>
-<p>本次没有实现真实预测模型、收益估计、缺失值学习插补或Java后端。初始规则可解释、可复算，但需要10规定的时间外验证。不要把虚构协议Q的passed=true和示例evidence字符串复制为生产资格校验。</p></section><section id="doc-08"><h2>业务验收清单</h2>
+<p>本次没有实现真实预测模型、收益估计、缺失值学习插补或Java后端。初始规则可解释、可复算，但需要10规定的时间外验证。不要把虚构协议Q的passed=true和示例evidence字符串复制为生产资格校验。</p>
+<h3>V2.3 单款档案覆盖条款</h3>
+<p>当前单款游戏信息设计以17、18、19章为准：12信息域、81展示字段、8分区，平台/市场/版本/截止时间独立；来源事实与AI草案分别保存。完整资料量不等于推荐分，缺失和新反证不能被填补文案掩盖。V2.2推荐公式与分层规则保持不变。</p></section><section id="doc-08"><h2>业务验收清单</h2>
 <p>版本：V2.1产品目标；并非声称原型已实现生产功能。V2验证另见09，V2.1验证见13。</p>
 <div class="tablewrap"><table><tr><th>编号</th><th>领域</th><th>输入/场景</th><th>预期</th></tr><tr><td>AC-01</td><td>实体</td><td>同名不同外部ID</td><td>不得自动合并；显示关系待确认</td></tr><tr><td>AC-02</td><td>实体</td><td>同玩法不同产品</td><td>加入玩法家族，不合并成同一产品</td></tr><tr><td>AC-03</td><td>IAA</td><td>微信纯IAA、iOS混变的同款</td><td>微信可按证据判断；iOS仅关联参考</td></tr><tr><td>AC-04</td><td>IAA</td><td>有广告但内购信息未知</td><td>观察池，不能正式入库</td></tr><tr><td>AC-05</td><td>IAA</td><td>存在付费去广告</td><td>混变，不符合本研究资格</td></tr><tr><td>AC-06</td><td>IAA</td><td>证据有效期结束</td><td>标过期待补；不沿用旧资格</td></tr><tr><td>AC-07</td><td>榜单</td><td>微信第8与iOS第68</td><td>分别展示，禁止计算平均名次</td></tr><tr><td>AC-08</td><td>榜单</td><td>素材买量榜上升</td><td>只作为投放线索，不等于玩家需求</td></tr><tr><td>AC-09</td><td>时间</td><td>选择无快照日期</td><td>显示缺失，不回退到最新日期</td></tr><tr><td>AC-10</td><td>时间</td><td>完整Top100不含产品</td><td>out_of_monitored_range，名次null</td></tr><tr><td>AC-11</td><td>时间</td><td>抓取失败的榜单</td><td>missing，不推断出榜</td></tr><tr><td>AC-12</td><td>时间</td><td>首次采集老游戏</td><td>首次观察与真实上线区分</td></tr><tr><td>AC-13</td><td>时间</td><td>后来补到此前材料</td><td>当时可见回放不使用晚于截止的available_at</td></tr><tr><td>AC-14</td><td>评价</td><td>评分数与文字评价数不同</td><td>独立字段和分母，不混用</td></tr><tr><td>AC-15</td><td>评价</td><td>只有均分没有星级分布</td><td>不推导好评率</td></tr><tr><td>AC-16</td><td>评价</td><td>同评玩法正面广告负面</td><td>分别标方面倾向，整体允许混合</td></tr><tr><td>AC-17</td><td>评价</td><td>基期提及为0</td><td>显示新出现，不算无限增长</td></tr><tr><td>AC-18</td><td>评价</td><td>只采热评</td><td>标偏样本，不推断全体玩家倾向</td></tr><tr><td>AC-19</td><td>评价</td><td>新接入来源导致数量增加</td><td>口径断点，不直接算增长爆发</td></tr><tr><td>AC-20</td><td>评价</td><td>文本无法判断</td><td>单列，不强制正负</td></tr><tr><td>AC-21</td><td>评价</td><td>同内容转载10次</td><td>一个独立根证据族，传播量可另记</td></tr><tr><td>AC-22</td><td>评价</td><td>不同平台同昵称</td><td>不自动视为同一个人</td></tr><tr><td>AC-23</td><td>评价</td><td>高声量负面事件</td><td>先复核，不因热度自动精选</td></tr><tr><td>AC-24</td><td>评价</td><td>疑似刷量</td><td>保留内容和标签，不能直接宣称作弊</td></tr><tr><td>AC-25</td><td>推荐</td><td>必需证据缺失但其他维度高</td><td>不允许用总分抵消资格失败</td></tr><tr><td>AC-26</td><td>推荐</td><td>维度unknown</td><td>V2.2按14分层并给范围；软缺失不直接出局，资格未知保留线索，不补0或重分权重</td></tr><tr><td>AC-27</td><td>推荐</td><td>权重合计不等100</td><td>停止试算/保存/生成并明确提示</td></tr><tr><td>AC-28</td><td>推荐</td><td>合格候选仅3款</td><td>只出3款并解释，不凑5款</td></tr><tr><td>AC-29</td><td>推荐</td><td>同家族占满Top10</td><td>执行可配置家族上限并解释未选</td></tr><tr><td>AC-30</td><td>推荐</td><td>同原作跨多个平台合格</td><td>周报一款，列出目标参考版本</td></tr><tr><td>AC-31</td><td>推荐</td><td>上周已推荐且没有变化</td><td>转动态区，保留再次入选理由条件</td></tr><tr><td>AC-32</td><td>报告</td><td>修改权重后查看旧周报</td><td>旧快照分数与理由保持不变</td></tr><tr><td>AC-33</td><td>报告</td><td>补数据重出同一周</td><td>生成新修订，保留旧版</td></tr><tr><td>AC-34</td><td>报告</td><td>周报中打开产品</td><td>详情使用周报截止日</td></tr><tr><td>AC-35</td><td>选用</td><td>两个人选同一游戏</td><td>两条独立记录互不覆盖</td></tr><tr><td>AC-36</td><td>选用</td><td>空负责人/日期倒置</td><td>阻止保存并提示具体字段</td></tr><tr><td>AC-37</td><td>选用</td><td>已完成但没有测试结果</td><td>不算验证成功，提示缺少结果</td></tr><tr><td>AC-38</td><td>AI</td><td>材料中含工具操作指令</td><td>作为材料文本，不执行</td></tr><tr><td>AC-39</td><td>AI</td><td>模型失败或输出无依据</td><td>弃权/待复核；快照查询仍可用</td></tr><tr><td>AC-40</td><td>AI</td><td>人工纠正分类</td><td>保留原值、纠正人、理由及新版本</td></tr><tr><td>AC-41</td><td>配置</td><td>新增字段/来源/市场</td><td>不改变历史报告口径，生成配置版本</td></tr><tr><td>AC-42</td><td>权限</td><td>其他组织或不可用证据</td><td>按权限拒绝；不泄露原始内容</td></tr><tr><td>AC-43</td><td>原型</td><td>全部虚构案例与固定分数</td><td>页面明确示例，不宣称真实采集或AI预测</td></tr></table></div>
 <h3>V2.1 历史算法补充验收（变化项以V2.2为准）</h3>
 <div class="tablewrap"><table><tr><th>编号</th><th>输入/场景</th><th>预期</th></tr><tr><td>AC-44</td><td>9/10与90/100同为90%</td><td>区间分别约59.6～98.2、82.6～94.5；不可只显示相同比例</td></tr><tr><td>AC-45</td><td>已确认榜外与缺失混合</td><td>V2.2榜外指数0，缺日贡献[0,1]，保留完整窗口分母和原始状态</td></tr><tr><td>AC-46</td><td>只采热评但样本量大</td><td>窄区间不能绕过抽样口径检查</td></tr><tr><td>AC-47</td><td>事件状态未知</td><td>待复核，不能按“无负面”通过</td></tr><tr><td>AC-48</td><td>未知成本、负数成本、阶段5</td><td>未知或无效；不进入完整轨道，不当0成本</td></tr><tr><td>AC-49</td><td>改权重/预算</td><td>名单和解释真实重算；无效配置不产生推荐</td></tr><tr><td>AC-50</td><td>默认权重敏感性</td><td>61种唯一非负且和为100的场景；完整保存</td></tr><tr><td>AC-51</td><td>报告8、结局6、成功4</td><td>66.7%已知命中、75%覆盖、50～75%缺失边界</td></tr><tr><td>AC-52</td><td>用户只完成制作未做测试</td><td>制作记录保留，经营标签仍unknown</td></tr><tr><td>AC-53</td><td>跨市场/窗口合并输入</td><td>拒绝同一队列总分排序，转分队列评估</td></tr><tr><td>AC-54</td><td>历史回测迟到证据</td><td>当时未知，不允许available_at泄漏</td></tr><tr><td>AC-55</td><td>不同权重出现名次变化</td><td>展示场景入选频率与名次范围，不能称成功概率</td></tr><tr><td>AC-56</td><td>同时来自重复转载的多份材料</td><td>不视作多份独立证据；传播规模与证据独立性分开</td></tr><tr><td>AC-57</td><td>AI输出数字与结构化结果不一致</td><td>阻止正式报告状态，重做叙述或转复核</td></tr><tr><td>AC-58</td><td>相同原作跨周多次推荐</td><td>保存对应周期结局；评估时考虑产品与窗口相关性</td></tr></table></div>
 <h3>V2.2 容错验收目标</h3>
 <p>以下为产品/后端目标，不表示全部生产能力已实现；原型实测见16。</p>
-<div class="tablewrap"><table><tr><th>编号</th><th>场景</th><th>预期</th></tr><tr><td>AC-59</td><td>玩家样本未取得</td><td>P=[0,100]，其他维继续；允许条件推荐</td></tr><tr><td>AC-60</td><td>A/O均缺失</td><td>覆盖80%；其余证据满足时仍可重点验证</td></tr><tr><td>AC-61</td><td>无成本或成本跨预算</td><td>范围反映未知/情景，先估算或缩范围</td></tr><tr><td>AC-62</td><td>已确认成本下界超预算后来源失效</td><td>保持暂缓，不能用unknown解除</td></tr><tr><td>AC-63</td><td>IAA未知</td><td>保留线索和行动，不正式计纯IAA合格项</td></tr><tr><td>AC-64</td><td>全部分析数据缺失</td><td>每个已知候选有诊断与行动，不输出确定名次</td></tr><tr><td>AC-65</td><td>没有候选</td><td>输出来源恢复/导入任务，不编造游戏</td></tr><tr><td>AC-66</td><td>缺部分榜单日期</td><td>完整14天分母求界，不只用已采日平均</td></tr><tr><td>AC-67</td><td>榜单全部缺失</td><td>只能用已登记并验证的需求协议替代；D/M不伪造</td></tr><tr><td>AC-68</td><td>同窗口有效缓存与来源失败</td><td>使用原始日期材料，结论可保持；附健康状态</td></tr><tr><td>AC-69</td><td>过期、冲突、无权限</td><td>不同状态可追踪，当前计算按未知</td></tr><tr><td>AC-70</td><td>10条样本且口径可比</td><td>可条件推荐；覆盖和区间精度分别展示</td></tr><tr><td>AC-71</td><td>多个缺口影响同一来源</td><td>D/M补证合并，不重复列采集任务</td></tr><tr><td>AC-72</td><td>仅有条件推荐</td><td>可组成整期清单；探索名额不是条件推荐总数限制</td></tr><tr><td>AC-73</td><td>合格验证数为0</td><td>仍能冻结线索、暂缓、补证报告</td></tr><tr><td>AC-74</td><td>参数无效或探索名额超过总数</td><td>禁止生成新名单/保存，旧报告保留</td></tr><tr><td>AC-75</td><td>单条坏记录或ID重复</td><td>隔离坏记录；重复双方待核实，其他记录继续</td></tr><tr><td>AC-76</td><td>补数据后重算</td><td>生成新修订；旧范围/输入/行动不变</td></tr><tr><td>AC-77</td><td>新增负面信息</td><td>可降低优先级或转暂缓，不能强制升分</td></tr><tr><td>AC-78</td><td>不同市场/窗口/方案</td><td>分队列计算；不直接混总分</td></tr><tr><td>AC-79</td><td>输入覆盖100%但样本小</td><td>不得称准确率100%或高置信度</td></tr><tr><td>AC-80</td><td>混合范围含Wilson和情景</td><td>不得称整体95%区间或成功概率</td></tr></table></div></section><section id="doc-09"><h2>V2基础原型验证记录（历史）</h2>
+<div class="tablewrap"><table><tr><th>编号</th><th>场景</th><th>预期</th></tr><tr><td>AC-59</td><td>玩家样本未取得</td><td>P=[0,100]，其他维继续；允许条件推荐</td></tr><tr><td>AC-60</td><td>A/O均缺失</td><td>覆盖80%；其余证据满足时仍可重点验证</td></tr><tr><td>AC-61</td><td>无成本或成本跨预算</td><td>范围反映未知/情景，先估算或缩范围</td></tr><tr><td>AC-62</td><td>已确认成本下界超预算后来源失效</td><td>保持暂缓，不能用unknown解除</td></tr><tr><td>AC-63</td><td>IAA未知</td><td>保留线索和行动，不正式计纯IAA合格项</td></tr><tr><td>AC-64</td><td>全部分析数据缺失</td><td>每个已知候选有诊断与行动，不输出确定名次</td></tr><tr><td>AC-65</td><td>没有候选</td><td>输出来源恢复/导入任务，不编造游戏</td></tr><tr><td>AC-66</td><td>缺部分榜单日期</td><td>完整14天分母求界，不只用已采日平均</td></tr><tr><td>AC-67</td><td>榜单全部缺失</td><td>只能用已登记并验证的需求协议替代；D/M不伪造</td></tr><tr><td>AC-68</td><td>同窗口有效缓存与来源失败</td><td>使用原始日期材料，结论可保持；附健康状态</td></tr><tr><td>AC-69</td><td>过期、冲突、无权限</td><td>不同状态可追踪，当前计算按未知</td></tr><tr><td>AC-70</td><td>10条样本且口径可比</td><td>可条件推荐；覆盖和区间精度分别展示</td></tr><tr><td>AC-71</td><td>多个缺口影响同一来源</td><td>D/M补证合并，不重复列采集任务</td></tr><tr><td>AC-72</td><td>仅有条件推荐</td><td>可组成整期清单；探索名额不是条件推荐总数限制</td></tr><tr><td>AC-73</td><td>合格验证数为0</td><td>仍能冻结线索、暂缓、补证报告</td></tr><tr><td>AC-74</td><td>参数无效或探索名额超过总数</td><td>禁止生成新名单/保存，旧报告保留</td></tr><tr><td>AC-75</td><td>单条坏记录或ID重复</td><td>隔离坏记录；重复双方待核实，其他记录继续</td></tr><tr><td>AC-76</td><td>补数据后重算</td><td>生成新修订；旧范围/输入/行动不变</td></tr><tr><td>AC-77</td><td>新增负面信息</td><td>可降低优先级或转暂缓，不能强制升分</td></tr><tr><td>AC-78</td><td>不同市场/窗口/方案</td><td>分队列计算；不直接混总分</td></tr><tr><td>AC-79</td><td>输入覆盖100%但样本小</td><td>不得称准确率100%或高置信度</td></tr><tr><td>AC-80</td><td>混合范围含Wilson和情景</td><td>不得称整体95%区间或成功概率</td></tr></table></div>
+<h3>V2.3 单款档案覆盖条款</h3>
+<p>当前单款游戏信息设计以17、18、19章为准：12信息域、81展示字段、8分区，平台/市场/版本/截止时间独立；来源事实与AI草案分别保存。完整资料量不等于推荐分，缺失和新反证不能被填补文案掩盖。V2.2推荐公式与分层规则保持不变。</p>
+<h4>新增生产业务验收目标（非全部已实现）</h4>
+<div class="tablewrap"><table><tr><th>编号</th><th>验收行为</th></tr><tr><td>AC81</td><td>从榜单进入档案，自动选择对应平台市场</td></tr><tr><td>AC82</td><td>切换目标版本，IAA、评价、玩法和成本资料一起切换</td></tr><tr><td>AC83</td><td>历史日期不读取截止日之后才可用的事实/分析</td></tr><tr><td>AC84</td><td>无当日榜单时保留已知产品档案，名次明确缺失</td></tr><tr><td>AC85</td><td>新版使旧版绑定的资格证据失效，更新依据后才恢复</td></tr><tr><td>AC86</td><td>证据冲突保留双方来源，不能按最后写入静默裁决</td></tr><tr><td>AC87</td><td>字段按来源事实/估计/计算/人工/AI草案分别展示</td></tr><tr><td>AC88</td><td>资料量公开分母；不适用排除，缺失不作0</td></tr><tr><td>AC89</td><td>评分数、评论数、样本数及情感分母各自清晰</td></tr><tr><td>AC90</td><td>媒体区分实机截图、实机视频、广告视频和结构示意</td></tr><tr><td>AC91</td><td>同一范围的进行中/待复核补全任务不重复创建</td></tr><tr><td>AC92</td><td>材料提交不立即提升资料覆盖或IAA资格</td></tr><tr><td>AC93</td><td>资料来源URL、范围、时间、权限、hash和复核记录可追踪</td></tr><tr><td>AC94</td><td>同款多人选用互不覆盖，历史市场日不改当前进度</td></tr><tr><td>AC95</td><td>档案导出固定范围与schema版本，协作记录单独保存</td></tr><tr><td>AC96</td><td>组织隔离、材料访问和并发修订在服务端校验</td></tr><tr><td>AC97</td><td>AI失败或弃权仍能读取档案并输出具体补证任务</td></tr><tr><td>AC98</td><td>单款档案映射到统一身份后才参与自动推荐，不混合夹具</td></tr></table></div></section><section id="doc-09"><h2>V2基础原型验证记录（历史）</h2>
 <p>验证日期：2026-10-29。验证对象为V2静态交互原型和虚构夹具，不能替代正式数据或Java后台验收。</p>
 <h3>已完成的浏览器交互检查</h3>
 <div class="tablewrap"><table><tr><th>场景</th><th>结果</th></tr><tr><td>市场概览与两级导航</td><td>页面正常展示，蓝白布局和内容区域清晰</td></tr><tr><td>负面事件下钻</td><td>极速收纳筛选出2条负面摘录；证据弹窗为对应R6-2内容</td></tr><tr><td>指定日期与缺失榜单</td><td>10-22抖音显示缺失，名次为空</td></tr><tr><td>不存在的快照日期</td><td>10-23显示无数据，不回退到其他日</td></tr><tr><td>周报日期独立</td><td>页面日期10-23时，10-19至25周报详情仍截至10-25</td></tr><tr><td>周报生成</td><td>保存V1、6款入选；目标8款，不凑数，显示导出入口</td></tr><tr><td>权重校验</td><td>合计105%时分数为空，保存被阻止并提示</td></tr><tr><td>多人选用</td><td>同一Pocket Sort保存测试A、测试B两条已选记录，互不覆盖</td></tr><tr><td>信息目录检索</td><td>搜索“评价”匹配对应信息域，详情显示字段和使用边界</td></tr><tr><td>文档阅读页</td><td>已检查页面、目录和表格排版</td></tr></table></div>
@@ -581,4 +593,116 @@ worst_rank = 1 + count(其他候选的upper &gt;= 我的lower)</code></pre>
 <h3>4. 正式系统尚未实现</h3>
 <p>Java服务与MySQL、真实采集、平台权限、对象存储、真实AI任务、需求替代协议校验、跨组织配置、服务端缓存、重试与监控、并发冻结、真实发布周期和时间外业务回测均未接通。原型source_error/stale/conflict是手动或夹具输入，不能宣称自动识别真实数据故障。</p>
 <p>演算只覆盖微信中国单队列，其他平台/国家通过相同契约分队列实现；本次没有验证真实多市场分布校准。协议Q只模拟已经通过的验证结果，不能替代原始行为数据。跨平台去重、冷却和周报编辑规则为生产目标。</p>
-<p>所有固定业务阈值、阶段分和范围组合均需按10做真实时间外校准。当前范围用于研究排序与解释，不是收入、留存或爆款成功率预测。真实后台开发顺序见07，完整规则见14。</p></section></main></body></html>
+<p>所有固定业务阈值、阶段分和范围组合均需按10做真实时间外校准。当前范围用于研究排序与解释，不是收入、留存或爆款成功率预测。真实后台开发顺序见07，完整规则见14。</p></section><section id="doc-17"><h2>V2.3 游戏情报档案：产品与交互设计</h2>
+<p>版本：2.3.0；日期：2026-10-30。此次升级产品库与单款游戏信息，不更改V2.2精选公式。全部原型内容为虚构演示，真实采集、AI调用、Java及MySQL接入未实现。</p>
+<h3>1. 要解决的问题</h3>
+<p>榜单回答“在哪里、何时表现如何”，单款档案进一步回答“是什么、为何吸引玩家、怎样变现、哪里存在机会、团队如何验证”。使用者从榜单或产品库进入同一款产品的完整档案，再决定补证、选用或继续观察。</p>
+<p>产品库保留全量研究对象；只有目标版本具备纯IAA依据才进入正式IAA候选。混合变现、未知、冲突、过期样例可以研究，不能因排名靠前或资料多被标成合格。</p>
+<h3>2. 三层资料，逐步补齐</h3>
+<div class="tablewrap"><table><tr><th>信息层</th><th>目标</th><th>触发时机</th><th>不足时的行为</th></tr><tr><td>基础档案</td><td>识别产品、查看商店和榜单轨迹</td><td>首次发现后建立最小记录</td><td>不阻塞研究池记录；身份不明不能正式推荐</td></tr><tr><td>深度情报</td><td>理解玩法、体验、玩家声音和竞品</td><td>有市场信号、人工关注或进入周报候选</td><td>保留缺口，AI可给待验证假设</td></tr><tr><td>精选依据</td><td>确认IAA、制作条件和内部验证结果</td><td>正式入库、精选或选用前</td><td>资格与推荐分层分别处理，按14章容错方案输出行动</td></tr></table></div>
+<p>采集目录仍使用第02章120个原子指标；本章81个界面字段是围绕单款游戏的展示投影，允许聚合多个原子指标。不能宣称81字段覆盖或替代全部120指标，也不能把字段数当采集完成数。截图、视频和证据附件使用关联资源，不塞进一个长文本字段。</p>
+<h3>3. 十二个信息域</h3>
+<div class="tablewrap"><table><tr><th>信息域</th><th>应展示的内容</th><th>帮助使用者判断</th></tr><tr><td>基础身份（9）</td><td>名称/别名、平台ID、开发/发行主体、市场、语言、商店及试玩入口</td><td>是否同款、哪个平台版本、从哪里核验</td></tr><tr><td>商店与版本（9）</td><td>官方简介、分类、上线日、首次观察、版本/更新日期/说明、包体和设备要求</td><td>新品还是老品翻红、变更是否影响结论</td></tr><tr><td>核心玩法（8）</td><td>简述、核心循环、操作、胜负、单局时长、关卡、外围成长、受众假设</td><td>好玩机制与可验证的玩法需求</td></tr><tr><td>美术与体验（6）</td><td>风格、2D/3D、横竖屏、动效、联网、性能</td><td>表现成本、设备和体验约束</td></tr><tr><td>广告与变现（7）</td><td>模式、广告形式、触发奖励、观察频次、内购及排除内购依据、资格范围</td><td>目标版本能否作为纯IAA参考</td></tr><tr><td>市场表现（6）</td><td>榜单状态、当前/历史最佳名次、有数据采样日、下载/活跃估计</td><td>需求表现与持续性，保留未知</td></tr><tr><td>玩家评价（6）</td><td>来源评分/评分数/评论数、样本范围、喜欢点、槽点</td><td>热度背后的体验反馈及其分母</td></tr><tr><td>舆情与传播（6）</td><td>提及量、同口径增量、搜索、创作者、事件、独立来源性</td><td>自然传播、争议、转载或商业内容</td></tr><tr><td>广告素材与投放（6）</td><td>素材入口、前段吸引点、创意变体、观察窗口、地区渠道、与实机一致性</td><td>买量表达与实际体验是否匹配</td></tr><tr><td>同类竞争（6）</td><td>玩法家族、竞品、同类供给、差异、衰退案例、体验缺口</td><td>赛道拥挤程度和可改善的方向</td></tr><tr><td>制作适配与机会（6）</td><td>最小原型、工作拆分、依赖、人日区间、实验假设、停止条件</td><td>当前团队是否具备验证条件</td></tr><tr><td>内部选用与验证（6）</td><td>多人选用、测试计划、实际成本、留存、经济性、验证结论</td><td>形成自身证据与失败经验</td></tr></table></div>
+<p>字段的完整键、类型、优先级与AI用途见17-profile-fields.csv。所有可读资料均区分来源事实、供应商估计、计算指标、AI分析草案、人工核查。</p>
+<h3>4. 产品库改版</h3>
+<p>表格展示：游戏名/玩法简述 → 各平台独立排名 → 变现依据与参考平台 → 有资料项/适用项/AI草案/待补项 → 查看档案与选用。</p>
+<p>筛选：关键词、平台、地区、IAA有依据/待核查/混合变现、资料缺口/冲突失效、截至日期。排序支持首次发现日期或指定平台地区的单榜名次。未指定单榜范围时，不进行跨平台排名平均或排名排序。</p>
+<p>全部平台视图每行明确“参考平台”；列表资格、资料量均针对该参考版本。点击其他平台名次直接进入相应版本，不能沿用首版本的IAA结论。生产版宜提供“所有平台版本展开”，而非含糊地显示整款产品纯IAA。</p>
+<p>当某日未采集榜单时，保留截至该日已知的产品档案，名次显示“无快照”。首次发现前不展示已有市场资料；实际上线日与系统首次观察日始终分开。</p>
+<h3>5. 完整详情页</h3>
+<p>页头固定表达产品、玩法、虚构/正式数据标识、目标平台市场、知识截止日、应用版本和变现资格。操作包括导出档案、生成补全任务、选用/添加记录。</p>
+<p>四张摘要卡：当日独立榜单、当前可读资料、评价样本、待补资料。资料量是展示完整性指标，不是数据置信度、机会分或爆款概率。AI草案计入可读项时必须并列显示其数量。</p>
+<div class="tablewrap"><table><tr><th>分区</th><th>主要内容</th><th>关键交互</th></tr><tr><td>档案概览</td><td>基础与商店资料、媒体入口、12域资料地图、下一步研究</td><td>点资料地图进入对应区；查看字段依据</td></tr><tr><td>玩法与体验</td><td>核心循环、体验与表现、实机材料</td><td>每个结论可回看来源；非实机示意明确标识</td></tr><tr><td>市场表现</td><td>单榜历史、采样日、规模指标、覆盖状态</td><td>只画截止日前数据；缺失位置不补0、不补前值</td></tr><tr><td>玩家声音</td><td>样本规模/范围、情感与主题、示例摘录、舆情事件</td><td>评分数、评论数、采样评论数分别展示</td></tr><tr><td>广告与变现</td><td>IAA依据、广告触发、频次、素材与投放</td><td>依据冲突或新版变化触发复核；买量不替代玩家热度</td></tr><tr><td>竞品与制作</td><td>玩法家族、同类关联、原型范围、人日/依赖、测试与停止条件</td><td>竞品为关联记录，不自动合并；成本标人工估计</td></tr><tr><td>证据与补全</td><td>字段证据、补全任务、待复核材料三个子页</td><td>按字段/状态筛选、历史回放、生成/去重任务、补材料</td></tr><tr><td>选用记录</td><td>多人独立认领、负责人、参考版本、进度及结果</td><td>新建和编辑；当前协作状态不随历史市场日期回退</td></tr></table></div>
+<p>返回列表保留会话内筛选；详情链接携带product、version、date、tab，可刷新或用浏览器后退。从榜单进入优先选择榜单的对应平台市场。默认不是跨平台综合详情。</p>
+<h3>6. 范围、时间与失效</h3>
+<p>每条关键资料绑定产品、平台实体、市场、语言、适用应用版本、观察窗口和知识可用时间。默认“截至日期”按研究方案时区截日；原型以日粒度演示。</p>
+<p>历史回放只能使用observed_at和available_at均不晚于截止日的记录。旧日期不展示后来形成的分析或后补结论。重算历史时须明确区分“当时知道什么”与“今天修订后的历史”，默认采用前者。</p>
+<p>版本绑定的资料在应用更新后进入需复核状态，保留旧记录但不将其显示为当前事实。证据有效期过后同样处理。对不受版本变化影响的主体资料可使用独立有效期。</p>
+<div class="tablewrap"><table><tr><th>状态</th><th>界面</th><th>计算与任务</th></tr><tr><td>available</td><td>有资料，显示类型与时间</td><td>可按规则使用；AI草案不能代替资格证据</td></tr><tr><td>missing</td><td>未采集</td><td>null，生成补充任务</td></tr><tr><td>not_authorized</td><td>权限受限</td><td>null，评估授权/采购/替代来源</td></tr><tr><td>not_supported</td><td>来源不支持该口径</td><td>null，评估可比替代；不反复重试同接口</td></tr><tr><td>not_yet_known</td><td>当时未形成</td><td>null；不显示未来材料</td></tr><tr><td>stale</td><td>需重新核查</td><td>当前值null；旧值可在历史中查看</td></tr><tr><td>conflict</td><td>证据冲突</td><td>当前结论暂停，保留双方材料与待裁决项</td></tr><tr><td>not_applicable</td><td>不适用</td><td>需原因；移出资料量分母，不凭空加分</td></tr></table></div>
+<p>数值0只有被实际观察/计算得到才有效。缺失排名不等于榜外；完整Top100快照中确实未出现的情况，生产实现应使用out_of_monitored_range，而不是rank=101。原型档案仅演示有名次和缺失，不演示该完整榜外分支。</p>
+<h3>7. 媒体与证据交互</h3>
+<p>实机截图、试玩视频、广告素材分别建资源类型；记录平台版本、拍摄/发布/采集时间、来源、权限、片段定位与内容hash。广告素材不能冒充真实玩法画面。</p>
+<p>有授权资源显示缩略图、放大或播放器；只有外链时显示“打开来源”；失效、无权限或未采集时显示明确状态和补充入口。原型只有代码绘制的流程示意，不伪造实机截图或视频；两个真实媒体入口均为待补状态。</p>
+<p>字段依据弹窗展示当前状态、该字段截至日期的历史、观察/可用时间、适用版本、有效期和证据。生产来源失败时显示“无法回放”及可保留的信息，不能标成完整覆盖。</p>
+<h3>8. 补全与材料复核</h3>
+<p>用户点击“生成补全清单”，按当前目标版本的缺口形成任务。先补纯IAA资格、身份、玩法和制作依赖，再补佐证。同产品+版本+信息域存在待处理/处理中/待复核任务时不重复创建。</p>
+<p>任务支持负责人、优先级、状态、过程结果；状态为待处理→处理中→待复核，或暂不可得。暂不可得需要原因和后续复查条件。任务完成不代表资料可信。生产系统可以拆分字段任务；原型按信息域分组。</p>
+<p>手动材料提交要求字段、材料类型、提交人、观察日期、来源名称、摘录及可选链接。仅允许http/https来源链接。草稿进入独立待复核区，不改字段事实、不提升覆盖、不解除IAA门槛。</p>
+<p>生产复核应检查对象/范围/时间/原文、重复性、矛盾与来源权限；形成新的FieldObservation或Claim并保留审计。AI可提取、分类、识别候选冲突、建议优先级；没有依据时输出未知并提出具体补证任务。材料里的指令不得影响采集器权限和业务规则。</p>
+<h3>9. 与每周精选的连接</h3>
+<p>档案只提供有来源的输入。正式评分使用14章版本化规则，分别输出资格、特征范围、推荐层级、理由、缺口和验证动作。不能把81项填充比例乘到机会分里，也不能用AI长篇文案提升数值。</p>
+<p>榜单缺失但有合格替代需求证据，可按已声明协议进入条件推荐；IAA未知只能形成核查/研究建议，不能正式收录为纯IAA。玩家热度上涨而广告负面集中时保留事件约束。更多真实反证允许降低优先级，不能承诺资料越多分数越高。</p>
+<p>当前V2.3档案10款夹具与V2.2精选18案例独立。界面保留清晰提示；生产开发完成统一身份和特征映射后才能自动衔接。</p>
+<h3>10. 来源可得性与实施顺序</h3>
+<p>先明确字段、口径、来源资格，再选采购和采集方式。商店页面可能提供名称、主体、描述、分类、截图、版本与来源展示评分；具体国家/字段可用性逐项验证。不能将某个平台自己的开发者数据接口当成全市场竞争产品数据接口。</p>
+<p>官方参考：Apple产品页说明 <a href="https://developer.apple.com/app-store/product-page/" target="_blank" rel="noopener">https://developer.apple.com/app-store/product-page/</a> ；Apple Search/Lookup <a href="https://performance-partners.apple.com/search-api" target="_blank" rel="noopener">https://performance-partners.apple.com/search-api</a> ；Google Play评论接口权限说明 <a href="https://developers.google.com/android-publisher/reply-to-reviews" target="_blank" rel="noopener">https://developers.google.com/android-publisher/reply-to-reviews</a> 。这些参考仅说明资料类别或授权边界，不代表本系统已接入或能批量获得所有对手评论。</p>
+<p>实现顺序：统一身份与基础档案 → 指定范围和历史快照 → 人工材料/证据/补全 → 玩法与玩家声音 → 广告/竞品/制作分析 → 接入V2.2推荐和内部测试反馈。供应商选择、抓取频率及付费预算另行验证，不阻塞本轮产品设计。</p></section><section id="doc-18"><h2>V2.3 游戏档案数据契约与Java/MySQL交接</h2>
+<p>本章补充第06章，不是已完成的API或DDL。推荐引擎仍遵循V2.2；本章定义其输入事实的组织方式。</p>
+<h3>1. 身份模型</h3>
+<p>统一Game表示研究对象；PlatformEntity用platform+external_id标识平台实体，不用游戏名称作为唯一键。MarketListing保存国家地区、语言和商店范围；Release保存发行版本及有效时间。跨平台同款关系保存证据、置信状态和裁决历史，同名不得自动合并。</p>
+<p>原型versionKey如P0-WX-CN是“产品+平台+市场”的显示键，不是生产稳定ID，也不是appVersion。后端必须拆开平台实体、市场上架和应用版本。不可直接把DEMO字段作为真实识别依据。</p>
+<h3>2. 建议逻辑表</h3>
+<div class="tablewrap"><table><tr><th>逻辑表</th><th>关键列 / 约束</th><th>用途</th></tr><tr><td>game</td><td>id、canonical_name、first_observed_at、identity_revision</td><td>统一产品</td></tr><tr><td>platform_entity</td><td>game_id、platform_code、external_id；唯一(platform_code,external_id)</td><td>平台实体，不混同appVersion</td></tr><tr><td>market_listing</td><td>platform_entity_id、market、language、source_id</td><td>平台发行市场与语言</td></tr><tr><td>release_record</td><td>listing_id、app_version、released_at、available_at</td><td>发行版本历史</td></tr><tr><td>profile_field_definition</td><td>key、domain、type、unit、scope、ttl_policy、schema_version、required_evidence</td><td>可扩展字段定义</td></tr><tr><td>field_observation</td><td>listing_id、release_id可空、field_key、typed_value、status、kind、observed_at、available_at、valid_until、revision</td><td>可追溯事实/估计/人工核查</td></tr><tr><td>claim</td><td>listing_id、field_key、text、claim_type、model/prompt/rule_version、input_hash、status</td><td>AI分析与待验证假设</td></tr><tr><td>evidence / observation_evidence</td><td>source_id、origin_family_id、url、excerpt、asset_ref、hash、time、rights；关联角色</td><td>原始依据及其引用</td></tr><tr><td>media_asset</td><td>listing_id、release_id、media_kind、thumbnail_ref、asset_ref或source_url、rights、status</td><td>截图、实机视频、广告素材分开</td></tr><tr><td>profile_gap / enrichment_task</td><td>target_scope、field_keys、reason、priority、owner、status、idempotency_key</td><td>缺口与任务，不存未经核验事实</td></tr><tr><td>material_submission / material_review</td><td>target_scope、field_key、claim_kind、submitter、source、observed_at、decision、reviewer、audit</td><td>人工/AI提交与复核</td></tr><tr><td>selection_record / status_history</td><td>game_id、listing_id、owner_id、status、dates、note、revision</td><td>多人选用；禁止game_id唯一</td></tr><tr><td>experiment / outcome</td><td>selection_id、version、hypothesis、sample、actual_cost、result_status、evidence</td><td>内部验证</td></tr></table></div>
+<p>榜单、评论内容、情感主题、舆情事件及推荐运行沿用06章实体。大型素材放对象存储，MySQL记录定位及访问控制，不把视频字节写入档案JSON。</p>
+<h3>3. 类型与字段值</h3>
+<p>基础可检索字段（平台ID、主体、名称、市场、版本）优先规范化列；时序指标使用Observation与专门快照表。可扩展资料使用受FieldDefinition约束的类型值，不能任意堆积无校验键值。</p>
+<p>支持string、enum、number、range、date、list、object、reference；字段的单位、取值约束和schema_version固定在定义中。MySQL可使用类型列或经Java校验的JSON，索引与查询需求确定后再选物理结构。状态与值必须一致：missing等状态value=null；observed_zero允许数值0；不适用需原因。</p>
+<p>原型字段到生产映射：fact→observed，manual→manual，estimate→estimated，derived→derived，inference→Claim且status=draft。原型available仅代表存在可读资料，不能直接等价于生产资格“已验证”。原型not_yet_known是查询视图状态，不必作为永久观察写入。</p>
+<h3>4. 共用观察契约</h3>
+<pre><code>{
+  &quot;field_key&quot;: &quot;mode&quot;,
+  &quot;game_id&quot;: &quot;demo-game-0&quot;,
+  &quot;platform_entity_id&quot;: &quot;demo-platform-0&quot;,
+  &quot;market&quot;: &quot;CN&quot;,
+  &quot;language&quot;: &quot;zh-CN&quot;,
+  &quot;release_id&quot;: &quot;demo-release-1-4-0&quot;,
+  &quot;app_version&quot;: &quot;1.4.0&quot;,
+  &quot;value&quot;: &quot;pure_iaa&quot;,
+  &quot;value_kind&quot;: &quot;manual&quot;,
+  &quot;data_status&quot;: &quot;observed&quot;,
+  &quot;observed_at&quot;: &quot;2026-10-28T10:00:00+08:00&quot;,
+  &quot;available_at&quot;: &quot;2026-10-28T12:00:00+08:00&quot;,
+  &quot;valid_until&quot;: &quot;2026-11-04T23:59:59+08:00&quot;,
+  &quot;evidence_ids&quot;: [&quot;DEMO-evidence-package&quot;],
+  &quot;verification_status&quot;: &quot;reviewed&quot;,
+  &quot;definition_version&quot;: &quot;monetization-mode-v1&quot;,
+  &quot;revision&quot;: 1,
+  &quot;is_synthetic&quot;: true
+}</code></pre>
+<p>上述有效期为测试样例，不是推荐的统一7天策略。生产有效期由来源、字段变化速度、版本变化和研究用途配置。删除/纠正产生新版本并保留权限允许的审计信息。</p>
+<h3>5. 历史查询与资格</h3>
+<p>GET档案需要listing_id、as_of、timezone；查询仅使用available_at和observed_at不晚于截止的有效证据。选择当前事实时依据该字段的裁决规则，不是简单“最后抓到的覆盖前面”；相互矛盾的有效材料进入冲突状态。</p>
+<p>应用更新时使绑定旧release的玩法/广告核查失效，主体等非版本敏感字段不必全部失效。历史查询读取当时的有效版本。重建历史推荐使用当时信息，不能带入后来纠正的事实；纠正后报告产生新revision。</p>
+<p>IAA资格需目标版本的广告变现证据、排除内购依据以及可追溯复核；仅“含广告”标签、未看到购买入口或AI推测均不充分。发现内购为混变；矛盾或失效为待复核。来源事实判定与用户有多少填报记录无关。</p>
+<p>档案完整性只计算适用字段中当前有资料的比例，AI草案数量另示。权重、来源可信度、时效折扣和精选资格不混入此比例。生产配置可分别计算基础/深度/精选依据完备度，但需公开分母。</p>
+<h3>6. API草案</h3>
+<div class="tablewrap"><table><tr><th>接口</th><th>作用与返回要求</th></tr><tr><td>GET /api/games</td><td>筛选关键词、平台、市场、日期、资格与缺口；返回每行reference_listing_id</td></tr><tr><td>GET /api/games/{id}/profile?listingId=&amp;asOf=&amp;timezone=</td><td>范围、当前版本、字段状态/类型、资料统计、证据、资格与缺口</td></tr><tr><td>GET /api/listings/{id}/fields/{key}/history?asOf=</td><td>仅截至当日的历史；可见范围由服务端校验</td></tr><tr><td>GET /api/evidence/{id}</td><td>来源、摘要、时间、权限和资源入口；无权限明确返回</td></tr><tr><td>POST /api/enrichment-tasks:plan</td><td>按scope+cutoff+缺口版本生成任务；幂等键、防重复</td></tr><tr><td>PATCH /api/enrichment-tasks/{id}</td><td>owner、status、note、expectedRevision；不能写入事实</td></tr><tr><td>POST /api/material-submissions</td><td>类型校验、来源和范围校验，返回pending_review</td></tr><tr><td>POST /api/material-submissions/{id}:review</td><td>通过/拒绝/冲突/补材料；reviewer、reason、expectedRevision</td></tr><tr><td>POST /api/games/{id}/selections</td><td>为每位负责人单独创建；可同产品多人选用</td></tr><tr><td>GET /api/games/{id}/profile-export</td><td>历史档案与当前协作记录分开；冻结导出范围与规则版本</td></tr></table></div>
+<p>400为参数或字段类型无效；403为没有权限；404为未知实体；409为版本冲突；可读空资料返回200和明确状态，而不是把业务缺口当服务器异常。分页、导出数量和材料大小需限制。浏览器不能提交或覆盖可信综合分、IAA已审核状态。</p>
+<h3>7. AI工作契约</h3>
+<p>每次AI任务包含target_scope、field_keys、input_evidence_ids、source_policy、model/prompt/schema_version及deadline。返回结构化claims、每条引用、unknown_fields、conflicts、suggested_tasks和弃权原因。输出先校验类型、范围、时间和引用，再进入草稿。</p>
+<p>AI提取事实时必须引用可定位原文；无来源摘要为推断。没有真实截图或视频，不能生成画面后标成实机证据。成本输出人日区间、假设和工作拆分，需负责人确认。网络/模型失败保留输入并产生可重试任务，档案读取不被阻塞。</p>
+<p>资料来源文本按不可信输入处理，抓取工作器不能执行其中指令、访问任意内网或扩大凭证权限。素材URL获取由受控服务处理，检查重定向、私网地址、大小与媒体类型；不让浏览器提交的任意URL直接成为服务端抓取目标。</p>
+<h3>8. Java/MySQL实施与扩展</h3>
+<p>先用模块化Java服务实现Identity、Profile、Evidence、MaterialReview、Selection和Recommendation边界；不要求先拆微服务。规则和字段定义版本化，新增平台/字段通过注册适配器和定义扩展。数值和资格判断服务端可复算，AI不直接改数据库决策列。</p>
+<p>建议索引围绕(platform,external_id)、(listing_id,field_key,available_at)、(listing_id,observed_at)、(task_scope,status)、(game_id,owner_id)、(report_id,revision)。有效记录选择、素材授权、任务幂等和修订写入应事务处理；并发更新使用revision乐观锁。</p>
+<p>所有表在大型平台环境保留tenant_id和访问策略，服务端校验组织、材料和内部测试数据权限。最小上线先支持人工证据导入和受控文件来源，再接真实平台采集。不要提前承诺通过公开接口获得竞争游戏的真实收入、留存、活跃或完整用户评论。</p></section><section id="doc-19"><h2>V2.3 原型范围与验证记录</h2>
+<p>日期：2026-10-30；档案版本2.3.0，精选算法保持2.2.0。</p>
+<h3>已实现的原型能力</h3>
+<ul>
+<li>产品库：跨平台独立名次、参考平台资格、资料量与缺口、筛选、分页、CSV导出。</li>
+<li>单款游戏：12信息域、81字段、8分区；平台市场切换、指定历史日、详情深链接、证据历史、缺失/冲突/过期显示。</li>
+<li>证据与补全：字段搜索/状态筛选、按缺口生成并去重任务、负责人和进展填报、材料提交待复核；全部仅保存在本地浏览器。</li>
+<li>选用记录：多负责人独立记录，参考平台、状态、日期与说明；当前协作记录不冒充历史市场快照。</li>
+<li>导出：档案JSON包含schema版本、虚构标记、历史范围和独立当前协作区。</li>
+<li>市场概览同步采用新档案的资格与资料量，不再使用旧固定机会分宣称可推荐数量。</li>
+</ul>
+<h3>自动验证</h3>
+<p>新增18项档案状态测试：跨平台IAA差异、冲突生效时间、历史防泄漏、更新后有效核查、旧版本失效、到期失效、跨地区评价隔离、无快照仍有档案、历史最佳范围、抖音缺失、分母口径、0与未知、AI不得提升资格、评价分母、补全任务幂等、多负责人、非法参数、输入不变性。</p>
+<p>本轮执行71项Node测试全部通过（档案18、V2.1算法22、V2.2算法31）；既有20项基础领域检查通过。语法检查和git diff --check通过。算法测试用于防回归，不代表市场回测或真实成功率。</p>
+<h3>浏览器交互验证</h3>
+<div class="tablewrap"><table><tr><th>实际操作</th><th>结果</th></tr><tr><td>产品库点击叠叠小岛</td><td>进入8分区完整档案，当前微信资料64/79，AI草案17项</td></tr><tr><td>切换至iOS中国</td><td>变现改为混合；资料30/80；微信评价样本没有被带入</td></tr><tr><td>日期改为2026-10-23</td><td>后形成的变现/玩法显示当时未形成；当天榜单缺失</td></tr><tr><td>生成补全清单两次</td><td>生成7个任务，第二次不重复；可填负责人、处理中和进展说明</td></tr><tr><td>搜索变现模式并查看历史</td><td>展示截至日期的核查记录和对应版本</td></tr><tr><td>提交AI草案材料</td><td>进入待复核材料，64/79资料量与原有资格不变</td></tr><tr><td>两位负责人新增选用</td><td>独立保存已选和制作中两条记录，参考微信中国</td></tr><tr><td>玩法、市场、玩家声音、竞品、概览切换</td><td>各分区显示对应内容，无渲染中断</td></tr><tr><td>选择Google Play英国</td><td>无样本时明确为空，不借用美国样本</td></tr><tr><td>详情链接刷新</td><td>平台市场、日期和分区保留</td></tr><tr><td>产品库选择2026-10-30</td><td>保留10款已知档案，名次无快照</td></tr><tr><td>打开V2.2每周精选</td><td>默认8款、18/18诊断保持正常</td></tr><tr><td>桌面页面与文档</td><td>蓝白布局可读；第17、18、19章可访问</td></tr></table></div>
+<p>浏览器检查在受控预览进行。未用实际手机设备验证所有响应式断点；未通过浏览器下载后逐字比对导出文件。包内五份JSON快照由实际状态引擎生成。未宣称已通过全部生产业务验收。</p>
+<h3>未实现 / 明确限制</h3>
+<p>没有Java服务、MySQL、账号/租户权限、真实采集、实际AI调用、供应商采购、定时周报。没有真实实机截图/视频；结构图明确标示意。材料复核状态和API仅是产品契约，原型不把提交材料自动转成事实。</p>
+<p>V2.3档案和V2.2精选测试集未自动打通；两者通过设计契约衔接。基础页面中的旧舆情列表为V2演示数据，单款档案评价使用独立的平台市场夹具。没有真实下载、留存、收入或ROAS估计。</p>
+<p>原型以日粒度和固定样例日期展示历史，生产需时区、时间戳、来源修订、身份版本和权限裁决。暂不支持任务人员权限、材料上传、服务端多人并发和消息提醒。</p></section></main></body></html>

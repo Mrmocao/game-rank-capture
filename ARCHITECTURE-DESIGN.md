@@ -1,6 +1,8 @@
 # 游探 / 锦鲤云 IAA 产品情报系统
 
-**整体架构与产品设计基线 · V2.2 · 2026-10-29**
+**整体架构与产品设计基线 · V2.3 · 2026-10-30；推荐算法 2.2.0**
+
+实现状态：V2.3 是当前目标设计；档案相关代码仍处于开发阶段，尚未接入主页面、未执行 V9 迁移、未完成真实数据库与浏览器验收。线上发布仍为 V2.2。设计中的能力不等于已完成能力，当前验证与待办以 README 的“当前源码同步状态”为准。
 
 本文是当前工程唯一的实现基线。后续新增页面、接口、采集来源、AI任务、数据库字段和周报规则，先更新本文的相应章节，再修改代码与迁移。当前工程不维护可切换的产品多版本；历史周报是业务事实快照，必须保留，但新代码统一按本文最新设计实现。
 
@@ -73,6 +75,22 @@ MySQL 8 iaa_radar
 默认每周目标 8 款，允许配置 5～10 款；合格不足就少出。玩法家族上限、探索补证名额和平台/市场队列必须保留具体淘汰原因。当前 Java 已落地 V2.2 六维范围计算器 `V22RecommendationEngine`，周报候选冻结 `v22` 结构；玩家、工期、A/O 字段未接入真实采集时显示未知范围。
 
 ## 5. 页面和交互
+
+### 游戏情报档案（当前单款信息唯一实现）
+
+按设计包17～19实现12信息域、81展示字段、8分区。`product`为统一研究对象，`platform_version`沿用已有稳定平台实体ID，新增`market_listing`拆分市场/语言，`release_record`记录实际应用版本。旧平台实体ID不是应用版本号。仅从已有来源身份与快照建立发行范围，不按名称合并、不把虚构原型导入真实产品库。
+
+详情深链接为`#/profile?product=&listing=&date=&tab=`；榜单入口携带对应平台实体与市场。日期为Asia/Shanghai默认知识日，服务端同时检查observed_at与available_at，迟到材料不进入当时已知视图。无当天榜单仍保留已知档案，名次明确无快照；所有版本榜单独立。
+
+字段定义保存在受控JSON目录，81项是120指标的展示投影。经复核观察保存在`profile_field_observation`，AI分析独立保存在`profile_claim`，补全任务和待复核材料独立存储。已审核的有效反证不能被后写入记录静默覆盖；显式裁决需要新证据、理由及被替代记录ID。版本敏感字段必须绑定release；更新或到期后当前值为null，历史仍可回放。缺失不补0，不适用需原因并移出分母；AI草案数量与资料量并列。
+
+新增`profile_evidence`存来源、权限、原文定位、hash与时间；媒体通过`profile_media_asset`区分截图、实机视频、广告视频和示意。只保存http/https来源引用，不主动抓取用户提交URL；无权限不提供资源正文，失效不冒充可播放。
+
+材料提交→待复核→通过/拒绝/冲突/需补材料，review与观测写入同一事务，使用revision乐观锁。任务按组织+listing+信息域锁定去重，支持负责人、优先级、进度、不可得原因及复查条件；任务状态不能改事实。档案导出冻结schema、范围和时间，当前协作记录单列。多人选用复用既有记录及审计，资料完整率不参与V2.2六维评分。
+
+档案API采用服务端配置组织`PROFILE_TENANT_ID`与可选访问令牌`PROFILE_ACCESS_TOKEN`，禁止客户端切换组织。生产部署配置访问令牌；只在本地开发明确未配置时允许单组织访问。所有新业务表含tenant_id，材料、任务与证据读取均检查组织。该部署仍是单组织，不宣称已有企业SSO或多组织管理界面。
+
+API新增：`GET /api/v1/profile/products`、`GET /api/v1/products/{id}/profile`、`GET /api/v1/profile/listings/{id}/fields/{key}/history`、`GET /api/v1/profile/evidence/{id}`、`POST /api/v1/profile/tasks/plan`、`PATCH /api/v1/profile/tasks/{id}`、`POST /api/v1/profile/submissions`、`POST /api/v1/profile/submissions/{id}/review`、`GET /api/v1/products/{id}/profile-export`。存量API保留同一产品模型，不提供旧版/新版切换。
 
 左侧两级菜单：
 
