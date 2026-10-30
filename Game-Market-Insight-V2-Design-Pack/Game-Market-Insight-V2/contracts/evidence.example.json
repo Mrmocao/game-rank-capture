@@ -1,0 +1,35 @@
+{
+  "evidence_id": "DEMO-E-001",
+  "is_demo": true,
+  "source_id": "DEMO-PLAYTEST",
+  "origin_family_id": "DEMO-ORIGIN-001",
+  "entity": {
+    "product_id": "DEMO-P-001",
+    "platform_version_id": "DEMO-V-WX-001",
+    "platform": "wechat",
+    "market": "CN",
+    "language": "zh-CN"
+  },
+  "event_time": "2026-10-25T10:00:00+08:00",
+  "observed_at": "2026-10-25T11:00:00+08:00",
+  "available_at": "2026-10-25T11:10:00+08:00",
+  "value_kind": "manual",
+  "data_status": "observed",
+  "locator": {
+    "url": null,
+    "object_ref": null,
+    "excerpt": "虚构示例：记录一次激励广告触发，不单独证明纯IAA。"
+  },
+  "coverage": {
+    "scope": "示例首局",
+    "sampling_method": "manual_demo",
+    "complete": false
+  },
+  "rights": {
+    "save_text": false,
+    "save_media": false,
+    "reason": "没有真实授权材料"
+  },
+  "content_hash": null,
+  "supersedes": null
+}

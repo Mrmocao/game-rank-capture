@@ -1,0 +1,106 @@
+{
+  "version": "1.0",
+  "date": "2026-10-27",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2788,
+      "sha256": "dc2482a0773a4df96ad8688a907142bc5e45182bbb66d816d2caae71357c0586"
+    },
+    {
+      "path": "START_CODEX.md",
+      "bytes": 3476,
+      "sha256": "1639707676741aca1aee21064896b944b233c9407ce91f57733aa82ec75e2613"
+    },
+    {
+      "path": "contracts/ai-extraction.example.json",
+      "bytes": 713,
+      "sha256": "6edd28ddeaca3bed0279b456e936ee26da037c0a1e9ea70b2698b8815330f23f"
+    },
+    {
+      "path": "contracts/ai-extraction.schema.json",
+      "bytes": 3180,
+      "sha256": "3a5d31e2103fdbf40f0a917cf950052cc8709e33b85a5321aeef07588d5ff8fc"
+    },
+    {
+      "path": "contracts/schema.sql",
+      "bytes": 12635,
+      "sha256": "33071e5735a1c4271640439a090ebc781f9769e2cf0015e3bed1466d5139e6ff"
+    },
+    {
+      "path": "docs/01-PRD.md",
+      "bytes": 5894,
+      "sha256": "cc30c0f7480461939cdfc26ae7c7b75d82df37e9d6cf1baf095f5bce29e22fb0"
+    },
+    {
+      "path": "docs/02-PAGES.md",
+      "bytes": 6604,
+      "sha256": "eaedc5e2e5827763f9fa345fabf3ac7932da3e20a63d32925624834f4d0a6829"
+    },
+    {
+      "path": "docs/03-DATA-MODEL.md",
+      "bytes": 4909,
+      "sha256": "1066ae2b4e591b05d999dabd4a0efc18fb7aa84d50d5fbe08414b59ee4df4a94"
+    },
+    {
+      "path": "docs/04-API.md",
+      "bytes": 5697,
+      "sha256": "1f4fb48e55e69444ce5e1cec1d0d110a1c749dc0c5172c28d63323f0caabf838"
+    },
+    {
+      "path": "docs/05-AI-COLLECTION.md",
+      "bytes": 6038,
+      "sha256": "7dd99e3a337768693cd8bca16c9ef946493c96c06a787251611f4ada419283b3"
+    },
+    {
+      "path": "docs/06-IMPLEMENTATION.md",
+      "bytes": 4212,
+      "sha256": "7cf2689f8210df1d77e05fe1818eacfbaa2287be90ff7f9710bffe745da08dfe"
+    },
+    {
+      "path": "docs/07-ACCEPTANCE.md",
+      "bytes": 4432,
+      "sha256": "9b1143c9a163ce1e6835da85afaee47645d2498a73b2b7eff0eda65e8c3f528c"
+    },
+    {
+      "path": "docs/08-DECISIONS.md",
+      "bytes": 2590,
+      "sha256": "7d7dbbeafe34c2a989bf4e91a5e7bd39ba41c33a6e054b3a8eb8db35eb86463b"
+    },
+    {
+      "path": "reference/README.md",
+      "bytes": 454,
+      "sha256": "d1419f43704955ece0a68d53fef9fdcd636e13c59fb5a7ab586b89ea11be475a"
+    },
+    {
+      "path": "reference/prototype/app.js",
+      "bytes": 12184,
+      "sha256": "bedb580770d0187055d01ba8e36c0448197071a489cd493d7dc86c1ea42c549c"
+    },
+    {
+      "path": "reference/prototype/dates.js",
+      "bytes": 4718,
+      "sha256": "f9e775e17a1eaa0313a9b1e2f2c5fc4765e4f9f12c247336a6b1ed77243ba16a"
+    },
+    {
+      "path": "reference/prototype/index.html",
+      "bytes": 8865,
+      "sha256": "c5a2f538f9621da7bd9724c8786189b9ed33f66df49c275070bbb9c04fd71bd8"
+    },
+    {
+      "path": "reference/prototype/menu.js",
+      "bytes": 2180,
+      "sha256": "8dca35fc3e93067ecbf0ccd76e8afed9d3d8a00f8224d52b62eba97a569383b2"
+    },
+    {
+      "path": "reference/prototype/refine.js",
+      "bytes": 12936,
+      "sha256": "89b2cc014ec10b5e2273ff32ddb442a7458f03cabff00d8a17aee6175ff6dc62"
+    },
+    {
+      "path": "完整开发说明.md",
+      "bytes": 46996,
+      "sha256": "a96457083a7af3cab94778600ce730502115ae26f3baeeac14261e1405d3abec"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "IAA game intelligence extraction candidate (not an admission decision)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source_id",
+    "chart_id",
+    "business_date",
+    "entries",
+    "warnings"
+  ],
+  "properties": {
+    "source_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "chart_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "business_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "external_id",
+          "name",
+          "rank",
+          "monetization_candidate",
+          "confidence",
+          "evidence",
+          "missing_fields"
+        ],
+        "properties": {
+          "external_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gameplay_summary": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1000
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 50
+            },
+            "maxItems": 12,
+            "uniqueItems": true
+          },
+          "monetization_candidate": {
+            "enum": [
+              "UNKNOWN",
+              "PURE_IAA",
+              "MIXED",
+              "IAP",
+              "OTHER"
+            ]
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "field",
+                "locator",
+                "excerpt"
+              ],
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "locator": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "excerpt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              }
+            }
+          },
+          "missing_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

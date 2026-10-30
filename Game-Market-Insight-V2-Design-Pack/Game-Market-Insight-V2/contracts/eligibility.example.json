@@ -1,0 +1,39 @@
+{
+  "decision_id": "DEMO-D-001",
+  "is_demo": true,
+  "profile_version": "DEMO-PROFILE-v2",
+  "product_id": "DEMO-P-001",
+  "platform_version_id": "DEMO-V-WX-001",
+  "as_of": "2026-10-25T23:59:59+08:00",
+  "status": "observation",
+  "checks": [
+    {
+      "code": "AD_EVIDENCE_PRESENT",
+      "result": "pass",
+      "evidence_ids": [
+        "DEMO-E-001"
+      ]
+    },
+    {
+      "code": "NO_IAP_BASIS",
+      "result": "unknown",
+      "evidence_ids": []
+    }
+  ],
+  "reason_codes": [
+    "IAA_UNKNOWN"
+  ],
+  "dimension_scores": {
+    "market": null,
+    "timing": null,
+    "fit": null,
+    "acquisition": null,
+    "differentiation": null
+  },
+  "priority": null,
+  "unknowns": [
+    "缺少排除内购的有效依据"
+  ],
+  "rule_version": "PROPOSAL-v2",
+  "model_id": null
+}

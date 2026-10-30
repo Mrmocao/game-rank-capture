@@ -1,0 +1,33 @@
+{
+  "source_id": "demo-source",
+  "chart_id": "demo-chart",
+  "business_date": "2026-10-25",
+  "entries": [
+    {
+      "external_id": "demo-game-1",
+      "name": "示例休闲游戏",
+      "rank": 12,
+      "gameplay_summary": "按颜色整理物品。",
+      "tags": [
+        "收纳",
+        "益智"
+      ],
+      "monetization_candidate": "UNKNOWN",
+      "confidence": null,
+      "evidence": [
+        {
+          "field": "rank",
+          "locator": "rows[0].rank",
+          "excerpt": "12"
+        }
+      ],
+      "missing_fields": [
+        "monetization_evidence",
+        "release_date"
+      ]
+    }
+  ],
+  "warnings": [
+    "示例材料未给出变现方式，不能确认纯IAA。"
+  ]
+}

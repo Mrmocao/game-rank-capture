@@ -1,0 +1,22 @@
+{
+  "weights": [
+    25,
+    15,
+    20,
+    20,
+    10,
+    10
+  ],
+  "target": 8,
+  "familyCap": 2,
+  "budget": 20,
+  "minObserved": 10,
+  "minHalf": 5,
+  "maxReviewWidth": 0.3,
+  "z": 1.96,
+  "growthScale": 0.3,
+  "explorationSlots": 2,
+  "minTopDays": 7,
+  "minCoverage": 0.75,
+  "maxUtilityWidth": 25
+}

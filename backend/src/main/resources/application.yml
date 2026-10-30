@@ -1,0 +1,37 @@
+spring:
+  config:
+    import: optional:file:.env[.properties],optional:file:../.env[.properties]
+  application.name: iaa-radar-api
+  jackson:
+    time-zone: UTC
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/iaa_radar?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC}
+    username: ${DB_USERNAME:iaa}
+    password: ${DB_PASSWORD:change-me}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+server:
+  port: ${SERVER_PORT:8080}
+app:
+  business-timezone: ${BUSINESS_TIMEZONE:Asia/Shanghai}
+  material-dir: ${MATERIAL_DIR:./data/materials}
+---
+spring:
+  config.activate.on-profile: dev
+  flyway:
+    enabled: true
+    locations: classpath:db/migration,classpath:db/demo
+app:
+  demo-data: true
+---
+spring:
+  config.activate.on-profile: test
+  datasource:
+    url: jdbc:h2:mem:iaa;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  flyway.enabled: false
+

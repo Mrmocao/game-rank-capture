@@ -1,0 +1,1547 @@
+{
+  "version": "2.0",
+  "dates": [
+    "2026-10-19",
+    "2026-10-22",
+    "2026-10-25",
+    "2026-10-28"
+  ],
+  "domains": [
+    {
+      "id": "identity",
+      "name": "产品身份与生命周期",
+      "purpose": "确认研究对象，避免重名和跨版本混淆",
+      "items": [
+        "平台稳定ID与包名",
+        "产品别名与跨平台关系",
+        "开发商与发行商",
+        "上线/更新/下架日期",
+        "地区与语言",
+        "平台版本与变现模式"
+      ],
+      "ai": "关联候选与版本变化识别",
+      "limit": "同名不能直接合并；IAA以平台版本及有效证据为准",
+      "priority": "核心"
+    },
+    {
+      "id": "market",
+      "name": "榜单与市场表现",
+      "purpose": "识别需求规模和增长持续性",
+      "items": [
+        "榜单定义与名次快照",
+        "连续/累计在榜天数",
+        "7/30/90日表现",
+        "下载与活跃估算",
+        "平台推荐/曝光事件",
+        "热度变化和数据覆盖"
+      ],
+      "ai": "异常检测与增长解释",
+      "limit": "不同榜单不平均；估算带来源；缺失不当作掉榜",
+      "priority": "核心"
+    },
+    {
+      "id": "reviews",
+      "name": "玩家评价与体验",
+      "purpose": "理解玩家为什么喜欢、为什么流失",
+      "items": [
+        "评分及各星级数量",
+        "新增评价与评分变化",
+        "好评/差评原文",
+        "版本/地区/语言",
+        "玩法/难度/广告主题",
+        "有用票与开发者回复"
+      ],
+      "ai": "主题、方面情感、需求与反例提取",
+      "limit": "评价样本不是全部玩家；“好评率”须明确星级定义及分母",
+      "priority": "核心"
+    },
+    {
+      "id": "opinion",
+      "name": "社区舆情与讨论",
+      "purpose": "区分关注度、口碑和事件影响",
+      "items": [
+        "帖子/视频/评论提及",
+        "去重内容与独立作者",
+        "互动增量及传播路径",
+        "正负中性/无法判断",
+        "争议/更新/故障事件",
+        "广告合作与自然讨论标记"
+      ],
+      "ai": "实体消歧、事件聚类、讽刺与冲突复核",
+      "limit": "负面爆发也会带来高热度；转载不算独立佐证",
+      "priority": "核心"
+    },
+    {
+      "id": "play",
+      "name": "玩法与产品结构",
+      "purpose": "判断可借鉴机制和制作依赖",
+      "items": [
+        "核心操作与单局目标",
+        "规则/限制/胜负条件",
+        "关卡供给与生成方式",
+        "成长/收集/活动系统",
+        "美术与联网复杂度",
+        "实机与广告玩法一致性"
+      ],
+      "ai": "玩法拆解、机制归类与相似玩法检索",
+      "limit": "视频看不到的系统标未知；制作周期需团队能力验证",
+      "priority": "核心"
+    },
+    {
+      "id": "ads",
+      "name": "广告素材与投放",
+      "purpose": "识别获客卖点和持续投放信号",
+      "items": [
+        "素材ID/首次与最近出现",
+        "新增素材与创意家族",
+        "投放渠道/地区/版位",
+        "开场钩子/情绪/操作",
+        "素材持续使用天数",
+        "投放份额/费用估算"
+      ],
+      "ai": "素材去重、卖点分析、实机偏差识别",
+      "limit": "素材数不等于投放额，持续投放不等于盈利",
+      "priority": "核心"
+    },
+    {
+      "id": "monetize",
+      "name": "变现与经营线索",
+      "purpose": "确认IAA资格和商业依赖",
+      "items": [
+        "广告/内购模式及证据",
+        "激励广告/插屏触发点",
+        "复活/提示/加槽位",
+        "广告负担反馈",
+        "内购商品与去广告",
+        "广告收入/成本的已知与未知"
+      ],
+      "ai": "版本级模式判断与证据冲突识别",
+      "limit": "商店收入估算不默认含广告；无证据不推断ROI",
+      "priority": "核心"
+    },
+    {
+      "id": "competition",
+      "name": "同类竞争与供给",
+      "purpose": "判断玩法扩散与进入空间",
+      "items": [
+        "同机制产品与发行主体",
+        "新进入/退出产品",
+        "跨平台/跨地区验证",
+        "头部集中与长尾",
+        "玩法变体与差异",
+        "成功/衰退/失败样本"
+      ],
+      "ai": "同类聚类、差异点及竞争压力归纳",
+      "limit": "样本覆盖不全不能宣称低竞争；同发行商多包非独立验证",
+      "priority": "核心"
+    },
+    {
+      "id": "discovery",
+      "name": "传播、搜索与外部事件",
+      "purpose": "尽早发现榜单以外的机会",
+      "items": [
+        "搜索词/指数与区域",
+        "攻略/直播/UGC",
+        "独立创作者与传播增量",
+        "行业报告/平台扶持",
+        "节日/联动/版本事件",
+        "小型新游与长尾新词"
+      ],
+      "ai": "关键词扩展与事件归因假设",
+      "limit": "指数不等于用户人数；新闻转载/付费合作需独立标记",
+      "priority": "扩展"
+    },
+    {
+      "id": "internal",
+      "name": "内部能力与验证反馈",
+      "purpose": "衡量适合我们做以及实际效果",
+      "items": [
+        "可复用代码/框架能力",
+        "人力/周期/内容预算",
+        "选用与放弃原因",
+        "原型制作实际耗时",
+        "CPI/留存/广告收益测试",
+        "测试样本/渠道/版本"
+      ],
+      "ai": "适配分析与推荐失误复盘",
+      "limit": "外部热度不能证明内部测试成功；选用不等于成功",
+      "priority": "逐步补充"
+    }
+  ],
+  "products": [
+    {
+      "id": 0,
+      "name": "叠叠小岛",
+      "genre": "堆叠合成",
+      "icon": "🏝",
+      "scores": [
+        84,
+        76,
+        88,
+        72,
+        80
+      ],
+      "quality": 92,
+      "gate": "通过",
+      "why": "多平台持续表现，关卡可用模板生成。",
+      "risk": "合成节奏被认可；高阶关卡存在重复反馈。",
+      "versions": [
+        {
+          "platform": "微信",
+          "region": "中国",
+          "chart": "示例人气榜",
+          "rank": 8,
+          "delta": 32,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "抖音",
+          "region": "中国",
+          "chart": "示例热门榜",
+          "rank": 20,
+          "delta": 16,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "iOS",
+          "region": "中国",
+          "chart": "示例游戏免费榜",
+          "rank": 68,
+          "delta": -5,
+          "mode": "混合变现"
+        }
+      ],
+      "reviews": {
+        "sample": 200,
+        "positive": 128,
+        "negative": 30,
+        "neutral": 42,
+        "unclassified": 0,
+        "duplicates": 24,
+        "mentions": 220,
+        "baseline": 170,
+        "authors": 110,
+        "coverage": "同源同范围"
+      },
+      "first": "2026-10-19",
+      "summary": "把物品拖动合成，逐步解锁岛屿空间。"
+    },
+    {
+      "id": 1,
+      "name": "螺丝收纳局",
+      "genre": "物理解谜",
+      "icon": "🔩",
+      "scores": [
+        88,
+        80,
+        71,
+        77,
+        82
+      ],
+      "quality": 89,
+      "gate": "通过",
+      "why": "本周排名上涨，整理类创意有明确操作卖点。",
+      "risk": "广告频次争议，需要验证激励与强制广告比例。",
+      "versions": [
+        {
+          "platform": "微信",
+          "region": "中国",
+          "chart": "示例人气榜",
+          "rank": 12,
+          "delta": 30,
+          "mode": "纯 IAA"
+        }
+      ],
+      "reviews": {
+        "sample": 250,
+        "positive": 160,
+        "negative": 35,
+        "neutral": 55,
+        "unclassified": 0,
+        "duplicates": 30,
+        "mentions": 260,
+        "baseline": 190,
+        "authors": 118,
+        "coverage": "同源同范围"
+      },
+      "first": "2026-10-19",
+      "summary": "按颜色和遮挡关系拆除螺丝，完成收纳。"
+    },
+    {
+      "id": 2,
+      "name": "方块消消乐示例",
+      "genre": "方块消除",
+      "icon": "🧩",
+      "scores": [
+        80,
+        68,
+        93,
+        64,
+        77
+      ],
+      "quality": 90,
+      "gate": "通过",
+      "why": "低门槛核心循环，适合已有棋盘框架的小规模测试。",
+      "risk": "同类较多，必须验证新规则能否形成差异。",
+      "versions": [
+        {
+          "platform": "微信",
+          "region": "中国",
+          "chart": "示例人气榜",
+          "rank": 16,
+          "delta": 28,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "抖音",
+          "region": "中国",
+          "chart": "示例热门榜",
+          "rank": 26,
+          "delta": 14,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "iOS",
+          "region": "中国",
+          "chart": "示例游戏免费榜",
+          "rank": 66,
+          "delta": -5,
+          "mode": "纯 IAA"
+        }
+      ],
+      "reviews": {
+        "sample": 300,
+        "positive": 192,
+        "negative": 40,
+        "neutral": 68,
+        "unclassified": 0,
+        "duplicates": 36,
+        "mentions": 300,
+        "baseline": 210,
+        "authors": 126,
+        "coverage": "同源同范围"
+      },
+      "first": "2026-10-19",
+      "summary": "在有限棋盘放置方块，填满一行或一列消除。"
+    },
+    {
+      "id": 3,
+      "name": "Pocket Sort 示例",
+      "genre": "分类收纳",
+      "icon": "🎨",
+      "scores": [
+        82,
+        87,
+        82,
+        82,
+        85
+      ],
+      "quality": 87,
+      "gate": "通过",
+      "why": "欧美样本中讨论增长，跨市场迁移值得测试。",
+      "risk": "海外反馈能否迁移到国内用户仍待验证。",
+      "versions": [
+        {
+          "platform": "Google Play",
+          "region": "美国",
+          "chart": "示例游戏免费榜",
+          "rank": 23,
+          "delta": 26,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "Google Play",
+          "region": "英国",
+          "chart": "示例游戏免费榜",
+          "rank": 30,
+          "delta": 23,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "Google Play",
+          "region": "德国",
+          "chart": "示例游戏免费榜",
+          "rank": 37,
+          "delta": 20,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "Google Play",
+          "region": "法国",
+          "chart": "示例游戏免费榜",
+          "rank": 44,
+          "delta": 17,
+          "mode": "纯 IAA"
+        }
+      ],
+      "reviews": {
+        "sample": 350,
+        "positive": 224,
+        "negative": 45,
+        "neutral": 81,
+        "unclassified": 0,
+        "duplicates": 42,
+        "mentions": 340,
+        "baseline": 230,
+        "authors": 134,
+        "coverage": "同源同范围"
+      },
+      "first": "2026-10-19",
+      "summary": "在有限槽位中按颜色分类，完成物品整理。"
+    },
+    {
+      "id": 4,
+      "name": "停车解围示例",
+      "genre": "路径解谜",
+      "icon": "🚗",
+      "scores": [
+        78,
+        72,
+        80,
+        75,
+        76
+      ],
+      "quality": 85,
+      "gate": "通过",
+      "why": "稳定在榜，关卡约束清楚，可快速验证引导。",
+      "risk": "复杂关卡制作成本需要内部试玩确认。",
+      "versions": [
+        {
+          "platform": "微信",
+          "region": "中国",
+          "chart": "示例人气榜",
+          "rank": 24,
+          "delta": 24,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "抖音",
+          "region": "中国",
+          "chart": "示例热门榜",
+          "rank": 32,
+          "delta": 12,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "iOS",
+          "region": "中国",
+          "chart": "示例游戏免费榜",
+          "rank": 64,
+          "delta": -5,
+          "mode": "纯 IAA"
+        }
+      ],
+      "reviews": {
+        "sample": 400,
+        "positive": 256,
+        "negative": 50,
+        "neutral": 94,
+        "unclassified": 0,
+        "duplicates": 48,
+        "mentions": 380,
+        "baseline": 250,
+        "authors": 142,
+        "coverage": "同源同范围"
+      },
+      "first": "2026-10-19",
+      "summary": "安排车辆离场顺序，解除停车场拥堵。"
+    },
+    {
+      "id": 5,
+      "name": "小猫找不同示例",
+      "genre": "观察找茬",
+      "icon": "🐈",
+      "scores": [
+        73,
+        78,
+        75,
+        69,
+        82
+      ],
+      "quality": 82,
+      "gate": "通过",
+      "why": "玩家认可画面主题，适合以题材差异做测试。",
+      "risk": "美术供给持续性影响后续内容成本。",
+      "versions": [
+        {
+          "platform": "Google Play",
+          "region": "美国",
+          "chart": "示例游戏免费榜",
+          "rank": 27,
+          "delta": 26,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "Google Play",
+          "region": "英国",
+          "chart": "示例游戏免费榜",
+          "rank": 34,
+          "delta": 23,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "Google Play",
+          "region": "德国",
+          "chart": "示例游戏免费榜",
+          "rank": 41,
+          "delta": 20,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "Google Play",
+          "region": "法国",
+          "chart": "示例游戏免费榜",
+          "rank": 48,
+          "delta": 17,
+          "mode": "纯 IAA"
+        }
+      ],
+      "reviews": {
+        "sample": 450,
+        "positive": 288,
+        "negative": 55,
+        "neutral": 107,
+        "unclassified": 0,
+        "duplicates": 54,
+        "mentions": 420,
+        "baseline": 270,
+        "authors": 150,
+        "coverage": "同源同范围"
+      },
+      "first": "2026-10-19",
+      "summary": "观察场景差异并逐步解锁插画主题。"
+    },
+    {
+      "id": 6,
+      "name": "极速收纳示例",
+      "genre": "分类收纳",
+      "icon": "🧺",
+      "scores": [
+        91,
+        90,
+        80,
+        76,
+        65
+      ],
+      "quality": 84,
+      "gate": "负面爆发",
+      "why": "讨论量激增，但大量来自广告频次争议。",
+      "risk": "新增负面占比和同一事件转载同时升高。",
+      "versions": [
+        {
+          "platform": "微信",
+          "region": "中国",
+          "chart": "示例人气榜",
+          "rank": 32,
+          "delta": 20,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "抖音",
+          "region": "中国",
+          "chart": "示例热门榜",
+          "rank": 38,
+          "delta": 10,
+          "mode": "纯 IAA"
+        }
+      ],
+      "reviews": {
+        "sample": 500,
+        "positive": 160,
+        "negative": 280,
+        "neutral": 60,
+        "unclassified": 0,
+        "duplicates": 60,
+        "mentions": 960,
+        "baseline": 300,
+        "authors": 330,
+        "coverage": "同源同范围"
+      },
+      "first": "2026-10-19",
+      "summary": "把物品拖动合成，逐步解锁岛屿空间。"
+    },
+    {
+      "id": 7,
+      "name": "森林拼图示例",
+      "genre": "拼图益智",
+      "icon": "🌳",
+      "scores": [
+        75,
+        80,
+        83,
+        65,
+        79
+      ],
+      "quality": 48,
+      "gate": "证据不足",
+      "why": "少量样本好评较高，市场和评论证据不足。",
+      "risk": "不能把12条评价外推为玩家普遍认可。",
+      "versions": [
+        {
+          "platform": "Google Play",
+          "region": "美国",
+          "chart": "示例游戏免费榜",
+          "rank": 31,
+          "delta": 26,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "Google Play",
+          "region": "英国",
+          "chart": "示例游戏免费榜",
+          "rank": 38,
+          "delta": 23,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "Google Play",
+          "region": "德国",
+          "chart": "示例游戏免费榜",
+          "rank": 45,
+          "delta": 20,
+          "mode": "纯 IAA"
+        },
+        {
+          "platform": "Google Play",
+          "region": "法国",
+          "chart": "示例游戏免费榜",
+          "rank": 52,
+          "delta": 17,
+          "mode": "纯 IAA"
+        }
+      ],
+      "reviews": {
+        "sample": 12,
+        "positive": 5,
+        "negative": 3,
+        "neutral": 4,
+        "unclassified": 0,
+        "duplicates": 1,
+        "mentions": 500,
+        "baseline": 310,
+        "authors": 166,
+        "coverage": "样本不足"
+      },
+      "first": "2026-10-19",
+      "summary": "按颜色和遮挡关系拆除螺丝，完成收纳。"
+    },
+    {
+      "id": 8,
+      "name": "塔楼融合示例",
+      "genre": "融合塔防",
+      "icon": "🏰",
+      "scores": [
+        82,
+        74,
+        53,
+        78,
+        74
+      ],
+      "quality": 91,
+      "gate": "混合变现",
+      "why": "市场表现可参考，但样例版本包含内购。",
+      "risk": "不符合当前纯IAA研究目标。",
+      "versions": [
+        {
+          "platform": "微信",
+          "region": "中国",
+          "chart": "示例人气榜",
+          "rank": 40,
+          "delta": 16,
+          "mode": "混合变现"
+        },
+        {
+          "platform": "抖音",
+          "region": "中国",
+          "chart": "示例热门榜",
+          "rank": 44,
+          "delta": 8,
+          "mode": "混合变现"
+        },
+        {
+          "platform": "iOS",
+          "region": "中国",
+          "chart": "示例游戏免费榜",
+          "rank": 60,
+          "delta": -5,
+          "mode": "混合变现"
+        }
+      ],
+      "reviews": {
+        "sample": 600,
+        "positive": 384,
+        "negative": 70,
+        "neutral": 146,
+        "unclassified": 0,
+        "duplicates": 72,
+        "mentions": 540,
+        "baseline": 330,
+        "authors": 174,
+        "coverage": "同源同范围"
+      },
+      "first": "2026-10-19",
+      "summary": "在有限棋盘放置方块，填满一行或一列消除。"
+    },
+    {
+      "id": 9,
+      "name": "小球轨道示例",
+      "genre": "轨道解谜",
+      "icon": "🎱",
+      "scores": [
+        79,
+        81,
+        79,
+        72,
+        80
+      ],
+      "quality": 66,
+      "gate": "待识别",
+      "why": "玩法传播有线索，尚缺纯IAA的可靠版本证据。",
+      "risk": "需要补变现证据和更多独立来源。",
+      "versions": [
+        {
+          "platform": "Google Play",
+          "region": "美国",
+          "chart": "示例游戏免费榜",
+          "rank": 35,
+          "delta": 26,
+          "mode": "未知"
+        },
+        {
+          "platform": "Google Play",
+          "region": "英国",
+          "chart": "示例游戏免费榜",
+          "rank": 42,
+          "delta": 23,
+          "mode": "未知"
+        },
+        {
+          "platform": "Google Play",
+          "region": "德国",
+          "chart": "示例游戏免费榜",
+          "rank": 49,
+          "delta": 20,
+          "mode": "未知"
+        },
+        {
+          "platform": "Google Play",
+          "region": "法国",
+          "chart": "示例游戏免费榜",
+          "rank": 56,
+          "delta": 17,
+          "mode": "未知"
+        }
+      ],
+      "reviews": {
+        "sample": 650,
+        "positive": 416,
+        "negative": 75,
+        "neutral": 159,
+        "unclassified": 0,
+        "duplicates": 78,
+        "mentions": 580,
+        "baseline": 350,
+        "authors": 182,
+        "coverage": "同源同范围"
+      },
+      "first": "2026-10-19",
+      "summary": "在有限槽位中按颜色分类，完成物品整理。"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "R0-0",
+      "pid": 0,
+      "sentiment": "正面",
+      "topic": "玩法体验",
+      "text": "规则很快能看懂，完成一关后还想再试。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-0-0",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R0-1",
+      "pid": 0,
+      "sentiment": "正面",
+      "topic": "操作反馈",
+      "text": "整理完成的反馈舒服，操作也比较顺手。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-0-1",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R0-2",
+      "pid": 0,
+      "sentiment": "负面",
+      "topic": "广告负担",
+      "text": "刚失败就连续弹广告，想继续玩却被打断。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-0-2",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R0-3",
+      "pid": 0,
+      "sentiment": "负面",
+      "topic": "内容重复",
+      "text": "后面的关卡变化不大，希望多一些新规则。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-0-3",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R0-4",
+      "pid": 0,
+      "sentiment": "中性",
+      "topic": "难度节奏",
+      "text": "前面比较简单，后面难度提升明显。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-0-4",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R0-5",
+      "pid": 0,
+      "sentiment": "无法判断",
+      "topic": "素材一致性",
+      "text": "视频里看起来很轻松，实际体验还要再看看。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "待核验",
+      "origin": "DEMO-0-5",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R1-0",
+      "pid": 1,
+      "sentiment": "正面",
+      "topic": "玩法体验",
+      "text": "规则很快能看懂，完成一关后还想再试。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-1-0",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R1-1",
+      "pid": 1,
+      "sentiment": "正面",
+      "topic": "操作反馈",
+      "text": "整理完成的反馈舒服，操作也比较顺手。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-1-1",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R1-2",
+      "pid": 1,
+      "sentiment": "负面",
+      "topic": "广告负担",
+      "text": "刚失败就连续弹广告，想继续玩却被打断。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-1-2",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R1-3",
+      "pid": 1,
+      "sentiment": "负面",
+      "topic": "内容重复",
+      "text": "后面的关卡变化不大，希望多一些新规则。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-1-3",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R1-4",
+      "pid": 1,
+      "sentiment": "中性",
+      "topic": "难度节奏",
+      "text": "前面比较简单，后面难度提升明显。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-1-4",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R1-5",
+      "pid": 1,
+      "sentiment": "无法判断",
+      "topic": "素材一致性",
+      "text": "视频里看起来很轻松，实际体验还要再看看。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "待核验",
+      "origin": "DEMO-1-5",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R2-0",
+      "pid": 2,
+      "sentiment": "正面",
+      "topic": "玩法体验",
+      "text": "规则很快能看懂，完成一关后还想再试。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-2-0",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R2-1",
+      "pid": 2,
+      "sentiment": "正面",
+      "topic": "操作反馈",
+      "text": "整理完成的反馈舒服，操作也比较顺手。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-2-1",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R2-2",
+      "pid": 2,
+      "sentiment": "负面",
+      "topic": "广告负担",
+      "text": "刚失败就连续弹广告，想继续玩却被打断。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-2-2",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R2-3",
+      "pid": 2,
+      "sentiment": "负面",
+      "topic": "内容重复",
+      "text": "后面的关卡变化不大，希望多一些新规则。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-2-3",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R2-4",
+      "pid": 2,
+      "sentiment": "中性",
+      "topic": "难度节奏",
+      "text": "前面比较简单，后面难度提升明显。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-2-4",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R2-5",
+      "pid": 2,
+      "sentiment": "无法判断",
+      "topic": "素材一致性",
+      "text": "视频里看起来很轻松，实际体验还要再看看。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "待核验",
+      "origin": "DEMO-2-5",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R3-0",
+      "pid": 3,
+      "sentiment": "正面",
+      "topic": "玩法体验",
+      "text": "规则很快能看懂，完成一关后还想再试。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-3-0",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R3-1",
+      "pid": 3,
+      "sentiment": "正面",
+      "topic": "操作反馈",
+      "text": "整理完成的反馈舒服，操作也比较顺手。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-3-1",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R3-2",
+      "pid": 3,
+      "sentiment": "负面",
+      "topic": "广告负担",
+      "text": "刚失败就连续弹广告，想继续玩却被打断。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-3-2",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R3-3",
+      "pid": 3,
+      "sentiment": "负面",
+      "topic": "内容重复",
+      "text": "后面的关卡变化不大，希望多一些新规则。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-3-3",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R3-4",
+      "pid": 3,
+      "sentiment": "中性",
+      "topic": "难度节奏",
+      "text": "前面比较简单，后面难度提升明显。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-3-4",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R3-5",
+      "pid": 3,
+      "sentiment": "无法判断",
+      "topic": "素材一致性",
+      "text": "视频里看起来很轻松，实际体验还要再看看。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "待核验",
+      "origin": "DEMO-3-5",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R4-0",
+      "pid": 4,
+      "sentiment": "正面",
+      "topic": "玩法体验",
+      "text": "规则很快能看懂，完成一关后还想再试。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-4-0",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R4-1",
+      "pid": 4,
+      "sentiment": "正面",
+      "topic": "操作反馈",
+      "text": "整理完成的反馈舒服，操作也比较顺手。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-4-1",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R4-2",
+      "pid": 4,
+      "sentiment": "负面",
+      "topic": "广告负担",
+      "text": "刚失败就连续弹广告，想继续玩却被打断。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-4-2",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R4-3",
+      "pid": 4,
+      "sentiment": "负面",
+      "topic": "内容重复",
+      "text": "后面的关卡变化不大，希望多一些新规则。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-4-3",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R4-4",
+      "pid": 4,
+      "sentiment": "中性",
+      "topic": "难度节奏",
+      "text": "前面比较简单，后面难度提升明显。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-4-4",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R4-5",
+      "pid": 4,
+      "sentiment": "无法判断",
+      "topic": "素材一致性",
+      "text": "视频里看起来很轻松，实际体验还要再看看。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "待核验",
+      "origin": "DEMO-4-5",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R5-0",
+      "pid": 5,
+      "sentiment": "正面",
+      "topic": "玩法体验",
+      "text": "规则很快能看懂，完成一关后还想再试。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-5-0",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R5-1",
+      "pid": 5,
+      "sentiment": "正面",
+      "topic": "操作反馈",
+      "text": "整理完成的反馈舒服，操作也比较顺手。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-5-1",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R5-2",
+      "pid": 5,
+      "sentiment": "负面",
+      "topic": "广告负担",
+      "text": "刚失败就连续弹广告，想继续玩却被打断。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-5-2",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R5-3",
+      "pid": 5,
+      "sentiment": "负面",
+      "topic": "内容重复",
+      "text": "后面的关卡变化不大，希望多一些新规则。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-5-3",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R5-4",
+      "pid": 5,
+      "sentiment": "中性",
+      "topic": "难度节奏",
+      "text": "前面比较简单，后面难度提升明显。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-5-4",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R5-5",
+      "pid": 5,
+      "sentiment": "无法判断",
+      "topic": "素材一致性",
+      "text": "视频里看起来很轻松，实际体验还要再看看。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "待核验",
+      "origin": "DEMO-5-5",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R6-0",
+      "pid": 6,
+      "sentiment": "正面",
+      "topic": "玩法体验",
+      "text": "规则很快能看懂，完成一关后还想再试。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-6-0",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R6-1",
+      "pid": 6,
+      "sentiment": "正面",
+      "topic": "操作反馈",
+      "text": "整理完成的反馈舒服，操作也比较顺手。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-6-1",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R6-2",
+      "pid": 6,
+      "sentiment": "负面",
+      "topic": "广告负担",
+      "text": "刚失败就连续弹广告，想继续玩却被打断。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-6-2",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R6-3",
+      "pid": 6,
+      "sentiment": "负面",
+      "topic": "内容重复",
+      "text": "后面的关卡变化不大，希望多一些新规则。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-6-3",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R6-4",
+      "pid": 6,
+      "sentiment": "中性",
+      "topic": "难度节奏",
+      "text": "前面比较简单，后面难度提升明显。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-6-4",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R6-5",
+      "pid": 6,
+      "sentiment": "无法判断",
+      "topic": "素材一致性",
+      "text": "视频里看起来很轻松，实际体验还要再看看。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "待核验",
+      "origin": "DEMO-6-5",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R7-0",
+      "pid": 7,
+      "sentiment": "正面",
+      "topic": "玩法体验",
+      "text": "规则很快能看懂，完成一关后还想再试。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-7-0",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R7-1",
+      "pid": 7,
+      "sentiment": "正面",
+      "topic": "操作反馈",
+      "text": "整理完成的反馈舒服，操作也比较顺手。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-7-1",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R7-2",
+      "pid": 7,
+      "sentiment": "负面",
+      "topic": "广告负担",
+      "text": "刚失败就连续弹广告，想继续玩却被打断。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-7-2",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R7-3",
+      "pid": 7,
+      "sentiment": "负面",
+      "topic": "内容重复",
+      "text": "后面的关卡变化不大，希望多一些新规则。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-7-3",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R7-4",
+      "pid": 7,
+      "sentiment": "中性",
+      "topic": "难度节奏",
+      "text": "前面比较简单，后面难度提升明显。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-7-4",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R7-5",
+      "pid": 7,
+      "sentiment": "无法判断",
+      "topic": "素材一致性",
+      "text": "视频里看起来很轻松，实际体验还要再看看。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "待核验",
+      "origin": "DEMO-7-5",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R8-0",
+      "pid": 8,
+      "sentiment": "正面",
+      "topic": "玩法体验",
+      "text": "规则很快能看懂，完成一关后还想再试。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-8-0",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R8-1",
+      "pid": 8,
+      "sentiment": "正面",
+      "topic": "操作反馈",
+      "text": "整理完成的反馈舒服，操作也比较顺手。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-8-1",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R8-2",
+      "pid": 8,
+      "sentiment": "负面",
+      "topic": "广告负担",
+      "text": "刚失败就连续弹广告，想继续玩却被打断。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-8-2",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R8-3",
+      "pid": 8,
+      "sentiment": "负面",
+      "topic": "内容重复",
+      "text": "后面的关卡变化不大，希望多一些新规则。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-8-3",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R8-4",
+      "pid": 8,
+      "sentiment": "中性",
+      "topic": "难度节奏",
+      "text": "前面比较简单，后面难度提升明显。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "体验反馈",
+      "origin": "DEMO-8-4",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R8-5",
+      "pid": 8,
+      "sentiment": "无法判断",
+      "topic": "素材一致性",
+      "text": "视频里看起来很轻松，实际体验还要再看看。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "中文",
+      "intent": "待核验",
+      "origin": "DEMO-8-5",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R9-0",
+      "pid": 9,
+      "sentiment": "正面",
+      "topic": "玩法体验",
+      "text": "规则很快能看懂，完成一关后还想再试。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-9-0",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R9-1",
+      "pid": 9,
+      "sentiment": "正面",
+      "topic": "操作反馈",
+      "text": "整理完成的反馈舒服，操作也比较顺手。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-9-1",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R9-2",
+      "pid": 9,
+      "sentiment": "负面",
+      "topic": "广告负担",
+      "text": "刚失败就连续弹广告，想继续玩却被打断。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-9-2",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R9-3",
+      "pid": 9,
+      "sentiment": "负面",
+      "topic": "内容重复",
+      "text": "后面的关卡变化不大，希望多一些新规则。",
+      "source": "商店评价样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-9-3",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R9-4",
+      "pid": 9,
+      "sentiment": "中性",
+      "topic": "难度节奏",
+      "text": "前面比较简单，后面难度提升明显。",
+      "source": "公开社区讨论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "体验反馈",
+      "origin": "DEMO-9-4",
+      "status": "示例原文，非真实玩家发言"
+    },
+    {
+      "id": "R9-5",
+      "pid": 9,
+      "sentiment": "无法判断",
+      "topic": "素材一致性",
+      "text": "视频里看起来很轻松，实际体验还要再看看。",
+      "source": "视频评论样本",
+      "date": "2026-10-25",
+      "locale": "英文→中文示意",
+      "intent": "待核验",
+      "origin": "DEMO-9-5",
+      "status": "示例原文，非真实玩家发言"
+    }
+  ],
+  "dimensions": [
+    "市场验证",
+    "近期机会",
+    "制作适配",
+    "获客潜力",
+    "差异空间"
+  ],
+  "defaultWeights": [
+    30,
+    20,
+    20,
+    15,
+    15
+  ]
+}

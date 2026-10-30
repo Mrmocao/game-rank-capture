@@ -1,0 +1,16 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: iaa-radar-mysql
+    environment:
+      MYSQL_DATABASE: iaa_radar
+      MYSQL_USER: iaa
+      MYSQL_PASSWORD: change-me
+      MYSQL_ROOT_PASSWORD: root-change-me
+    ports:
+      - "3306:3306"
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    volumes:
+      - iaa-radar-mysql:/var/lib/mysql
+volumes:
+  iaa-radar-mysql:
