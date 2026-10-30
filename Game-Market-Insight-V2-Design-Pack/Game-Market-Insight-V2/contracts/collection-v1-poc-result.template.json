@@ -1,0 +1,45 @@
+{
+  "schema_version": "source-probe/1.0.0",
+  "is_template": true,
+  "source_id": null,
+  "run_at": null,
+  "reviewer": null,
+  "environment": {
+    "region": null,
+    "device": null,
+    "locale": null,
+    "authenticated": null
+  },
+  "access": {
+    "official_document_url": null,
+    "page_url": null,
+    "method": null,
+    "permission_basis": null,
+    "robots_checked_at": null,
+    "policy_version": null
+  },
+  "response": {
+    "http_status": null,
+    "market_displayed": null,
+    "source_date": null,
+    "observed_at": null,
+    "observed_count": null,
+    "verified_contiguous_depth": null,
+    "pagination_exhausted": null,
+    "raw_artifact_id": null,
+    "evidence_locator": null
+  },
+  "checks": {
+    "identity_match": null,
+    "rank_order_match": null,
+    "metric_definition_confirmed": null,
+    "sample_strategy_confirmed": null,
+    "usage_allowed": null,
+    "retention_configured": null
+  },
+  "decision": "pending",
+  "verified_scope": null,
+  "unavailable_fields": [],
+  "fallback": null,
+  "can_enable_production": false
+}

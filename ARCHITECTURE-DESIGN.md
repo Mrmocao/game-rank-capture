@@ -1,8 +1,8 @@
 # 游探 / 锦鲤云 IAA 产品情报系统
 
-**整体架构与产品设计基线 · V2.3 · 2026-10-30；推荐算法 2.2.0**
+**整体架构与产品设计基线 · V2.7 · 2026-10-30；档案 2.3.0；推荐算法 2.2.0**
 
-实现状态：V2.3 档案已接入当前工程主页面与推荐输入，登录、材料/复核、任务、选用、导出和授权材料 AI 草案链路已实现。Flyway V9～V11 已在配置数据库与生产数据库执行，78 项测试通过；桌面/移动浏览器已验证。真实模型供应商、完整来源授权、媒体上传缓存与长期运行尚未验收。具体发布状态以 DEPLOYMENT.md 为准。
+实现状态：V2.7 来源登记、门户字段模板、采集运行只读日志和运维导航已接入；V2.3 档案、材料/复核、任务、选用、导出和授权材料 AI 草案链路已实现。Flyway V9～V12 已在配置数据库与生产数据库执行，80 项测试通过；桌面/移动浏览器已验证。真实模型供应商、Firecrawl/门户自动采集、完整来源授权、媒体上传缓存与长期运行尚未验收。具体发布状态以 DEPLOYMENT.md 为准。
 
 本文是当前工程唯一的实现基线。后续新增页面、接口、采集来源、AI任务、数据库字段和周报规则，先更新本文的相应章节，再修改代码与迁移。当前工程不维护可切换的产品多版本；历史周报是业务事实快照，必须保留，但新代码统一按本文最新设计实现。
 
@@ -25,6 +25,7 @@ Java 21 + Spring Boot 3.5.6
   ├─ 确定性领域层：日期快照、资格、去重、缺失状态、V2.2六维范围、报告冻结
   ├─ 采集层：Apple RSS、AppBrain材料、公开微信/抖音观察、未来安卓端材料
   ├─ AI适配层：OpenAI-compatible中转；Schema校验；失败可弃权
+  ├─ 采集运维：source_definition、collection_task_definition、运行/尝试/阶段日志
   └─ 迁移/调度：Flyway、JDBC、Asia/Shanghai业务时区
         │ JDBC（不依赖 MySQL CLI）
         ▼
@@ -90,7 +91,7 @@ MySQL 8 iaa_radar
 
 材料提交→待复核→通过/拒绝/冲突/需补材料，review与观测写入同一事务，使用revision乐观锁。任务按组织+listing+信息域锁定去重，支持负责人、优先级、进度、不可得原因及复查条件；任务状态不能改事实。档案导出冻结schema、范围和时间，当前协作记录单列。多人选用复用既有记录及审计，资料完整率不参与V2.2六维评分。
 
-档案API采用服务端配置组织`PROFILE_TENANT_ID`与访问令牌`PROFILE_ACCESS_TOKEN`，禁止客户端切换组织。生产部署配置访问令牌；只在本地开发明确未配置时允许单组织访问。`GET/POST /api/v1/access` 用于状态/登录，浏览器不保存令牌到localStorage；会话为8小时HttpOnly SameSite=Strict Cookie，重启后需重新登录；失败登录限速。脚本使用Bearer，CORS仅允许配置中的准确Origin。所有新业务表含tenant_id，材料、任务与证据读取均检查组织。该部署仍是单组织共享口令加姓名填报，不宣称已有企业SSO、人员身份认证或多组织管理界面。
+档案API采用服务端配置组织`PROFILE_TENANT_ID`与可选访问令牌`PROFILE_ACCESS_TOKEN`，禁止客户端切换组织。当前生产按业务要求留空访问令牌，直接进入单组织工作区；以后配置令牌后才启用共享口令登录。`GET/POST /api/v1/access` 用于状态/登录，浏览器不保存令牌到localStorage；启用令牌时会话为8小时HttpOnly SameSite=Strict Cookie，重启后需重新登录，失败登录限速。脚本使用Bearer，CORS仅允许配置中的准确Origin。所有新业务表含tenant_id，材料、任务与证据读取均检查组织。该部署仍是单组织工作区加姓名填报，不宣称已有企业SSO、人员身份认证或多组织管理界面。
 
 API新增：`GET /api/v1/profile/products`、`GET /api/v1/products/{id}/profile`、`GET /api/v1/profile/listings/{id}/fields/{key}/history`、`GET /api/v1/profile/evidence/{id}`、`POST /api/v1/profile/tasks/plan`、`PATCH /api/v1/profile/tasks/{id}`、`POST /api/v1/profile/submissions`、`POST /api/v1/profile/submissions/{id}/review`、`GET /api/v1/products/{id}/profile-export`。存量API保留同一产品模型，不提供旧版/新版切换。
 
@@ -157,7 +158,7 @@ npm run build --prefix frontend
 5. 更新 `README.md`、`.env.example`、`DEPLOYMENT.md` 和 `MIGRATION-NOTES.md` 的启动与部署说明。
 6. 完成后记录真实、模拟、未验证和外部阻塞，避免把页面存在称为后端能力已完成。
 
-关联设计依据：`Game-Market-Insight-V2-Design-Pack/Game-Market-Insight-V2/docs/01`～`19`，其中 V2.2 的主规范为 `docs/14-fault-tolerant-recommendation.md`；V2.3 档案与字段语义为 docs/17～19、81字段目录及 AC81～98。独立原型夹具不得导入真实来源产品。
+关联设计依据：`Game-Market-Insight-V2-Design-Pack/Game-Market-Insight-V2/docs/01`～`31`，其中 V2.2 的主规范为 `docs/14-fault-tolerant-recommendation.md`；V2.3 档案与字段语义为 docs/17～19、81字段目录及 AC81～98；V2.4～V2.7采集、来源中心、导航和门户扩展为 docs/20～31。独立原型夹具不得导入真实来源产品。
 
 
 ## 11. 授权材料 AI 草案链路
@@ -172,10 +173,18 @@ npm run build --prefix frontend
 
 `ResearchService → GameProfileService.enrichRecommendation → V22RecommendationEngine → WeeklyReportService` 将已确认的产品、稳定平台实体、市场、有效release和知识截止时间映射到唯一档案范围。资料完整率不进入六维评分；没有经复核且在有效release内的广告/无内购/范围证据，不提升IAA资格。合成事实、AI草案和其他平台的资格均不能提升真实正式候选。报告冻结档案证据、输入快照及时间；旧报告只读，不实时重算。
 
-实际迁移：V9档案9表；V10选用组织/平台市场范围；V11 AI运行审计。完整DDL参考 `contracts/schema.sql`，实际启动以Flyway迁移为准，禁止修改已执行迁移。评分/评分数/评论数是market listing聚合；玩家样本为独立对象count/from/to/method/language，不能借评分数充当情感分母。历史最佳/观察天数等派生字段附参考榜单、窗口、输入快照、材料hash与捕获/发布时间。
+实际迁移：V9档案9表；V10选用组织/平台市场范围；V11 AI运行审计；V12来源登记与任务模板。完整DDL参考 `contracts/schema.sql`，实际启动以Flyway迁移为准，禁止修改已执行迁移。评分/评分数/评论数是market listing聚合；玩家样本为独立对象count/from/to/method/language，不能借评分数充当情感分母。历史最佳/观察天数等派生字段附参考榜单、窗口、输入快照、材料hash与捕获/发布时间。
 
 ## 13. 本轮验收与明确限制
 
-78项测试通过（含真实MySQL回滚和并发事务、mock HTTP）；前端构建、8分区档案与390px浏览器通过。UI写操作使用合成API响应，数据库写入与并发由单独JDBC测试验证，两者不混称真实端到端采集。生产迁移前957行历史报告和榜单逐行比对保持一致。
+80项测试通过（含真实MySQL回滚和并发事务、mock HTTP、42项来源登记与28项门户字段）；前端构建、8分区档案与390px浏览器通过。UI写操作使用合成API响应，数据库写入与并发由单独JDBC测试验证，两者不混称真实端到端采集。生产迁移前957行历史报告和榜单逐行比对保持一致。
 
 当前不包含：实机媒体上传/转码/播放缓存、企业SSO/人员角色、供应商权限采购、完整微信/抖音Top100、真实模型质量评估、长期调度稳定性或时间外市场回测。真实正面IAA证据不足时仍输出待补证，而非为了凑数生成精选。每次新增能力都按第10节同步维护本文、迁移、验收和运行说明。
+
+## 14. V2.7 来源中心与采集运维
+
+来源目录由设计包21、29的42项登记和30的28项门户字段模板生成，存于 `backend/src/main/resources/collection/`，并在启动时同步到 `source_definition`（V12）。登记行保存来源族、网站、平台/语境市场、可采字段、访问方式、核验级别、实际深度、限制、替代路径、纯IAA默认unknown及生产启用标记。门户来源S31～S42与市场来源共享稳定ID，门户数量是42项中的子集，不重复计算。
+
+API为 `GET /api/v1/collection/sources`、`GET /api/v1/collection/sources/{id}`、`GET /api/v1/collection/portal-fields`、`GET /api/v1/collection/runs`。来源页、信息范围页和执行日志页仅展示登记与真实 `insight_collection_attempt`；未执行来源显示“尚未执行”，不填成功率。`source_definition`是能力配置，`collection_task_definition`是计划模板，运行/尝试/阶段事实继续追加，三者不混为一个状态。
+
+当前真实采集仍只按已验收的Apple和可用AppBrain路径运行；门户、Firecrawl、微信/抖音新路径全部关闭。来源页面不能触发第三方抓取，新增网站入口只进入待PoC范围。目标Top100与实际Top25/部分覆盖分别记录，空页、登录页、403/429、解析失败不会生成完整零条榜。

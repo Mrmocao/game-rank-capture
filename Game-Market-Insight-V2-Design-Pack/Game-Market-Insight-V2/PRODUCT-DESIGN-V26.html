@@ -1,0 +1,221 @@
+<!doctype html><html lang="zh-CN"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>锦鲤云 V2.6 · 业务导航与采集管理</title><style>body{margin:0;background:#f3f6fb;color:#203452;font:14px/1.9 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1120px;margin:28px auto;padding:30px;background:white;border:1px solid #dce5ef}h1{font-size:25px}h2{font-size:20px;margin-top:30px;color:#245a90}h3{font-size:16px}a{color:#1677ff}table{border-collapse:collapse;width:100%;font-size:13px;margin:18px 0}td,th{padding:10px;border:1px solid #dce5ef;text-align:left;vertical-align:top}th{background:#eef4fb}code{background:#f2f6fb;padding:2px 4px}pre{overflow:auto}hr{border:0;border-top:1px solid #dce5ef;margin:40px 0}.notice{background:#edf5ff;padding:14px;border-left:3px solid #1677ff}@media(max-width:760px){main{margin:0;padding:18px}table{display:block;overflow:auto}}</style><main><a href="https://iaa-radar-product-lab.mochao1009.chatgpt.site">← 返回产品原型</a><div class="notice">V2.6 页面已实现交互示例。来源、执行日志、重试及规则均为示例或本地草案，尚未连接真实采集。</div><h1>V2.6 业务导航与采集管理、执行日志</h1>
+<p>日期：2026-10-30。本文细化第26章的页面导航与采集运维契约；Java/MySQL后台、Firecrawl接入和定时任务仍需按第23～24章实施。页面中的虚构执行示例必须与真实采集明确区分。</p>
+<h2>1. 按业务组织导航</h2>
+<p>一级表示业务领域，二级表示可进入的功能；功能较多时增加二级功能组，实际页面置于三级。最多三级，不为了层级整齐增加空白中间页，也不再将全部入口堆在“实际使用”或“配置管理”两个菜单下。</p>
+<table>
+<thead>
+<tr>
+<th>一级业务</th>
+<th>二级功能/功能组</th>
+<th>三级页面（如有）</th>
+<th>路由标识</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>市场洞察</td>
+<td>市场概览</td>
+<td>—</td>
+<td>overview</td>
+</tr>
+<tr>
+<td>市场洞察</td>
+<td>榜单观察</td>
+<td>—</td>
+<td>rankings</td>
+</tr>
+<tr>
+<td>市场洞察</td>
+<td>玩家评价与舆情</td>
+<td>—</td>
+<td>opinion</td>
+</tr>
+<tr>
+<td>市场洞察</td>
+<td>玩法与赛道</td>
+<td>—</td>
+<td>playbooks</td>
+</tr>
+<tr>
+<td>产品研究</td>
+<td>产品情报库</td>
+<td>—</td>
+<td>products</td>
+</tr>
+<tr>
+<td>产品研究</td>
+<td>信息来源与证据</td>
+<td>—</td>
+<td>provenance</td>
+</tr>
+<tr>
+<td>数据采集</td>
+<td>来源与规则</td>
+<td>信息范围与字段</td>
+<td>scope</td>
+</tr>
+<tr>
+<td>机会与验证</td>
+<td>每周精选</td>
+<td>—</td>
+<td>reports</td>
+</tr>
+<tr>
+<td>机会与验证</td>
+<td>选用与测试记录</td>
+<td>—</td>
+<td>records</td>
+</tr>
+<tr>
+<td>数据采集</td>
+<td>来源与规则</td>
+<td>数据源管理</td>
+<td>sources</td>
+</tr>
+<tr>
+<td>数据采集</td>
+<td>来源与规则</td>
+<td>采集规则与计划</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>数据采集</td>
+<td>来源与规则</td>
+<td>工具与接入</td>
+<td>collection</td>
+</tr>
+<tr>
+<td>数据采集</td>
+<td>任务与运行</td>
+<td>采集任务</td>
+<td>tasks</td>
+</tr>
+<tr>
+<td>数据采集</td>
+<td>任务与运行</td>
+<td>执行日志</td>
+<td>runs</td>
+</tr>
+<tr>
+<td>数据采集</td>
+<td>任务与运行</td>
+<td>异常与补采</td>
+<td>alerts</td>
+</tr>
+<tr>
+<td>系统配置</td>
+<td>研究目标与推荐</td>
+<td>—</td>
+<td>strategy</td>
+</tr>
+</tbody></table>
+<p>游戏档案profile属于“产品研究 / 产品情报库 / 游戏档案”，仅由列表、榜单或证据跳转进入，不重复占一个常驻菜单。任务、运行、证据详情同样通过列表进入，侧栏保持对应列表高亮。</p>
+<p>现有overview、products、rankings、opinion、playbooks、reports、records、scope、strategy、collection路由保留；collection改标签为“工具与接入”，不让旧链接失效。菜单合同见contracts/navigation-v26.json。</p>
+<p>交互规则：当前页面的所有祖先自动展开；折叠偏好按稳定节点ID保存，不依赖数组顺序；展开其他业务不会改变当前页面。面包屑来自相同导航树，不再用两组硬编码条件推断。页面刷新、深链、浏览器前进/后退均能定位；未知路由回到概览并解释。侧栏可滚动，当前项可见，折叠按钮有aria-expanded，页面项有aria-current。移动端使用可关闭的导航面板，不挤压日志表。</p>
+<h2>2. 采集模块的页面职责</h2>
+<table>
+<thead>
+<tr>
+<th>页面</th>
+<th>使用者要完成的事</th>
+<th>关键内容与动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据源管理</td>
+<td>知道从哪里拿到哪些信息</td>
+<td>网站/主体、平台市场、可采字段、实际深度、核验级别、访问方式、来源策略、最后实际成功；查看来源详情及关联运行</td>
+</tr>
+<tr>
+<td>采集规则与计划</td>
+<td>决定采什么、何时采、花多少预算</td>
+<td>来源范围、目标字段、榜单深度、关键词/排除词、采样协议、时区、频率、缓存、限流、重试、AI与费用上限；草案版本、启停及生效记录</td>
+</tr>
+<tr>
+<td>工具与接入</td>
+<td>维护执行能力</td>
+<td>Firecrawl云/自建、官方API、受控浏览器与导入能力；能力已验范围、凭证引用、连通检查记录、用量；云/自建不可互相冒充</td>
+</tr>
+<tr>
+<td>采集任务</td>
+<td>查看计划及待执行工作</td>
+<td>任务定义、来源与范围、优先级、计划时点、下一次运行、启停状态、最近运行；由计划进入运行明细</td>
+</tr>
+<tr>
+<td>执行日志</td>
+<td>解释一次运行发生了什么</td>
+<td>运行状态、耗时、阶段、实际覆盖、错误、提交记录、尝试明细、费用；按日期/任务/来源/市场/状态/关键词/trace筛选</td>
+</tr>
+<tr>
+<td>异常与补采</td>
+<td>知道缺什么、怎么恢复</td>
+<td>影响范围、最后成功、错误类别、源中断/解析变化/权限/AI失败、下一步；重试或补采生成新运行，保留原始失败</td>
+</tr>
+</tbody></table>
+<p>来源登记状态（待核、样页可见、PoC通过、试运行通过、已启用）与运行状态分别展示。未执行的配置没有“成功率”；没有运行记录显示“尚未执行”，不能填100%。任务启用不等于上游数据可用，HTTP200不等于任务成功。</p>
+<p>“信息来源与证据”属于研究场景，回答某条信息的依据；“数据源管理”属于运维场景，回答网站是否接入及如何采；“执行日志”回答本次任务经历了什么。三者使用source_id、run_id、artifact_id、evidence_id互相跳转。</p>
+<h2>3. 日志分层与列表</h2>
+<p>TaskDefinition是计划模板；TaskOccurrence是具体时槽的工作；Run是一次执行过程；Attempt记录同一Run内的具体尝试；StageEvent记录抓取、解析、校验、AI和入库等阶段；AuditEvent记录谁修改了规则、启停任务、申请重试或纠正证据。执行日志与操作审计不混成一列文本。</p>
+<p>列表默认显示所选业务日；日志明细同时显示真实开始时间、来源日期、观察时间和可用时间。日期范围与时区可切换，运行跨日时以用户选择的“计划日/实际开始日”口径查询，界面明确当前口径。历史补采不是在过去实际执行。</p>
+<p>列表字段至少包含：运行ID、任务名/计划时槽、原网站、采集工具及部署模式、平台/市场、触发方式、执行状态、阶段、开始/结束/耗时、目标范围、实际观察/有效/提交数量、失败/隔离数、尝试数、错误摘要、trace_id、费用估计/结算状态、查看详情。</p>
+<p>状态包括排队、运行中、成功、部分成功、失败、取消；阶段结果包括待执行、执行中、通过、警告、失败、跳过。来源未支持字段不是同义“抓取失败”；AI增强失败也不必阻止有效榜单事实提交。部分成功必须列出已提交内容与未完成范围。</p>
+<h2>4. 运行详情与尝试明细</h2>
+<p>详情按顺序展示：任务范围与规则版本 → 请求与发现 → 页面获取 → 解析 → 质量与身份校验 → AI增强 → 提交/隔离 → 结果及恢复动作。每阶段显示开始/结束、输入输出数量、状态、错误代码/原因、证据引用。未运行的阶段显示跳过原因，不伪造时长。</p>
+<p>请求信息仅保留允许公开的host、必要路径/参数及请求摘要；Authorization、Cookie、token、密钥、签名、非必要个人信息在进入日志前脱敏。详情可查看允许的原始材料引用，不能把含凭证的完整请求、响应或内部堆栈直接展示给所有用户。管理员诊断权限独立。</p>
+<p>Attempt明细保存attempt_no、所属阶段、provider_request_id、开始/结束、HTTP或供应商错误、重试原因、Retry-After、输出证据引用和费用。自动退避在同一Run增加Attempt；人工“再次执行/补采”创建新Run，填写retry_of_run_id及恢复原因，不覆盖旧Run或把旧失败改为成功。</p>
+<p>计数同时保存单位和分母：target_depth=100而实际看到25名时，覆盖为部分；如24条可提交、1条身份待核，显示“观察25 / 校验24 / 提交24 / 隔离1，26～100未取得”。未取得75个名次不是75条真实错误记录。来源未给总量时不计算全站覆盖率。</p>
+<p>费用分搜索、抓取、浏览器、模型等阶段，保存提供方、计量单位、预估/实际与币种。供应商没返回时显示未知，不填0；重复尝试可能增加费用。规则页可设置费用上限，重试前重新检查来源权限、预算和时效。</p>
+<h2>5. 错误与恢复</h2>
+<p>标准类别：网络/超时、上游限流、访问权限、源结构变化、市场/日期不符、身份歧义、字段缺失、覆盖不足、证据冲突、模型不可用、Schema错误、入库失败、策略不允许、任务取消。</p>
+<p>恢复入口按阶段：抓取故障重抓可得页面；解析规则修订可重放已允许保存的材料；AI故障只重新运行增强；入库失败按幂等提交恢复。源不提供指定历史日时禁止用当前内容补造历史。已确认负面证据不会因来源中断被解除。</p>
+<p>重试、补采、解析重放均通过服务端幂等键和权限校验执行。原型中的“模拟重试”只增加明确标记的虚构运行，不访问网站、不消费Firecrawl额度、不等同已恢复生产数据。</p>
+<h2>6. Java/MySQL接口与权限合同</h2>
+<p>沿用第23章任务、尝试、证据与outbox领域模型；为每次执行保存run_id及父重试关联，阶段事件单独追加。建议查询API：GET /collection/sources、GET /collection/rules、GET /collection/tasks、GET /collection/runs、GET /collection/runs/{id}、GET /collection/runs/{id}/attempts、GET /collection/alerts。</p>
+<p>命令API：POST /collection/rules/{id}/versions、POST /collection/tasks/{id}/state、POST /collection/runs/{id}/retry、POST /collection/runs/{id}/reprocess。命令包含expected_revision、idempotency_key、reason和目标阶段；返回新运行ID或明确的拒绝原因。前端按钮不直接调用第三方采集服务。</p>
+<p>按组织、来源授权和材料权限过滤列表、详情、导出与聚合统计；只读研究员可看允许的证据摘要，采集运营可管理本范围任务，管理员维护工具凭证和策略。日志只追加修订/更正记录，保留操作者、时间及原始关系。来源删除策略需传播至原文、AI派生和日志中被禁止保留的片段。</p>
+<h2>7. 验收要求</h2>
+<ol>
+<li>每个可见入口有唯一业务归属，当前页祖先展开、面包屑与高亮一致，已有路由可继续进入。</li>
+<li>数据采集按“来源与规则 / 任务与运行”分三级，市场等简单业务保持两级；游戏档案不重复占菜单。</li>
+<li>未实际运行的来源显示尚未执行；配置状态、示例记录与真实运行不混算统计。</li>
+<li>日志筛选、清空、空结果、详情、尝试及阶段轨迹可用，导出与当前筛选一致且不含凭证。</li>
+<li>部分覆盖、部分提交、隔离和来源未知总量分别可见，空页/登录页不作为完整零条榜。</li>
+<li>模拟重试明确标记、关联旧运行并保留原失败；生产重试校验权限、预算与幂等。</li>
+<li>日志能追溯来源材料和字段证据；AI未成功不删除已有效提交事实。</li>
+<li>指定日期不回填未来资料，时间跨日不混淆计划日与实际运行日；历史补采标明真正执行时间。</li>
+<li>手机宽度仍可打开导航、定位页面及查看详情；日志宽表独立横向滚动。</li>
+<li>规则和工具的配置是浏览器本地草案时显式说明，不能误以为已启用真实定时采集。</li>
+</ol>
+<hr><h1>V2.5 Firecrawl选型与信息来源中心</h1>
+<p>日期：2026-10-30。本轮为设计优化；尚未接入Firecrawl或部署新版页面。</p>
+<h2>工具定位</h2>
+<p>采用可替换采集引擎：官方API直连优先，公开网页使用Firecrawl，搜索发现可使用Firecrawl Search，授权导入与人工浏览器研究作为补充。Java负责调度、身份、质量校验、MySQL存储及推荐规则；Firecrawl作为独立HTTP服务接入，不改写为Java。</p>
+<p>先用云服务对公开样本做小规模PoC，再根据实际成本、部署要求决定自建。云版与自建版分别登记能力；官方文档说明自建核心包含scrape/crawl/map/search，LLM抽取需要配置模型，默认自建栈不包含云端Agent/Browser/Interact等完整能力。自建支持服务的存储不能直接假定全部替换为业务MySQL。</p>
+<p>Search用于找URL；Scrape读取已知URL；Map发现站内链接；Crawl只对批准的网站路径限量运行。不要对整个应用商店无限递归。具体产品榜单深度、评论分页和小游戏权限仍逐站验收。</p>
+<p>时效榜单设置maxAge=0并核实来源日期；普通档案允许明确缓存窗口。官方默认缓存可能为两天，HTTP成功不表示当日数据。榜单和评论抽取保留必要HTML与定位，防止正文清洗遗漏评论、榜项。保留id/gl/hl等有业务含义的查询参数。</p>
+<h2>导航与页面</h2>
+<p>实际使用新增“信息来源与证据”；配置管理新增“数据源与字段映射”，原“采集接入规划”升级为“采集工具与策略”。保持原有两级导航。</p>
+<p>来源中心包含四个视图：字段记录、原始材料、搜索发现、采集运行。支持游戏、平台、市场、信息类别、日期、网站、发现方式、采集工具、采用状态筛选和导出。配置清单与已采记录分开，尚未接入的来源不得显示成功采集数。</p>
+<p>字段记录列：数据日期、游戏/平台版本、信息项、来源值、原始网站、发现方式、采集工具、观察时间、证据状态、采用状态、操作。</p>
+<p>点击记录展示：原始页面标题/URL、来源发布日期、实际抓取时间、缓存情况、原文片段与定位、解析值、AI处理记录、适用范围、冲突材料、采用理由和影响的推荐。支持从单款档案字段及周报推荐理由反向跳转。</p>
+<p>原始URL缺失时显示“待补”，网站首页只标“网站入口”，不可伪装为该字段证据。搜索摘要只能作为待验证线索；读取原始页面并校验后才产生事实。</p>
+<h2>网站、发现、采集与分析分别记录</h2>
+<p>source_site：原始网站及主体，不把Firecrawl写成游戏数据的原始出处。</p>
+<p>discovery_run：Firecrawl搜索/其他搜索API/浏览器搜索/人工提交/站内链接；记录关键词、提供方、国家语言、时间、结果顺序及目标URL。搜索结果顺序绝不能写成游戏榜单名次。</p>
+<p>fetch_run：直连接口/Firecrawl云/Firecrawl自建/授权浏览器/文件导入；记录请求ID、部署模式、版本、实际URL、状态、观察时间、缓存年龄、覆盖、费用与失败原因。</p>
+<p>document_version：材料hash、允许保存的原文、政策与保留期限。field_evidence关联具体字段、值、平台版本及材料定位。analysis_run记录AI/规则版本、输入证据与结论。adoption_decision记录采用/待核/冲突/过期/不采用及裁决依据。</p>
+<p>一条记录可以“由浏览器搜索发现，再用Firecrawl采集，然后AI提取”；界面同时展示这些阶段，不能用单一“来源方式”互相覆盖。同一原文经多种工具获得仍是一个根来源。</p>
+<h2>开发与验收</h2>
+<p>扩展原source_definition与collection_task，新增discovery_run、discovery_result、fetch_engine、fetch_run、document_version、field_evidence及adoption_decision逻辑对象；复用既有证据表，避免重复建立两套事实库。凭证仅服务端保存，前端原型不请求Firecrawl。</p>
+<p>新增API设计：GET /sources、GET /field-evidence、GET /discovery-runs、GET /fetch-runs、GET /evidence/{id}/lineage；列表分页且服务端按组织、字段范围和来源权限过滤。导出保留筛选条件、时间及证据ID，不默认导出受限原文。</p>
+<p>验收：搜索发现但未读原文不能成为正式事实；浏览器搜索与API搜索标签准确；缓存旧榜不能当当日榜；同源多工具不重复计证据；跨市场记录不串用；AI无引用不采用；缺URL不造链接；部分采集保留覆盖；历史查询不引入未来知识；权限删除传播到派生结果；云/自建能力不冒充已验收；工具失败仍可输出缺失及补证报告。</p>
+<h2>核验依据</h2>
+<p>通过GitHub插件读取firecrawl/firecrawl的README、SELF_HOST.md与LICENSE，并核对官方文档。许可证标为AGPLv3；自建或修改时应登记适用许可要求。</p>
+<ul>
+<li><a href="https://github.com/firecrawl/firecrawl">https://github.com/firecrawl/firecrawl</a></li>
+<li><a href="https://docs.firecrawl.dev/features/search">https://docs.firecrawl.dev/features/search</a></li>
+<li><a href="https://docs.firecrawl.dev/features/scrape">https://docs.firecrawl.dev/features/scrape</a></li>
+<li><a href="https://docs.firecrawl.dev/contributing/open-source-or-cloud">https://docs.firecrawl.dev/contributing/open-source-or-cloud</a></li>
+<li><a href="https://docs.firecrawl.dev/contributing/self-host">https://docs.firecrawl.dev/contributing/self-host</a></li>
+</ul>
+<p>此次核验为文档与源码说明阅读，没有以目标网站实测Firecrawl成功率。在线原型仍为V2.3；本轮更新下载设计包，不宣称来源中心已上线。</p>
+</main></html>

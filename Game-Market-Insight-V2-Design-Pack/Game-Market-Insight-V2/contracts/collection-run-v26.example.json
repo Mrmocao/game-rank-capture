@@ -1,0 +1,54 @@
+{
+  "schema_version": "collection-run/2.6.0",
+  "is_synthetic_fixture": true,
+  "actual_collection_executed": false,
+  "notice": "虚构运行，用于设计和验收；没有请求Firecrawl或目标网站。",
+  "run_id": "DEMO-RUN-20261030-001",
+  "task_id": "DEMO-TASK-CN-IOS-FREE",
+  "rule_version": "DEMO-RULE/1",
+  "source_id": "S02",
+  "source_site": "apps.apple.com",
+  "fetch_engine": "firecrawl_cloud",
+  "engine_status": "not_connected",
+  "trigger": "scheduled_example",
+  "retry_of_run_id": null,
+  "scheduled_business_date": "2026-10-30",
+  "business_timezone": "Asia/Shanghai",
+  "market": "CN",
+  "platform": "iOS",
+  "device": "iphone",
+  "started_at": "2026-10-30T00:00:00Z",
+  "finished_at": "2026-10-30T00:01:40Z",
+  "duration_ms": 100000,
+  "status": "partial_success",
+  "trace_id": "DEMO-TRACE-001",
+  "coverage": {
+    "unit": "chart_rank",
+    "target_depth": 100,
+    "observed_count": 25,
+    "verified_contiguous_depth": 25,
+    "missing_rank_ranges": [[26, 100]],
+    "complete_for_requested_scope": false,
+    "pagination_exhausted": null,
+    "absence_means_outside_top100": false
+  },
+  "records": {"parsed":25,"validated":24,"committed":24,"quarantined":1},
+  "stages": [
+    {"stage":"request","status":"passed","input_count":1,"output_count":1},
+    {"stage":"fetch","status":"warning","attempt_count":2,"output_count":25,"reason":"Partial visible range in synthetic fixture"},
+    {"stage":"parse","status":"passed","input_count":25,"output_count":25},
+    {"stage":"validate","status":"warning","input_count":25,"output_count":24,"quarantined_count":1,"reason":"One synthetic identity ambiguity"},
+    {"stage":"ai_enrichment","status":"failed","error_code":"DEMO_AI_TIMEOUT","reason":"AI enhancement unavailable; deterministic facts may still commit"},
+    {"stage":"commit","status":"passed","input_count":24,"output_count":24}
+  ],
+  "attempts": [
+    {"attempt_no":1,"stage":"fetch","status":"failed","http_status":429,"error_code":"DEMO_UPSTREAM_RATE_LIMIT","retry_after_seconds":30,"provider_request_id":"DEMO-PROVIDER-001","request_summary":"Whitelisted source; sensitive headers omitted"},
+    {"attempt_no":2,"stage":"fetch","status":"partial_success","http_status":200,"provider_request_id":"DEMO-PROVIDER-002","artifact_ref":"DEMO-ARTIFACT-001","freshness":"synthetic_example"}
+  ],
+  "cost": {"status":"unknown","amount":null,"currency":null,"components":[{"stage":"fetch","usage":null,"unit":"provider_credit"},{"stage":"ai_enrichment","usage":null,"unit":"token"}]},
+  "policy": {"policy_version":"DEMO-POLICY/1","raw_material_status":"fixture_only","credentials_in_log":false},
+  "recovery_actions": [
+    {"action":"simulate_retry","creates_new_run":true,"stage":"fetch","network_request":false},
+    {"action":"simulate_ai_reprocess","creates_new_run":true,"stage":"ai_enrichment","network_request":false}
+  ]
+}

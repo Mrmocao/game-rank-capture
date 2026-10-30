@@ -1,0 +1,53 @@
+{
+  "schema_version": "evidence-claims/1.0.0",
+  "is_synthetic_fixture": true,
+  "task": {
+    "id": "fixture-ai-01",
+    "type": "monetization_evidence_extract",
+    "entity_id": "fixture-game-01",
+    "platform": "google_play",
+    "market": "US",
+    "version": "unknown",
+    "source_id": "S05",
+    "policy_version": "fixture-allowed-text/1",
+    "model_version": "configure_before_use",
+    "prompt_version": "extract/1",
+    "schema_version": "evidence-claims/1.0.0"
+  },
+  "input": {
+    "text": "Fixture store label: Contains ads. In-app purchases.",
+    "evidence_id": "fixture-e1",
+    "source_label": "synthetic test text"
+  },
+  "claims": [
+    {
+      "field": "ad_evidence",
+      "value": "contains_ads_label",
+      "claim_type": "source_statement",
+      "evidence_id": "fixture-e1",
+      "quoted_span": "Contains ads.",
+      "scope": "fixture entity; platform/market known; version unknown"
+    },
+    {
+      "field": "iap_evidence",
+      "value": "in_app_purchases_label",
+      "claim_type": "source_statement",
+      "evidence_id": "fixture-e1",
+      "quoted_span": "In-app purchases.",
+      "scope": "fixture entity; platform/market known; version unknown"
+    }
+  ],
+  "unknown_fields": [
+    "ad_frequency",
+    "revenue_estimate",
+    "no_iap_basis"
+  ],
+  "conflicts": [],
+  "suggested_tasks": [
+    "Confirm currently installed release and monetization scope"
+  ],
+  "rule_result_expected": {
+    "pure_iaa_auto_approve": false,
+    "reason": "Explicit IAP signal; ads signal alone cannot establish pure IAA. AI cannot erase counterevidence."
+  }
+}

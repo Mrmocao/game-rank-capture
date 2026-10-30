@@ -1,0 +1,179 @@
+{
+  "schema_version": "chart-snapshot/1.0.0",
+  "is_synthetic_fixture": true,
+  "not_actual_market_data": true,
+  "source_id": "S02",
+  "source_definition_version": "draft/1",
+  "chart_definition_id": "fixture-cn-iphone-games-free",
+  "market": "CN",
+  "market_verified": true,
+  "device": "iphone",
+  "scheduled_business_date": "2026-10-30",
+  "source_published_at": null,
+  "observed_at": "2026-10-30T00:00:00Z",
+  "available_at": "2026-10-30T00:05:00Z",
+  "source_timezone": null,
+  "target_depth": 100,
+  "observed_count": 25,
+  "verified_contiguous_depth": 25,
+  "missing_rank_ranges": [
+    [
+      26,
+      100
+    ]
+  ],
+  "is_complete_for_requested_scope": false,
+  "pagination_exhausted": null,
+  "coverage_status": "partial",
+  "entries": [
+    {
+      "external_id": "fixture-ios-1",
+      "rank": 1,
+      "evidence_ref": "fixture-raw#row-1"
+    },
+    {
+      "external_id": "fixture-ios-2",
+      "rank": 2,
+      "evidence_ref": "fixture-raw#row-2"
+    },
+    {
+      "external_id": "fixture-ios-3",
+      "rank": 3,
+      "evidence_ref": "fixture-raw#row-3"
+    },
+    {
+      "external_id": "fixture-ios-4",
+      "rank": 4,
+      "evidence_ref": "fixture-raw#row-4"
+    },
+    {
+      "external_id": "fixture-ios-5",
+      "rank": 5,
+      "evidence_ref": "fixture-raw#row-5"
+    },
+    {
+      "external_id": "fixture-ios-6",
+      "rank": 6,
+      "evidence_ref": "fixture-raw#row-6"
+    },
+    {
+      "external_id": "fixture-ios-7",
+      "rank": 7,
+      "evidence_ref": "fixture-raw#row-7"
+    },
+    {
+      "external_id": "fixture-ios-8",
+      "rank": 8,
+      "evidence_ref": "fixture-raw#row-8"
+    },
+    {
+      "external_id": "fixture-ios-9",
+      "rank": 9,
+      "evidence_ref": "fixture-raw#row-9"
+    },
+    {
+      "external_id": "fixture-ios-10",
+      "rank": 10,
+      "evidence_ref": "fixture-raw#row-10"
+    },
+    {
+      "external_id": "fixture-ios-11",
+      "rank": 11,
+      "evidence_ref": "fixture-raw#row-11"
+    },
+    {
+      "external_id": "fixture-ios-12",
+      "rank": 12,
+      "evidence_ref": "fixture-raw#row-12"
+    },
+    {
+      "external_id": "fixture-ios-13",
+      "rank": 13,
+      "evidence_ref": "fixture-raw#row-13"
+    },
+    {
+      "external_id": "fixture-ios-14",
+      "rank": 14,
+      "evidence_ref": "fixture-raw#row-14"
+    },
+    {
+      "external_id": "fixture-ios-15",
+      "rank": 15,
+      "evidence_ref": "fixture-raw#row-15"
+    },
+    {
+      "external_id": "fixture-ios-16",
+      "rank": 16,
+      "evidence_ref": "fixture-raw#row-16"
+    },
+    {
+      "external_id": "fixture-ios-17",
+      "rank": 17,
+      "evidence_ref": "fixture-raw#row-17"
+    },
+    {
+      "external_id": "fixture-ios-18",
+      "rank": 18,
+      "evidence_ref": "fixture-raw#row-18"
+    },
+    {
+      "external_id": "fixture-ios-19",
+      "rank": 19,
+      "evidence_ref": "fixture-raw#row-19"
+    },
+    {
+      "external_id": "fixture-ios-20",
+      "rank": 20,
+      "evidence_ref": "fixture-raw#row-20"
+    },
+    {
+      "external_id": "fixture-ios-21",
+      "rank": 21,
+      "evidence_ref": "fixture-raw#row-21"
+    },
+    {
+      "external_id": "fixture-ios-22",
+      "rank": 22,
+      "evidence_ref": "fixture-raw#row-22"
+    },
+    {
+      "external_id": "fixture-ios-23",
+      "rank": 23,
+      "evidence_ref": "fixture-raw#row-23"
+    },
+    {
+      "external_id": "fixture-ios-24",
+      "rank": 24,
+      "evidence_ref": "fixture-raw#row-24"
+    },
+    {
+      "external_id": "fixture-ios-25",
+      "rank": 25,
+      "evidence_ref": "fixture-raw#row-25"
+    }
+  ],
+  "absence_rule": {
+    "entity": "fixture-not-seen",
+    "raw_rank": null,
+    "value_status": "partial_scope",
+    "top100_presence": "unknown",
+    "recommendation_v22_daily_position_range": [
+      0,
+      1
+    ]
+  },
+  "presence_rule": {
+    "entity": "fixture-ios-18",
+    "raw_rank": 18,
+    "value_status": "observed",
+    "recommendation_v22_daily_position_range": [
+      0.83,
+      0.83
+    ]
+  },
+  "evidence_policy": {
+    "policy_id": "fixture-policy",
+    "raw_copy": "fixture only; contains no downloaded page",
+    "retention": "configure per real source before production"
+  }
+}

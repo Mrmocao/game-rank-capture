@@ -1,6 +1,6 @@
 # 迁移与开发 seed
 
-> 当前最新迁移为 V11。V9～V11 已在配置库与生产库通过 Flyway/JDBC 执行；历史说明按当时状态保留，不代表当前待办。不修改任何已执行迁移的校验和。
+> 当前最新迁移为 V12。V9～V12 已在配置库与生产库通过 Flyway/JDBC 执行；历史说明按当时状态保留，不代表当前待办。不修改任何已执行迁移的校验和。
 
 `backend/src/main/resources/db/migration/V1__initial_schema.sql` 来自交接 DDL，并保留追加式历史和快照 revision 约束，同时包含 AI 中转配置表。`backend/src/main/resources/db/demo/V2__demo_seed.sql` 只在 `dev` profile 执行，通过固定 `demo-` 外部 ID 和 `DEMO` 来源标记，重复执行不会产生重复版本。`V3__ai_provider_config.sql` 为旧数据库补齐 AI 配置表，使用 `IF NOT EXISTS`。
 
@@ -53,11 +53,11 @@ npm run build --prefix frontend
 
 新增市场条目、应用发布版本、档案证据、字段观察、AI草案、材料提交与复核、补全任务和媒体引用9张表；新字段有中文注释。V1～V8 历史迁移不修改。配置库和生产库已由应用Flyway/JDBC实际执行V9，真实材料复核、历史回放、任务和权限通过JDBC回滚集成验证。稳定平台实体 `platform_version` 与实际应用发布 `release_record` 严格区分。
 
-PROFILE_TENANT_ID 由服务器固定组织范围；PROFILE_ACCESS_TOKEN 留空仅为无认证开发模式。前端已接入登录表单，POST /api/v1/access 获取HttpOnly会话；脚本使用Bearer。旧API也受认证保护，自动化调用应同步配置。
+PROFILE_TENANT_ID 由服务器固定组织范围；当前生产按业务要求将 PROFILE_ACCESS_TOKEN 留空，`GET /api/v1/access` 返回 `enabled=false`，浏览器直接进入单组织工作区。前端仍保留可选登录表单，只有以后配置共享口令时才会显示；脚本使用Bearer。旧API在启用口令后也会受认证保护，自动化调用应同步配置。
 
-## V10 选用范围 / V11 AI运行审计（已执行）
+## V10 选用范围 / V11 AI运行审计 / V12 来源登记（已执行）
 
-V10在 `selection_record` 增加 `tenant_id`、`reference_listing_id`、索引和外键。旧选用记录归default工作区，无法确认的市场范围保留NULL，不自动补写。新写入验证组织、产品、平台实体和listing匹配；并发重试/修订使用事务与行锁。V11新增 `profile_ai_run`，保存输入证据、字段、模型/提示/Schema版本、hash、状态和安全失败代码，不保存供应商密钥或原始错误响应。
+V10在 `selection_record` 增加 `tenant_id`、`reference_listing_id`、索引和外键。旧选用记录归default工作区，无法确认的市场范围保留NULL，不自动补写。新写入验证组织、产品、平台实体和listing匹配；并发重试/修订使用事务与行锁。V11新增 `profile_ai_run`，保存输入证据、字段、模型/提示/Schema版本、hash、状态和安全失败代码，不保存供应商密钥或原始错误响应。V12新增带中文注释的 `source_definition`、`collection_task_definition`，由设计包42项来源登记同步，默认生产关闭；真实尝试仍记录在既有 `insight_collection_attempt`，没有为未执行来源制造运行行。
 
 开发配置库连接3306；生产应用专用库连接127.0.0.1:13306，两者独立。生产迁移前 `JdbcBackup.java` 输出33表、3372行，备份 `/opt/iaa-radar/backups/before-v23-20261030.sql` 权限600。预览应用在禁用调度的独立端口执行V9～V11后，通过 `JdbcVerifyPreserved.java` 将迁移前的957行weekly_report/report_item/ranking_snapshot/ranking_entry逐行对比：内容保持不变。此检查确认备份中已有行，没有把新追加行认作篡改；不替代完整恢复演练。
 

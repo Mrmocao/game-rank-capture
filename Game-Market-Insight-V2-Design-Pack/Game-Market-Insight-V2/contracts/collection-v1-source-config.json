@@ -1,0 +1,392 @@
+{
+  "schema_version": "collection-source/1.0.0",
+  "is_design_example": true,
+  "production_ready": false,
+  "version_relationship": {
+    "package": "2.4",
+    "collection_plan": "1.0.0",
+    "prototype": "2.3.0",
+    "recommendation": "2.2.0"
+  },
+  "default_timezone": "Asia/Shanghai",
+  "utc_persistence": true,
+  "defaults": {
+    "enabled": false,
+    "access_review": "pending",
+    "allow_private_endpoints": false,
+    "allow_access_control_bypass": false,
+    "host_concurrency": 1,
+    "html_min_interval_seconds": 5,
+    "http_timeout_seconds": 20,
+    "browser_timeout_seconds": 60,
+    "max_attempts": 3,
+    "respect_retry_after": true,
+    "policy": {
+      "fetch_allowed": null,
+      "store_allowed": null,
+      "derive_allowed": null,
+      "ai_processing_allowed": null,
+      "redistribute_allowed": null,
+      "media_download_allowed": null,
+      "raw_retention_days": null,
+      "refresh_after_days": null,
+      "delete_after_days": null,
+      "rule": "Unknown permission or retention is a blocked gate, never unlimited retention."
+    }
+  },
+  "source_catalog": [
+    {
+      "source_id": "S01",
+      "name": "Apple Search / Lookup API 文档",
+      "verification_level": "V1_DOC",
+      "reference_url": "https://performance-partners.apple.com/search-api",
+      "origin_family": "apple",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S02",
+      "name": "App Store 中国区 iPhone 游戏免费榜",
+      "verification_level": "V2_PAGE",
+      "reference_url": "https://apps.apple.com/cn/iphone/charts/6014?chart=top-free",
+      "origin_family": "apple",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S03",
+      "name": "Apple 历史 RSS 游戏免费榜候选",
+      "verification_level": "V0_UNVERIFIED",
+      "reference_url": "https://itunes.apple.com/cn/rss/topfreeapplications/limit=100/genre=6014/json",
+      "origin_family": "apple",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S04",
+      "name": "App Store 游戏详情及可见评论",
+      "verification_level": "V2_PAGE",
+      "reference_url": "https://apps.apple.com/cn/app/id791532221",
+      "origin_family": "apple",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S05",
+      "name": "Google Play 商品详情",
+      "verification_level": "V2_PAGE",
+      "reference_url": "https://play.google.com/store/apps/details?id=com.block.juggle&hl=en&gl=US",
+      "origin_family": "google_play",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S06",
+      "name": "Google Play 各市场游戏榜",
+      "verification_level": "V1_ENTRY",
+      "reference_url": "https://play.google.com/store/games",
+      "origin_family": "google_play",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S07",
+      "name": "抖音小游戏官方平台趋势",
+      "verification_level": "V1_ENTRY",
+      "reference_url": "https://game.open-douyin.com/",
+      "origin_family": "douyin",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S08",
+      "name": "微信小游戏公开文章与官方发布材料",
+      "verification_level": "V0_UNVERIFIED",
+      "reference_url": "https://mp.weixin.qq.com/",
+      "origin_family": "wechat_publisher_tbd",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S09",
+      "name": "TapTap 游戏详情与评论",
+      "verification_level": "V2_PAGE",
+      "reference_url": "https://www.taptap.cn/app/531593/review",
+      "origin_family": "taptap",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S10",
+      "name": "游戏发行商/开发商官网与公开帮助",
+      "verification_level": "V0_PER_SITE",
+      "reference_url": "按商店关联的官方网站逐站登记",
+      "origin_family": "publisher_per_site",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S11",
+      "name": "B站公开游戏视频和讨论",
+      "verification_level": "V0_UNVERIFIED",
+      "reference_url": "https://www.bilibili.com/",
+      "origin_family": "bilibili",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S12",
+      "name": "YouTube Data API",
+      "verification_level": "V1_DOC",
+      "reference_url": "https://developers.google.com/youtube/data",
+      "origin_family": "youtube",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S13",
+      "name": "TikTok Creative Center Top Ads",
+      "verification_level": "V1_DOC",
+      "reference_url": "https://ads.tiktok.com/resources/help/article/how-to-use-the-top-ads-dashboard",
+      "origin_family": "tiktok_ads",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S14",
+      "name": "Google Ads Transparency Center",
+      "verification_level": "V1_DOC",
+      "reference_url": "https://adstransparency.google.com/",
+      "origin_family": "google_ads",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S15",
+      "name": "DataEye 等机构自己的公开报告",
+      "verification_level": "V2_PAGE",
+      "reference_url": "https://www.dataeye.com/report.html",
+      "origin_family": "dataeye",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S16",
+      "name": "有使用许可的搜索服务",
+      "verification_level": "V0_UNVERIFIED",
+      "reference_url": "供应商选型后填实际API文档；PoC可人工搜索",
+      "origin_family": "search_discovery",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S17",
+      "name": "Google Trends 公开导出",
+      "verification_level": "V1_DOC",
+      "reference_url": "https://support.google.com/trends/answer/4365538?hl=en",
+      "origin_family": "google_trends",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S18",
+      "name": "百度指数等国内搜索指数",
+      "verification_level": "V0_UNVERIFIED",
+      "reference_url": "https://index.baidu.com/",
+      "origin_family": "baidu_index",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S19",
+      "name": "商店/小游戏市场数据供应商",
+      "verification_level": "V0_VENDOR",
+      "reference_url": "待采购确定供应商、接口、榜单原始出处",
+      "origin_family": "vendor_declared_origin",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S20",
+      "name": "DataEye 官方 API 服务",
+      "verification_level": "V1_DOC",
+      "reference_url": "https://www.dataeye.com/api.html",
+      "origin_family": "dataeye",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S21",
+      "name": "人工结构化试玩与材料导入",
+      "verification_level": "INTERNAL_PLANNED",
+      "reference_url": "内部表单：平台原生可见入口/已获许可材料",
+      "origin_family": "manual_observation",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S22",
+      "name": "公司内部测试与经营数据",
+      "verification_level": "INTERNAL_PLANNED",
+      "reference_url": "内部表单/数据中台只读接口",
+      "origin_family": "internal_experiment",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S23",
+      "name": "自有游戏平台数据接口/后台",
+      "verification_level": "V1_DOC",
+      "reference_url": "https://developers.google.com/android-publisher/reply-to-reviews",
+      "origin_family": "owned_platform_data",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S24",
+      "name": "确定性派生计算",
+      "verification_level": "INTERNAL_PLANNED",
+      "reference_url": "内部规则引擎",
+      "origin_family": "derived_lineage",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S25",
+      "name": "研究员结论与AI有引用草案",
+      "verification_level": "INTERNAL_PLANNED",
+      "reference_url": "内部研究工作台",
+      "origin_family": "research_lineage",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S26",
+      "name": "第三方公开榜单页面候选",
+      "verification_level": "V1_ENTRY",
+      "reference_url": "https://quickminigame.com/rank/popularity",
+      "origin_family": "unverified_rank_origin",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S27",
+      "name": "Meta Ad Library 候选",
+      "verification_level": "V0_UNVERIFIED",
+      "reference_url": "https://www.facebook.com/ads/library/",
+      "origin_family": "meta_ads",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S28",
+      "name": "抖音公开视频与话题",
+      "verification_level": "V0_UNVERIFIED",
+      "reference_url": "https://www.douyin.com/",
+      "origin_family": "douyin_social",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S29",
+      "name": "微博公开讨论",
+      "verification_level": "V0_UNVERIFIED",
+      "reference_url": "https://weibo.com/",
+      "origin_family": "weibo",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    },
+    {
+      "source_id": "S30",
+      "name": "小红书公开分享页",
+      "verification_level": "V0_UNVERIFIED",
+      "reference_url": "https://www.xiaohongshu.com/",
+      "origin_family": "xiaohongshu",
+      "enabled": false,
+      "approval_state": "not_started",
+      "checked_at": "2026-10-30"
+    }
+  ],
+  "chart_probe_example": {
+    "source_id": "S02",
+    "enabled": false,
+    "url": "https://apps.apple.com/cn/iphone/charts/6014?chart=top-free",
+    "requested_market": "CN",
+    "device": "iphone",
+    "chart_type": "free_games",
+    "target_depth": 100,
+    "research_page_observed_depth": 25,
+    "production_verified_depth": null,
+    "scope_complete": false,
+    "supports_as_of": false,
+    "definition_version": "draft/1",
+    "business_time": "08:00:00",
+    "timezone": "Asia/Shanghai"
+  },
+  "google_play_market_targets": [
+    {
+      "market": "US",
+      "locale": "en-US",
+      "enabled": false,
+      "actual_market_verified": false
+    },
+    {
+      "market": "GB",
+      "locale": "en-GB",
+      "enabled": false,
+      "actual_market_verified": false
+    },
+    {
+      "market": "DE",
+      "locale": "de-DE",
+      "enabled": false,
+      "actual_market_verified": false
+    },
+    {
+      "market": "FR",
+      "locale": "fr-FR",
+      "enabled": false,
+      "actual_market_verified": false
+    }
+  ],
+  "youtube_default": {
+    "source_id": "S12",
+    "enabled": false,
+    "purpose": "reference_links_and_permitted_native_display",
+    "derive_metrics": false,
+    "ai_sentiment": false,
+    "permanent_competitor_statistics": false,
+    "search_budget_per_day": 20,
+    "official_quota": "Read current project limits before enabling; budget is not service entitlement.",
+    "policy_review_required": true
+  }
+}

@@ -1,0 +1,169 @@
+{
+  "schema_version": "navigation/2.6.0",
+  "date": "2026-10-30",
+  "max_depth": 3,
+  "default_route": "overview",
+  "route_format": "?date=YYYY-MM-DD#route_id",
+  "nodes": [
+    {
+      "id": "market",
+      "label": "市场洞察",
+      "children": [
+        {
+          "id": "overview",
+          "label": "市场概览",
+          "route": "overview"
+        },
+        {
+          "id": "rankings",
+          "label": "榜单观察",
+          "route": "rankings"
+        },
+        {
+          "id": "opinion",
+          "label": "玩家评价与舆情",
+          "route": "opinion"
+        },
+        {
+          "id": "playbooks",
+          "label": "玩法与赛道",
+          "route": "playbooks"
+        }
+      ]
+    },
+    {
+      "id": "research",
+      "label": "产品研究",
+      "children": [
+        {
+          "id": "products",
+          "label": "产品情报库",
+          "route": "products"
+        },
+        {
+          "id": "provenance",
+          "label": "信息来源与证据",
+          "route": "provenance"
+        }
+      ]
+    },
+    {
+      "id": "opportunities",
+      "label": "机会与验证",
+      "children": [
+        {
+          "id": "reports",
+          "label": "每周精选",
+          "route": "reports"
+        },
+        {
+          "id": "records",
+          "label": "选用与测试记录",
+          "route": "records"
+        }
+      ]
+    },
+    {
+      "id": "data_collection",
+      "label": "数据采集",
+      "children": [
+        {
+          "id": "source_rules",
+          "label": "来源与规则",
+          "children": [
+            {
+              "id": "scope",
+              "label": "信息范围与字段",
+              "route": "scope"
+            },
+            {
+              "id": "sources",
+              "label": "数据源管理",
+              "route": "sources"
+            },
+            {
+              "id": "rules",
+              "label": "采集规则与计划",
+              "route": "rules"
+            },
+            {
+              "id": "collection",
+              "label": "工具与接入",
+              "route": "collection"
+            }
+          ]
+        },
+        {
+          "id": "execution",
+          "label": "任务与运行",
+          "children": [
+            {
+              "id": "tasks",
+              "label": "采集任务",
+              "route": "tasks"
+            },
+            {
+              "id": "runs",
+              "label": "执行日志",
+              "route": "runs"
+            },
+            {
+              "id": "alerts",
+              "label": "异常与补采",
+              "route": "alerts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "label": "系统配置",
+      "children": [
+        {
+          "id": "strategy",
+          "label": "研究目标与推荐",
+          "route": "strategy"
+        }
+      ]
+    }
+  ],
+  "detail_routes": [
+    {
+      "route": "profile",
+      "label": "游戏档案",
+      "menu_parent": "products",
+      "breadcrumb": [
+        "产品研究",
+        "产品情报库",
+        "游戏档案"
+      ]
+    },
+    {
+      "route": "run_detail",
+      "label": "运行详情",
+      "menu_parent": "runs",
+      "presentation": "drawer"
+    },
+    {
+      "route": "source_detail",
+      "label": "数据源详情",
+      "menu_parent": "sources",
+      "presentation": "drawer"
+    },
+    {
+      "route": "evidence_detail",
+      "label": "证据详情",
+      "menu_parent": "provenance",
+      "presentation": "drawer"
+    }
+  ],
+  "behavior": {
+    "expand_active_ancestors": true,
+    "persist_collapse_by_stable_node_id": true,
+    "preserve_existing_route_ids": true,
+    "breadcrumb_source": "same_navigation_tree",
+    "mobile": "closable_navigation_panel",
+    "unknown_route": "overview_with_notice"
+  }
+}

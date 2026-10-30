@@ -744,3 +744,10 @@ CREATE TABLE profile_ai_run (
  FOREIGN KEY(listing_id) REFERENCES market_listing(id),
  FOREIGN KEY(evidence_id) REFERENCES profile_evidence(id)
 ) COMMENT='授权材料AI提取审计，失败不修改档案事实';
+-- 增量DDL参考：V12__collection_source_registry.sql；实际安装由Flyway执行。
+CREATE TABLE source_definition (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '采集来源登记ID', source_id VARCHAR(32) NOT NULL COMMENT '设计包稳定来源编号', definition_version VARCHAR(40) NOT NULL COMMENT '来源定义版本', name VARCHAR(200) NOT NULL COMMENT '来源名称', origin_family VARCHAR(100) NOT NULL COMMENT '原始来源族', platform VARCHAR(64) NOT NULL COMMENT '平台或来源分类', region VARCHAR(64) NOT NULL COMMENT '来源语境市场', verification_level VARCHAR(40) NOT NULL COMMENT '来源核验级别', state VARCHAR(40) NOT NULL COMMENT '登记状态', definition_json JSON NOT NULL COMMENT '字段、入口、深度、限制和策略', production_enabled BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否允许生产计划', enabled BOOLEAN NOT NULL DEFAULT FALSE COMMENT '当前配置是否启用', created_at DATETIME(3) NOT NULL COMMENT '登记时间UTC', updated_at DATETIME(3) NOT NULL COMMENT '更新时间UTC', UNIQUE KEY uq_source_definition(source_id,definition_version), KEY idx_source_state(state,platform,region)
+) COMMENT='V2.7来源能力与权限边界登记；不代表真实采集成功';
+CREATE TABLE collection_task_definition (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '采集任务定义ID', tenant_id VARCHAR(64) NOT NULL COMMENT '所属工作区', source_id VARCHAR(32) NOT NULL COMMENT '来源登记编号', task_type VARCHAR(40) NOT NULL COMMENT '任务类型', schedule_json JSON NOT NULL COMMENT '业务日、时区、频率、范围和限流策略', state VARCHAR(24) NOT NULL COMMENT 'DRAFT、DISABLED或ENABLED', revision INT NOT NULL DEFAULT 0 COMMENT '乐观锁版本', created_at DATETIME(3) NOT NULL COMMENT '创建时间UTC', updated_at DATETIME(3) NOT NULL COMMENT '更新时间UTC', UNIQUE KEY uq_collection_task(tenant_id,source_id,task_type), KEY idx_collection_task_state(state,source_id)
+) COMMENT='采集计划模板；任务启用不等于上游数据可用';

@@ -1,21 +1,61 @@
 {
-  "version": "2.3",
+  "version": "2.7",
   "date": "2026-10-30",
   "prototype_url": "https://iaa-radar-product-lab.mochao1009.chatgpt.site",
-  "prototype_commit": "a1e7de2037e80153023033fe10e302d57e5e9c1d",
+  "prototype_commit": "a2007e17b09d93c8cdcd7f67103e62af50314f4d",
   "algorithm_version": "2.2.0",
   "profile_version": "2.3.0",
-  "nature": "Product design and synthetic profile/algorithm fixtures; no real collection, AI, backend or market validation",
+  "nature": "Interactive source registry and portal discovery design; no production crawler",
   "files": [
     {
+      "path": "COLLECTION-PLAN-V1.html",
+      "bytes": 158119,
+      "sha256": "ae0fd2699869af398be8485b8727d5be9ff7c2d02a816ed726cafdfd22c5b6a5"
+    },
+    {
       "path": "PRODUCT-DESIGN-V2.html",
-      "bytes": 196985,
-      "sha256": "537f78dfc6c921ce2b647cf453ad3dd2f33affa7429cab31c7d6fe516b2f2fb4"
+      "bytes": 197259,
+      "sha256": "14ca4fb3473eeaa008ea1ac8f54c68b5ddd5a9aa5c2aa4f44109bd99a9cd0779"
+    },
+    {
+      "path": "PRODUCT-DESIGN-V26.html",
+      "bytes": 18839,
+      "sha256": "63752ec0b45947942248cf30b1bfa35164b21d6e40e9f201e91ca51331f02782"
+    },
+    {
+      "path": "PRODUCT-DESIGN-V27.html",
+      "bytes": 29211,
+      "sha256": "66524d3038dc8c7cc05ac3b863d9146af0cb88dc65c88f5298b6fc204c728613"
     },
     {
       "path": "README.md",
-      "bytes": 2097,
-      "sha256": "194adecd0a428b675e3792a0fd0c2167fc25ab0a7caac1bf0f93a52d2e5964ed"
+      "bytes": 5297,
+      "sha256": "09d5f2dcc2034394728556b085fac5340050863fe547f33335e49536878584b8"
+    },
+    {
+      "path": "contracts/collection-run-v26.example.json",
+      "bytes": 2866,
+      "sha256": "1f5f650d019593112825f02e75f99eeedf0c112b5f2fbb43e971b5b1bf13b2f7"
+    },
+    {
+      "path": "contracts/collection-v1-ai-extraction.example.json",
+      "bytes": 1583,
+      "sha256": "a557aaf08890b38ec883ff13b41182a6e875dc0686c9740ff3733c0c72ac688b"
+    },
+    {
+      "path": "contracts/collection-v1-partial-snapshot.example.json",
+      "bytes": 4155,
+      "sha256": "8f3ca9932ffcedc5a7a116571b743527dbe1e05e4a58021169667125c82f7767"
+    },
+    {
+      "path": "contracts/collection-v1-poc-result.template.json",
+      "bytes": 1056,
+      "sha256": "1c558422b8ea2121e4a1d352a02b0e106d0d247cd2d310772323118e023cbde0"
+    },
+    {
+      "path": "contracts/collection-v1-source-config.json",
+      "bytes": 12552,
+      "sha256": "6f13464bfada77db5236d2ebc9575f9572509e43b6cd28adc6b89b758783c975"
     },
     {
       "path": "contracts/demo-data.json",
@@ -31,6 +71,16 @@
       "path": "contracts/evidence.example.json",
       "bytes": 900,
       "sha256": "2f6b812bc756998feb80c03cfbefb32c0d99f4ef9fe93bbb5beec1cc6890e226"
+    },
+    {
+      "path": "contracts/navigation-v26.json",
+      "bytes": 3856,
+      "sha256": "0fe70201d7ef13a05210c050646c0689b753fe32c02bf8b2e089f6094cda0685"
+    },
+    {
+      "path": "contracts/portal-sources-v27.json",
+      "bytes": 12358,
+      "sha256": "de26244422bfaa913387117184963745f249844d4cb07f9dfb7a21b4eda0aa87"
     },
     {
       "path": "contracts/profile-v23-conflict.json",
@@ -201,6 +251,95 @@
       "path": "docs/19-v23-verification.md",
       "bytes": 3757,
       "sha256": "0ad4aed0a39641c88579bd112abe29725a3e635619ea2eaf8384c57e9068faf8"
+    },
+    {
+      "path": "docs/20-public-first-collection-plan.md",
+      "bytes": 20865,
+      "sha256": "4a93d4139ba2cea4165152cdd99782f3b818408c0d8e045411018ae3aacd3951"
+    },
+    {
+      "path": "docs/21-source-register.csv",
+      "bytes": 20849,
+      "sha256": "0ceee455fb585c595a0b680508cc238772955294aca9823e58fecbbe2e2ca97a"
+    },
+    {
+      "path": "docs/21-source-register.md",
+      "bytes": 4469,
+      "sha256": "38e6b61c098dc97b2dbed9fbe29e108dc77dc80ef4e0fe571ec722eacf83aafa"
+    },
+    {
+      "path": "docs/22-field-collection-mapping.csv",
+      "bytes": 78599,
+      "sha256": "ce4e4722e8f3dff777fc96a988713a0eb6ca5df25a7228febd1682efaff4b107"
+    },
+    {
+      "path": "docs/22-field-collection-mapping.md",
+      "bytes": 1429,
+      "sha256": "17fae30535625e4035dde50158c1a1834be3162b425f3ef228ae727ec18475ea"
+    },
+    {
+      "path": "docs/23-collection-runtime-and-storage.md",
+      "bytes": 11785,
+      "sha256": "8d7f799e702859c825675f4ab2f02991598545c445236e7c569e6ce5df25ac18"
+    },
+    {
+      "path": "docs/24-poc-rollout-and-acceptance.md",
+      "bytes": 9870,
+      "sha256": "2b5ef69252b232a3dd2ff73ae82a76e9cefbf3fa5a036014979bff34f7ae5f60"
+    },
+    {
+      "path": "docs/25-v24-document-verification.md",
+      "bytes": 1758,
+      "sha256": "d9afb67f2d54265277ac0b9a62f11a6cd0a09c26edb5f04cd2747280a436f665"
+    },
+    {
+      "path": "docs/26-firecrawl-and-provenance.md",
+      "bytes": 5325,
+      "sha256": "de22c81f971381de6b6146fa901cb379f3cc4198a5208c0eb593ed6f355586db"
+    },
+    {
+      "path": "docs/27-navigation-and-collection-ops.md",
+      "bytes": 10675,
+      "sha256": "a4c11ced40d4e6209665827f2c18ec4e02b6f613a060b93fe8b2e1c7378e3638"
+    },
+    {
+      "path": "docs/28-v26-verification.md",
+      "bytes": 2460,
+      "sha256": "a500e8039e099088e16077c6c9f65eba96987f3977bddffa253cef32cd2d5190"
+    },
+    {
+      "path": "docs/29-portal-source-list.csv",
+      "bytes": 7217,
+      "sha256": "1b620d7b96b351d6e5ba122657490a79143fc5a537ee2c4abfa13e849a712997"
+    },
+    {
+      "path": "docs/29-webgame-portal-expansion.md",
+      "bytes": 9714,
+      "sha256": "f5aff21007362173f4d0f4b88602d4d78b4aba6256bde710a9603693f773e3c1"
+    },
+    {
+      "path": "docs/30-portal-field-template.csv",
+      "bytes": 2803,
+      "sha256": "07fa6d270c7eac22fb9eeac32cbae528a6d4c1eaa4d337e4a2cb2caba72fde2e"
+    },
+    {
+      "path": "docs/31-v27-verification.md",
+      "bytes": 1890,
+      "sha256": "f90a223dedf39d2554afb8262f984d57db2642ae516fa4f31afdb8ffb4c9ebe5"
     }
-  ]
+  ],
+  "collection_plan_version": "1.3.0",
+  "prototype_version": "2.7.0",
+  "source_count": 42,
+  "atomic_mapping_count": 120,
+  "profile_mapping_count": 81,
+  "collection_acceptance_cases": 25,
+  "navigation_roots": 5,
+  "navigation_routes": 16,
+  "navigation_max_depth": 3,
+  "deployment_id": "appgdep_6ae468604f9881919a14d4f0e54532ba",
+  "portal_source_count": 12,
+  "portal_field_count": 28,
+  "portal_page_observed": 8,
+  "portal_unverified_or_entry_only": 4
 }

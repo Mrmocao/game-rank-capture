@@ -25,6 +25,10 @@ export const getReportHistory = (page=1) => json(`/api/v1/reports?page=${page}&p
 export const getReportSkill = () => json('/api/v1/reports/skill')
 export const getInsightCollection = (date:string) => json(`/api/v1/admin/insight-collection?date=${date}`)
 export const runInsightCollection = () => json('/api/v1/admin/insight-collection/run',{method:'POST'})
+export const getCollectionSources = (params:Record<string,string|undefined>={}) => {const q=new URLSearchParams();Object.entries(params).forEach(([k,v])=>v&&q.set(k,v));return json(`/api/v1/collection/sources?${q}`)}
+export const getCollectionSource = (id:string) => json(`/api/v1/collection/sources/${encodeURIComponent(id)}`)
+export const getCollectionRuns = (params:Record<string,string|undefined>={}) => {const q=new URLSearchParams();Object.entries(params).forEach(([k,v])=>v&&q.set(k,v));return json(`/api/v1/collection/runs?${q}`)}
+export const getPortalFields = () => json('/api/v1/collection/portal-fields')
 export const getCoverage = (date:string) => json(`/api/v1/meta/coverage?date=${encodeURIComponent(date)}`)
 export const generateReport = (periodStart:string,periodEnd:string) => json(`/api/v1/admin/reports/generate?periodStart=${periodStart}&periodEnd=${periodEnd}`, {method:'POST',headers:{'Idempotency-Key':requestId()}})
 export const getCurrentRule = () => json('/api/v1/admin/rules/current')

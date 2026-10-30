@@ -1,0 +1,648 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>锦鲤云 · 公网优先数据采集方案 V1.0</title><style>
+:root{--blue:#1677ff;--ink:#153451;--muted:#7890a7;--line:#dce5f0;--bg:#f2f5fa}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:88px}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.85 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}header{height:64px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:5}.brand{font-size:22px;color:var(--blue);font-weight:700}.brand small{font-size:13px;margin-left:22px;font-weight:400}.topnote{font-size:12px;color:var(--muted)}button{border:1px solid var(--line);border-radius:5px;background:white;color:var(--ink);padding:7px 12px;cursor:pointer;margin-left:14px}button:hover{border-color:var(--blue);color:var(--blue)}aside{width:214px;position:fixed;top:64px;bottom:0;background:white;border-right:1px solid var(--line);padding:26px 10px;overflow:auto}aside .nav-label{font-size:12px;color:var(--muted);padding:4px 16px;margin-bottom:8px}aside a{display:block;color:var(--ink);text-decoration:none;padding:11px 17px;margin:2px 0;border-right:3px solid transparent}aside a:hover,aside a.active{background:#eaf3ff;color:var(--blue);border-right-color:var(--blue)}aside .foot{color:var(--muted);font-size:12px;margin:35px 16px}main{margin-left:214px;padding:30px 36px 80px;max-width:1600px}.hero{margin-bottom:24px}.crumb{font-size:12px;color:var(--muted)}h1{font-size:26px;line-height:1.4;margin:12px 0 18px}h2{font-size:20px;margin:32px 0 12px;border-top:1px solid var(--line);padding-top:22px}h3{font-size:16px;margin:24px 0 8px}.hero p{color:#58738b;font-size:15px}.badge{color:var(--blue);background:#eaf3ff;border:1px solid #cce0ff;border-radius:4px;padding:4px 9px;display:inline-block;font-size:12px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}.card{background:#fff;padding:18px 20px;border:1px solid var(--line);border-radius:6px}.card b{font-size:25px;display:block;color:var(--blue);line-height:1.4}.card span{font-size:12px;color:var(--muted)}.notice{border-left:3px solid var(--blue);background:#eaf3ff;padding:15px 18px}.chapter{background:white;border:1px solid var(--line);border-radius:6px;padding:26px 28px;margin:24px 0;scroll-margin-top:84px;overflow:hidden}.chapter>h1{font-size:23px}.eyebrow{font-size:11px;color:var(--blue);letter-spacing:.08em}p{margin:12px 0}a{color:var(--blue);overflow-wrap:anywhere}ul,ol{padding-left:25px}li{margin:6px 0}table{border-collapse:collapse;width:100%;font-size:13px;margin:16px 0;table-layout:auto}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#f1f5fa;font-weight:600;color:#46647f}tbody tr:nth-child(even){background:#fafcff}code{font-size:12px;background:#eff4fa;border-radius:3px;padding:2px 4px;overflow-wrap:anywhere}pre{background:#142c44;color:#ddebfa;padding:16px;border-radius:6px;overflow:auto;line-height:1.65}pre code{background:transparent;color:inherit;padding:0}.muted{color:var(--muted);font-size:12px;margin-top:5px}.tag{background:#edf5ff;color:#3175be;display:inline-block;border-radius:3px;padding:1px 6px;font-size:11px;overflow-wrap:anywhere}.table-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:20px;margin-top:24px}.table-tools h3{margin:0 auto 0 0}.table-tools input,.table-tools select{padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:white;color:var(--ink)}.table-tools input{width:280px;max-width:100%}.table-tools span{font-size:12px;color:var(--muted)}.table-scroll{max-height:680px;overflow:auto;margin-top:12px;border:1px solid var(--line)}.table-scroll table{margin:0;min-width:880px;border-style:hidden}.table-scroll th{position:sticky;top:0;z-index:1}footer{color:var(--muted);font-size:12px}strong{color:#163e68}[hidden]{display:none!important}@media(max-width:900px){aside{display:none}main{margin-left:0;padding:18px}header{padding:0 18px}.brand small,.topnote{display:none}.cards{grid-template-columns:repeat(2,1fr)}.chapter{padding:20px 16px}.chapter>table{display:block;overflow:auto}h1{font-size:23px}}@media print{header,aside,.table-tools{display:none}main{margin:0;padding:0;max-width:none}.cards{break-inside:avoid}.chapter{border:0;padding:0;break-before:page}.table-scroll{max-height:none;overflow:visible;border:0}.table-scroll table{min-width:0}body{background:white;font-size:11px}table{font-size:10px}a{color:inherit}.chapter th{position:static}h2,h3{break-after:avoid}tr{break-inside:avoid}}
+</style></head><body><header><div class="brand">◇ 锦鲤云 <small>游戏市场洞察 / 采集设计</small></div><div><span class="topnote">资料核对 2026-10-30 · 设计方案，尚未生产接入</span><button onclick="window.print()">打印 / 存为 PDF</button></div></header><aside><div class="nav-label">采集方案 · V1.0</div><a href="#top">方案概览</a><a href="#plan">采集总体方案</a><a href="#sources">数据源与核验</a><a href="#mapping">全字段对应关系</a><a href="#runtime">运行与存储</a><a href="#rollout">实施与验收</a><div class="nav-label" style="margin-top:25px">原有设计</div><a href="PRODUCT-DESIGN-V2.html">V2.3 产品设计</a><a href="README.md">Codex 阅读顺序</a><div class="foot">原型 V2.3<br>推荐算法 V2.2<br>设计交接包 V2.4<br><br>目标 Top100<br>实际覆盖独立记录</div></aside><main id="top"><div class="hero"><div class="crumb">市场情报 / 配置管理 / 数据采集方案</div><h1>从公开线索，到可追溯的推荐依据</h1><p>公开数据扩大候选范围，关键资格靠证据确认，稳定缺口按需授权补齐。</p><span class="badge">公网优先</span> <span class="badge">Java + MySQL</span> <span class="badge">事实 / 推断 / 缺失分开</span><div class="cards"><div class="card"><b>30</b><span>来源与内部补充路径</span></div><div class="card"><b>120 + 81</b><span>原子指标与展示字段逐项映射</span></div><div class="card"><b>7 日</b><span>首轮数据源验证计划</span></div><div class="card"><b>25</b><span>采集与容错验收案例</span></div></div><div class="notice"><strong>本轮已核对公开页面与官方文档，尚未完成部署环境联调。</strong><br>公开页可见、可自动采集、允许存储和允许AI分析分别登记。在线原型仍为V2.3，推荐算法仍为V2.2；所有来源配置默认关闭。</div></div><section id="plan" class="chapter"><div class="eyebrow">开发交接 · 采集总体方案</div><h1>公网优先的数据采集实施方案</h1>
+<p>方案版本1.0，设计包V2.4；核对日期2026-10-30。此轮补充采集设计，在线原型仍为V2.3，推荐算法仍为V2.2。本文件是实施方案，不代表已建好采集器或已获得全平台数据。</p>
+<h2>1. 要交付的能力</h2>
+<p>建立可以持续积累、回看某一天、追溯来源的游戏市场事实库，为每周5～10款研究精选提供证据。范围继续覆盖微信、抖音、iOS中国及Google Play美国/英国/德国/法国；先广泛发现产品，再对IAA资格与研究价值分层。</p>
+<p>建议采用“公开数据为主、人工补关键证据、付费补不可替代缺口”的方案。公开资料能够支持榜单观察、产品档案、可见评价、玩法材料、传播及广告线索，但不能承诺匿名获得所有平台每日Top100、全部评论或竞争产品的真实DAU、留存、广告收入。</p>
+<p>必须区分三个对象：全量观察池保留抓到的榜项和研究线索；待核候选池承接身份/IAA/玩法尚未确认的产品；正式纯IAA产品库只收目标平台版本有依据的合格对象。采集时不先删掉混变、非休闲或未知产品，分类之后仍保留其竞争参照价值。</p>
+<h2>2. 信息范围与采集深度</h2>
+<p>原有120原子字段与81展示字段全部保留，201行逐项采集映射见22。采集层按12组安排，不把AI推断和内部测试结果写成公网事实。</p>
+<table>
+<thead>
+<tr>
+<th>信息组</th>
+<th>核心内容</th>
+<th>主要路径</th>
+<th>第一阶段深度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>身份与商店档案</td>
+<td>名称/别名、稳定ID、主体、国家/语言、介绍、分类、版本、更新、包体/设备要求、商店入口</td>
+<td>官方元数据/商店页/发行商说明</td>
+<td>全候选基础档案；字段不公开即留缺口</td>
+</tr>
+<tr>
+<td>榜单与市场</td>
+<td>单榜名次、深度、日期、在榜与进出、持续性、增长、下载档位/估计</td>
+<td>官方榜、已验收公开榜、授权数据</td>
+<td>每日，优先前100；按真实可得范围保存</td>
+</tr>
+<tr>
+<td>玩家评价</td>
+<td>评分/计数、可见原文、日期/版本、认可点、抱怨、改进需求</td>
+<td>商店、TapTap、受控人工样本</td>
+<td>重点对象每日增量，其余每周；不承诺全量</td>
+</tr>
+<tr>
+<td>社区与舆情</td>
+<td>讨论、攻略、事件、官方回应、去重提及、可见互动、商业标记</td>
+<td>准入的公开内容/媒体/发行方</td>
+<td>先固定白名单和查询面板，再扩大</td>
+</tr>
+<tr>
+<td>核心玩法</td>
+<td>操作循环、胜负条件、单局、首局学习、难度、关卡、外围系统</td>
+<td>官方介绍+实机试玩+有权限的材料</td>
+<td>AI初稿；每周深研30～50个候选的上限由人力决定</td>
+</tr>
+<tr>
+<td>美术与体验</td>
+<td>风格/方向/表现、反馈、加载、网络、设备表现</td>
+<td>截图/实机与测量记录</td>
+<td>风格可AI辅助，性能需实测</td>
+</tr>
+<tr>
+<td>变现与IAA</td>
+<td>广告证据、形式/触发/奖励、内购反证、排除内购依据、版本有效期</td>
+<td>商店标记/发行声明/结构化核查</td>
+<td>正式入库前必补，版本变化重新判定</td>
+</tr>
+<tr>
+<td>素材与投放</td>
+<td>素材入口、卖点、变体、广告主、落地游戏、观察周期、投放地区</td>
+<td>公开广告库/报告；授权广告情报</td>
+<td>公网以样本和入口为主，投放量/花费不推造</td>
+</tr>
+<tr>
+<td>搜索与外部事件</td>
+<td>别名词、趋势、平台推荐、季节事件、媒体报道</td>
+<td>官方导出/公开材料</td>
+<td>辅助证据，非市场成功替代条件</td>
+</tr>
+<tr>
+<td>竞争与供给</td>
+<td>同玩法家族、竞品、供给、差异、下滑/失败对照、平台机会</td>
+<td>自建产品库派生+人工研究</td>
+<td>保存监测范围；“未看到”不等于市场没有</td>
+</tr>
+<tr>
+<td>制作可行性</td>
+<td>原型范围、内容工作量、技术资产、工期范围、风险</td>
+<td>团队能力+工程评估+AI草案</td>
+<td>负责人确认，非爬虫可以直接抓到</td>
+</tr>
+<tr>
+<td>内部验证</td>
+<td>多人选用、进度、费用、留存、收益、实验结论</td>
+<td>内部表单/数据中台</td>
+<td>自有实验与竞品情报分开</td>
+</tr>
+</tbody></table>
+<h2>3. 平台落地路径</h2>
+<h3>3.1 iOS中国：元数据优先接，榜单深度先验证</h3>
+<p>主路径S02官方公开榜发现ID → S01官方Search/Lookup补资料 → S04详情补评分、可见评价与内购等标记。</p>
+<p>本次读取中国iPhone游戏免费榜看到1～25名。实施目标仍为Top100，但不能把页面显示25名写成100名已覆盖。S03历史RSS路径只作为待验证候选；如果部署环境无法稳定取得更多官方榜项，就保存已取得部分并明确缺口，或由S19已验收供应商补另一条独立系列。</p>
+<p>元数据按国家/语言保存，开发者和发行商不强行视为同一主体。评分人数与文字评价数独立；页面“164万”等缩写保存原文与近似精度，不能冒充精确计数。历史版本说明中出现的日期也不能一律作为首次上线日。</p>
+<p>官方说明：<a href="https://performance-partners.apple.com/search-api">Search API</a>。公开样例：<a href="https://apps.apple.com/cn/iphone/charts/6014?chart=top-free">中国游戏免费榜</a>、<a href="https://apps.apple.com/cn/app/id791532221">详情与评论</a>。本次是资料核验，非生产接口验收。</p>
+<h3>3.2 Google Play：四国独立配置，公开详情优先</h3>
+<p>为US、GB、DE、FR分别配置榜单、语言、设备/终端和采集环境；不建立“中国大陆Google Play榜”。公开商品详情S05可以作为包名、简介、主体、下载档位、广告/IAP标志及部分评价的首要来源。</p>
+<p>榜单S06先验证目标国家展示、榜类型、可见条数、翻页/加载、排序稳定性。URL中的gl/hl是请求上下文，不直接证明实际展示市场，更不能推导评论者国籍。记录返回页面的地区提示；不能确认市场则标market_unverified，不进入该国数值队列。推荐模块、编辑推荐与名次榜分开。</p>
+<p>开发者评论API服务于有权限的自有应用，不能作为任意竞品评论接口。第一期只做公开可见样本，若研究需要稳定的最近100～300条文字评价，应验收授权供应商的接口或导入能力。公开累计下载档位不做日差分下载；iOS没有相同公开值时维持未知。</p>
+<p>依据：<a href="https://developers.google.com/android-publisher/reply-to-reviews">Google官方评论API说明</a>、<a href="https://play.google.com/store/apps/details?id=com.block.juggle&hl=en&gl=US">Google Play详情示例</a>。该示例同时显示广告与内购，不能因“含广告”进入纯IAA库。</p>
+<h3>3.3 抖音小游戏：先验证官方趋势入口</h3>
+<p>S07官方小游戏网站已核到热门、畅销、新游榜入口，安排首轮PoC确认匿名是否返回榜项、榜日期、稳定ID及TopN。成功后按来源实际定义建三条系列。热门榜的指标含义也要登记；“畅销”不能未经定义就当纯收入或纯玩家活跃。</p>
+<p>若只有登录后可见内容，改为明确授权的导出/合作接口或人工材料，不在系统里放任意账号Cookie或设计绕过。自有数据助手用于自有产品经营数据，不代表能读市场竞品后台。</p>
+<p>抖音短视频传播S28与小游戏榜S07独立；海外TikTok Top Ads与国内抖音也独立。</p>
+<p>依据：<a href="https://game.open-douyin.com/">官方入口</a>、<a href="https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/operation1/about-data/data-assistant">数据助手</a>。</p>
+<h3>3.4 微信小游戏：用双路径解决最不稳定的来源</h3>
+<p>公开路径：白名单官方账号/公开文章、开发商/发行商发布、机构报告、经过出处验证的第三方公开榜页。文章或图片榜通过HTML/表格/OCR抽取，保留文章日期、榜单期间、榜类型及图片坐标；排名需人工抽查。没有稳定ID先建待匹配实体，不能拿同名游戏直接并库。</p>
+<p>原生入口路径：运营研究员在有权限的微信可见页面进行结构化观察/导入，记录观察日、完整截图范围、名次与产品启动线索；这属于人工观察源。用户只需提供材料或正式导出，不交个人账号密码。</p>
+<p>本轮没有核到能保证全市场匿名日榜Top100的公开接口。如果“微信每日Top100连续覆盖”是上线硬要求，应在PoC后一周内决定是否采购这项具体缺口。供应商必须说明榜单原始出处与指标，而不是用买量榜替代人气榜。公开文章榜缺一天不能用下一篇文章倒填。</p>
+<h2>4. 候选发现：避免只看到已经排在前面的产品</h2>
+<p>每日维护五类入口：已准入榜单、商店相似/同开发商公开链接、玩法关键词查询、公开新游/更新/活动材料、团队人工提交。发现任务输出稳定ID或待核URL，自动去重后进入观察池。</p>
+<p>固定查询样例为“游戏名称+发行主体+平台”“已确认别名+玩法词”“某玩法+小游戏+上线/更新/广告”。每条查询保存语言、市场、日期范围、检索服务、排序及结果上限。同名歧义用包名/发行主体消除；搜索结果数量不用于热度计分，摘要只作线索，必须回到原始来源。</p>
+<p>同时保留下滑、出榜和未被选中的对照产品，避免只从成功案例学习。扩大来源和关键词时修改面板版本，从生效日建立新序列，不能把更多检索造成的新增内容当成市场爆发。</p>
+<h2>5. 分层调度与建议规模</h2>
+<p>以下是首期容量和人力测算假设，不是承诺全市场规模或数据覆盖率；根据PoC实测调整。</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>建议容量</th>
+<th>采集策略</th>
+<th>晋升/降频规则</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>发现池</td>
+<td>先覆盖1,000～3,000个平台实体</td>
+<td>已准入榜单每日；基础资料首次+每周</td>
+<td>新上榜、连续上涨、可靠新游/事件线索进入关注</td>
+</tr>
+<tr>
+<td>关注池</td>
+<td>约200～300个</td>
+<td>档案/榜单/可见评论每日；传播固定面板</td>
+<td>证据足、IAA待确认、变化显著进入深研；长期不变降频</td>
+</tr>
+<tr>
+<td>深研池</td>
+<td>每周上限30～50个候选</td>
+<td>先桌面补证；其中约10～20个实机核查</td>
+<td>由资格缺口与信息价值排序；不是每个都做全面实测</td>
+</tr>
+<tr>
+<td>每周精选</td>
+<td>目标5～10个</td>
+<td>冻结证据、评分/区间与研究动作</td>
+<td>合格不足时真实输出较少精选，另列线索补证</td>
+</tr>
+</tbody></table>
+<p>默认每日08:00（Asia/Shanghai）采集榜单；08:30补档；10:00起处理评论/新材料；周五形成深研候选，周日23:59:59业务截止，周一固定时间冻结并生成报告。来源本身日期/时区与本系统业务日分开。需要更细趋势时，只对已稳定来源及少量对象增加到每日2～4次，并独立保存日内快照。</p>
+<p>事件触发可以提前补档/查证；固定趋势面板仍按原定频率采样。高分产品被多抓几次只影响资料丰富度，不能直接提高热度指标。</p>
+<h2>6. 玩家评价：既采声音，也保存“怎么采到的”</h2>
+<p>三种样本必须区分：官方评分聚合值；按“最新”等明确策略得到的文字样本；精选/有帮助/默认推荐评论。第三种强选择样本只做定性，不估计总体满意率。若来源只能给精选评论，仍可用于发现广告打断、难度、卡关、虚假宣传、奖励兑现等问题。</p>
+<p>关注池每日获取允许且可见的增量；单产品/来源一次上限先设100条，新晋深研需要时补到近30日最多300条。数字是预算上限，不是该源必然提供的数量。仅在时间排序与分页可靠时用水位线；每次回扫最近7日以捕捉迟到/修改，每月做一次允许范围内30日修订检查。无法完整翻页时标truncated，不用“暂无新评论”掩盖失败。</p>
+<p>评论原始记录包括source_review_id、原始语言、发布时间/修改时间、所述版本、原始评分、正文或允许摘录、商业/激励标志、抓取时间、证据定位。无评论ID时采用保守的来源内指纹，无法区分编辑与新评论则标疑似修订，不伪造精确去重结果。页面折叠区与展开区重复文本先去重。</p>
+<p>AI按“广告频次/强制性、奖励兑现、难度、操作、性能、画面、内容量、原创体验、付款/订阅、期待”抽取主题；支持混合评价、无法判断、引用他人、疑似广告。保留原文与翻译并记录模型版本。评论中的付款说法是IAA反证线索，需要核对目标平台版本；评论抱怨卡顿也不等于已测得帧率。</p>
+<p>输出明确区分rating_count、review_count、sample_collected_count、deduplicated_count、classifiable_n、positive_k。没有总体分母则不展示采样覆盖百分比；正负主题可以重叠，不强求相加为100%。只有同一可比样本协议且允许分析时才向V2.2提供k/n；少量精选评论不做总体口碑推断。</p>
+<h2>7. 舆情、视频和投放：可用，但不是全量热度</h2>
+<p>公开内容先做“来源白名单+固定查询面板”：相同来源、词表、排序、时间窗、条数预算和采样时间保持稳定。保存原始条数、去重簇数、无法确认游戏的条数、实际访问失败数。单纯扩大抓取量不能算提及增长。</p>
+<p>传播内容按产品强匹配、候选匹配、无法判断分开。来源作者只保存来源内去标识符，不跨平台追踪个人。转载/搬运聚成来源族，5家转同一份报告是一个根证据；同一公司广告素材多账号分发也不能当5个独立玩家声音。</p>
+<p>公开视频默认保存标题、原始链接、允许的嵌入和必要元数据。只有本团队录屏或明确有权限的素材，才下载转存、切片、OCR/语音识别并交AI处理。公开可看与可批量下载/长期存储/衍生分析分别登记。</p>
+<p>YouTube有官方API，但当前开发者政策对衍生指标、统计历史存储及刷新/删除有专门限制。本期默认作为参考入口，未取得适用许可前，不把其播放/点赞/评论加工成综合分或AI舆情指标；这项功能可在明确获批范围后独立开启。依据：<a href="https://developers.google.com/youtube/terms/developer-policies">政策</a>、<a href="https://developers.google.com/youtube/terms/derived-metrics-policy">额外分析政策</a>。</p>
+<p>广告素材来源以TikTok Top Ads、Google广告透明中心、公开机构报告和授权DataEye数据为备选。公开精选广告反映“观察到此素材”，不证明实际消耗、转化或利润。素材活跃天数是本系统观察天数，不等于连续投放天数；供应商估计单独标来源、方法、范围。</p>
+<p>Google Trends先走官方CSV导入。保存查询词/主题、地区、类别、搜索类型、时间窗口和归一化范围；不同批次0～100指数不直接拼接。如果来源不能提供可比数据，就作为定性资料，而不是勉强组成统一热度分。</p>
+<h2>8. 纯IAA资格与人工核查</h2>
+<p>自动入库建立在证据完整且规则通过之上。身份/玩法/IAA证据未知时，系统自动入观察池并产生补证任务，不自动变成正式纯IAA产品。</p>
+<p>证据分为公开广告标记、内购/付费反证、发行方适用版本声明、结构化实机检查。实机至少记录平台、国家、版本/构建识别、设备、观察时长、主要入口、复活/奖励/商城/订阅/去广告等已检查路径，以及广告实际触发情况。只玩15分钟没看到支付按钮，不能证明全游戏没有内购。</p>
+<p>沿用现有“有依据才正式入库”原则；纯IAA判定是带适用范围与期限的研究结论。可接受依据由业务登记，如明确的目标版本声明，或可审计核查协议结合公开反证检索并经研究员确认。AI只列证据与冲突。新版本、出现IAP标记、证据过期或冲突均触发重核；已明确内购的事实不能因为后续抓不到而自动清除。</p>
+<h2>9. 怎么采：稳定解析优先，AI补复杂材料</h2>
+<p>连接器优先级为：官方/授权API → 提供的RSS/CSV等导出 → 允许的公开HTML → 经准入的公开DOM渲染 → 人工材料。OCR用于图片榜和扫描报告，带坐标与原图；排名数字须复核。不要把所有网页交给大模型自由浏览抓取。</p>
+<p>Java采集工作器先请求、保留合法原始证据、确定性解析ID/名次/日期/数值、执行质量校验；复杂段落/图片再进入受限AI抽取。AI输出必须包含字段、值或unknown、证据位置、适用范围、抽取/推断类型、冲突与建议任务。无引用的“事实”、超范围数值和不符Schema的结果不写入事实表。</p>
+<p>来源返回403/登录墙/验证码时停止该路径并标访问受限，走许可接口或人工；429按Retry-After与指数退避；超时/5xx有限重试。默认每域并发1，普通网页间隔至少3～5秒，按官方限额更严格者执行，PoC后再调整。没有通过源准入的任务只可运行人工检查，不自动生产抓取。</p>
+<p>浏览器工作器独立进程并设内存/超时限额，只有HTTP确实不足才启用。来源结构变化可让AI提出解析规则修复草案，必须经过样本回放与人工/代码审核，不能让AI直接改运行脚本、取消访问限制或写生产SQL。</p>
+<h2>10. 存放方式：可追溯事实与可删除材料兼容</h2>
+<p>Java模块化服务承接任务、适配器、身份、证据、分析、推荐和管理端；MySQL保存结构化事实、任务、规则版本和引用；对象存储保存允许保存的原始HTML/JSON/图片/PDF与大素材。大量原文不直接堆进业务表。第一期不必先拆微服务或引入多套消息系统。</p>
+<p>每条观测带source_id、source_family、platform_entity_id、market、locale、version、metric_definition_version、source_published_at、observed_at、available_at、window、coverage、evidence_id、raw_hash、parser_version、policy_version。actual_market不明确时保留unknown。</p>
+<p>raw_hash用于去重与完整性，不代表可以永远保存内容。每个来源设置allowed_uses、raw_retention、refresh_after、delete_after、media_policy、derivation_policy和报表再分发权限。需要刷新或删除时连同派生缓存、AI输出和受影响导出同步处理；周报保留合法的决策版本和删改说明，不复制受限原文绕过删除。允许长期保存的历史事实与必须短期刷新的材料分开。</p>
+<p>具体表、任务幂等、时间与契约见23；运行样例见contracts/collection-v1-*.json，均为设计样例而非生产数据。</p>
+<h2>11. 四个容易导致错误推荐的情况</h2>
+<ol>
+<li>只抓到Top25：已见第18名仍是有效名次；未出现的游戏不能认定Top100之外。当前V2.2将未见部分按未知范围处理；不把25名重新缩放成另一个得分尺度。</li>
+<li>某一天抓取失败：这天为missing，昨天名次仅展示“最后已知”，不能复制成今天事实。重试只得到当前页面时不能倒填昨天，除非源提供可核实的指定日期快照。</li>
+<li>数据源换了：保留两条原始序列，定义、日期、设备、地区及覆盖一致性审核后才讨论是否可比。不能简单把A的旧数据和B的新数据拼出“上涨”。</li>
+<li>评论突然变多：先检查是否新增了来源/翻页/词表、是否大批历史数据刚导入、是否重复转载或商业内容，再判断真实增长。available_at与内容发生时间分开。</li>
+</ol>
+<h2>12. 送入每周精选的合同</h2>
+<p>继续使用V2.2六维、缺失区间和资格规则，本轮不另造一套“抓得越多分越高”的评分。D/M使用同平台/市场/榜定义的14日窗口；完整Top100未见才允许榜外状态，部分覆盖未见为未知；“14日内至少7个已观察Top100日”等需求门槛沿用原方案，实际观察不足就输出线索。</p>
+<p>玩家评价缺失只使相关软维度保持未知，其他有效证据仍可推荐；身份、IAA、实机、事件核查和需求等资格未成立则不能伪称可直接制作。每个推荐附支持与反对依据、研究优先级范围、输入覆盖、缺失原因、实际源覆盖和下一步补证动作。</p>
+<p>报告使用明确的business_cutoff与knowledge_cutoff：市场观察不得晚于业务截止，系统已知时间不得晚于冻结时点。严格历史回测用当时可用的材料，后来发现的历史文章不偷偷进入过去决策。迟到数据生成修订，不覆盖原周报。公开源故障时仍出覆盖说明、有效候选与补证报告；没有候选时不给虚构游戏名。</p>
+<h2>13. 先做什么、哪些缺口再花钱</h2>
+<p>先做7日源PoC，再按成功源上线：iOS基础档案/实际可见榜、GP详情与四国榜验证、抖音趋势入口验证、TapTap/商店评论样本、微信材料导入、结构化IAA核查、证据与覆盖页面。</p>
+<p>付费优先解决影响决策且公网不稳定的缺口：微信/抖音可靠日榜深度、四国商店榜连续性、需要稳定抽样的评论、买量素材监测。暂不为“字段看起来齐全”买无法说明口径的DAU/利润估计。详细排期、采购验收和成本模型见24。</p>
+<p>该路径可从上线第一天积累真实历史，并随着来源准入增加广度。深度和广度都在数据源/字段配置里扩展，推荐系统始终看见证据、缺失与限制。</p>
+</section><section id="sources" class="chapter"><div class="eyebrow">开发交接 · 数据源与核验</div><h1>数据源登记册与当前核验边界</h1>
+<p>日期：2026-10-30；采集方案1.0。完整30项登记见21-source-register.csv。本轮进行了公开网页/官方文档核对，没有在生产环境完成采集器联调、权限验收或7日稳定性测试。</p>
+<table>
+<thead>
+<tr>
+<th>标识</th>
+<th>含义</th>
+<th>可以得出的结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>V0_UNVERIFIED / V0_PER_SITE / V0_VENDOR</td>
+<td>候选来源或逐站待核</td>
+<td>可以安排验证，不能承诺字段或覆盖</td>
+</tr>
+<tr>
+<td>V1_DOC</td>
+<td>已核对来源方文档/服务说明</td>
+<td>文档描述能力存在；凭证、用途、字段、配额仍待接入</td>
+</tr>
+<tr>
+<td>V1_ENTRY</td>
+<td>已找到入口或可检索到入口</td>
+<td>不能据此说已取得榜项、完整分页、目标国家数据</td>
+</tr>
+<tr>
+<td>V2_PAGE</td>
+<td>本轮已读取至少一张公开页面的相关内容</td>
+<td>仅证明当次研究可见；不能替代部署环境HTTP、许可与连续采集验收</td>
+</tr>
+<tr>
+<td>V3_POC</td>
+<td>预留：部署环境端到端样本通过</td>
+<td>逐源证据、接口响应、字段校验、限制处理通过</td>
+</tr>
+<tr>
+<td>V4_PILOT</td>
+<td>预留：连续7日试运行通过</td>
+<td>达到该源承诺范围的试运行标准，仍不保证以后不变</td>
+</tr>
+<tr>
+<td>INTERNAL_PLANNED</td>
+<td>内部人工/计算能力待开发</td>
+<td>不是外部网站可以抓到的信息</td>
+</tr>
+</tbody></table>
+<p>权威性、技术可访问性、使用许可、统计可比性是四个独立维度。官方网页也可能仅展示部分榜；第三方公开页面也需要追溯原始出处。所有连接器默认production_enabled=false，只有逐源准入后开启。</p>
+<h2>已核实的关键依据</h2>
+<ol>
+<li>Apple元数据接口文档：<a href="https://performance-partners.apple.com/search-api">https://performance-partners.apple.com/search-api</a> 。支持搜索/ID查找和国家参数；本轮只做文档核对。</li>
+<li>Apple中国区游戏免费榜：<a href="https://apps.apple.com/cn/iphone/charts/6014?chart=top-free">https://apps.apple.com/cn/iphone/charts/6014?chart=top-free</a> 。本次网页读取显示1–25名；不能把期望Top100写成实际完整覆盖。</li>
+<li>Apple公开详情样例：<a href="https://apps.apple.com/cn/app/id791532221">https://apps.apple.com/cn/app/id791532221</a> 。可见评分、评分计数、部分评论、内购标签和版本信息。示例是字段验证，不是纯IAA推荐。</li>
+<li>Google Play公开详情样例：<a href="https://play.google.com/store/apps/details?id=com.block.juggle&hl=en&gl=US">https://play.google.com/store/apps/details?id=com.block.juggle&amp;hl=en&amp;gl=US</a> 。本次显示广告与内购同时存在；“含广告”不足以证明纯IAA。</li>
+<li>Google自有应用评论接口：<a href="https://developers.google.com/android-publisher/reply-to-reviews">https://developers.google.com/android-publisher/reply-to-reviews</a> 。开发者权限范围不能自动延伸到竞品。</li>
+<li>抖音小游戏官方入口：<a href="https://game.open-douyin.com/">https://game.open-douyin.com/</a> 。核到热门、畅销、新游榜入口；榜项、日期、ID、TopN待部署环境PoC。自有数据助手说明：<a href="https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/operation1/about-data/data-assistant">https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/operation1/about-data/data-assistant</a> 。</li>
+<li>TapTap公开评论样例：<a href="https://www.taptap.cn/app/531593/review">https://www.taptap.cn/app/531593/review</a> 。核到可见评价文本与评价标签，未验证全量分页或自动化稳定性。</li>
+<li>TikTok Top Ads说明：<a href="https://ads.tiktok.com/resources/help/article/how-to-use-the-top-ads-dashboard">https://ads.tiktok.com/resources/help/article/how-to-use-the-top-ads-dashboard</a> 。未登录可见数量有限，精选广告不是完整投放库。</li>
+<li>Google广告透明说明：<a href="https://support.google.com/My-Ad-Center-Help/answer/12155361?hl=EN">https://support.google.com/My-Ad-Center-Help/answer/12155361?hl=EN</a> 。公开检索支持广告主/网站及地区和日期过滤；自动API能力未核实。</li>
+<li>DataEye服务：<a href="https://www.dataeye.com/api.html">https://www.dataeye.com/api.html</a> 与 <a href="https://www.dataeye.com/adxray.html">https://www.dataeye.com/adxray.html</a> 。供应商自述API/广告情报能力，目标小游戏字段、许可和SLA需样本验收；不据营销覆盖比例承诺本项目覆盖率。</li>
+<li>Google Trends导出：<a href="https://support.google.com/trends/answer/4365538?hl=en">https://support.google.com/trends/answer/4365538?hl=en</a> 。先走官方CSV导入；其他接入另做评估。</li>
+<li>YouTube文档：<a href="https://developers.google.com/youtube/data">https://developers.google.com/youtube/data</a> ，配额 <a href="https://developers.google.com/youtube/data/determine_quota_cost">https://developers.google.com/youtube/data/determine_quota_cost</a> ，使用政策 <a href="https://developers.google.com/youtube/terms/developer-policies">https://developers.google.com/youtube/terms/developer-policies</a> ，额外获批分析政策 <a href="https://developers.google.com/youtube/terms/derived-metrics-policy">https://developers.google.com/youtube/terms/derived-metrics-policy</a> 。默认仅参考入口与允许的原始展示，不直接纳入AI舆情、综合热度或长期竞品统计库；相应用途获批后才单独启用。对非授权统计不承诺超过30日保留；源策略要实施刷新/删除，不能用“不可变历史”绕过。</li>
+</ol>
+<p>以上URL用于开发核对；不能把搜索引擎索引时间当网页数据日期。来源页面可能变化，实施时需再次确认。没有核到文档不等于证明接口不存在；仅表示目前不应把它写成已具备能力。</p>
+<div class="table-tools"><h3>30 项来源与补充路径</h3><input id="source-filter" placeholder="筛选平台、来源、访问方式…" aria-label="筛选数据源"><span id="source-count">30 项</span></div><div class="table-scroll"><table id="source-table"><thead><tr><th>ID / 来源</th><th>当前核验</th><th>获得什么</th><th>怎么做 / 频率</th><th>边界与补缺</th></tr></thead><tbody><tr><td><b>S01 · Apple Search / Lookup API 文档</b><div class="muted"><a href="https://performance-partners.apple.com/search-api" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V1_DOC</span><div>公开官方API</div></td><td>iOS稳定ID、名称、开发主体、商店元数据；逐返回字段验收</td><td>Java HTTP；优先ID lookup；按country区分；缓存<div class="muted">新发现立即；关注池每日；其余每周</div></td><td>本轮核到文档，未在部署环境联调；文档约20次/分钟，可能调整；不提供竞品真实下载/收入<div class="muted">补缺：S04；授权供应商S19</div></td></tr><tr><td><b>S02 · App Store 中国区 iPhone 游戏免费榜</b><div class="muted"><a href="https://apps.apple.com/cn/iphone/charts/6014?chart=top-free" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V2_PAGE</span><div>匿名公开网页</div></td><td>榜单顺序、产品ID和详情链接</td><td>Java HTTP+HTML解析；必要时经验证的公开DOM<div class="muted">每日08:00 Asia/Shanghai；失败分级重试</div></td><td>本次网页读取显示1–25名；不代表已获得Top100；记录设备、地区与榜单定义<div class="muted">补缺：S03先做PoC；S19；人工导入S21</div></td></tr><tr><td><b>S03 · Apple 历史 RSS 游戏免费榜候选</b><div class="muted"><a href="https://itunes.apple.com/cn/rss/topfreeapplications/limit=100/genre=6014/json" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V0_UNVERIFIED</span><div>候选公开接口</div></td><td>可能提供游戏榜；能否返回100条待验证</td><td>仅作为PoC候选，不默认启用<div class="muted">验证后每日</div></td><td>本次研究工具未成功读取；不能判定服务失效，也不能承诺可用；RSS Builder未证实游戏Top100能力<div class="muted">补缺：S02部分覆盖；S19</div></td></tr><tr><td><b>S04 · App Store 游戏详情及可见评论</b><div class="muted"><a href="https://apps.apple.com/cn/app/id791532221" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V2_PAGE</span><div>匿名公开网页</div></td><td>评分、评分计数、部分评论、更新、内购标签、截图入口</td><td>按S02/S01返回URL抓可见HTML；保留展示标签及精度<div class="muted">关注池每日；长尾每周</div></td><td>示例页确有评论与App内购买；不是纯IAA样例；不承诺完整评论、分页或文字评论总数<div class="muted">补缺：S09定性补充；S21；S19</div></td></tr><tr><td><b>S05 · Google Play 商品详情</b><div class="muted"><a href="https://play.google.com/store/apps/details?id=com.block.juggle&amp;hl=en&amp;gl=US" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V2_PAGE</span><div>匿名公开网页</div></td><td>包名、主体、简介、评分显示、下载档位、广告/IAP标记、媒体、部分评论</td><td>Java HTTP可见HTML；市场+语言+设备上下文固定<div class="muted">关注池每日；长尾每周</div></td><td>示例当前同时标含广告与内购；下载量是档位；网页计数标签语义须核对；gl不等于评论者国籍<div class="muted">补缺：S19；S21；S10</div></td></tr><tr><td><b>S06 · Google Play 各市场游戏榜</b><div class="muted"><a href="https://play.google.com/store/games" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V1_ENTRY</span><div>公开网页，地区展示待核</div></td><td>US/GB/DE/FR各自免费/畅销榜及可见范围</td><td>分别创建市场配置；解析可见榜单；记录出口地区和页面实际地区<div class="muted">每日08:00 Asia/Shanghai</div></td><td>核到公开页有榜单入口，四国匿名Top100深度与分页均待PoC；推荐位不是榜单；榜单类型不混用<div class="muted">补缺：S19；人工导入S21</div></td></tr><tr><td><b>S07 · 抖音小游戏官方平台趋势</b><div class="muted"><a href="https://game.open-douyin.com/" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V1_ENTRY</span><div>官方公开入口，榜项待核</div></td><td>热门榜、畅销榜、新游榜入口；榜项/日期/ID待核</td><td>公开HTML/DOM PoC；不调用需主体权限的后台接口<div class="muted">通过验证后每日</div></td><td>核到三个榜入口，未证实匿名榜项完整性/Top100；畅销榜指标定义须登记；不能直接作玩家需求榜<div class="muted">补缺：S26候选来源验证；S19；S21</div></td></tr><tr><td><b>S08 · 微信小游戏公开文章与官方发布材料</b><div class="muted"><a href="https://mp.weixin.qq.com/" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V0_UNVERIFIED</span><div>单篇公开链接，部分入口可能受限</div></td><td>榜单图片/文章、产品介绍、活动及经营声明</td><td>运营维护官方账号与文章白名单；可读原文抽取，榜图OCR后核查<div class="muted">白名单每日；榜图按发布节奏</div></td><td>尚未核到可承诺的全市场匿名日榜API；无具体已验收文章URL；文章榜不能补造逐日榜；原生入口另走S21<div class="muted">补缺：S21；S19；S26验证</div></td></tr><tr><td><b>S09 · TapTap 游戏详情与评论</b><div class="muted"><a href="https://www.taptap.cn/app/531593/review" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V2_PAGE</span><div>匿名可见网页；自动化接入待核</div></td><td>来源评分/评价显示、评论、日期、主题和部分设备/版本</td><td>公开HTML/经准入DOM；仅抓可见范围；保存采样策略<div class="muted">关注池每日；其余每周</div></td><td>示例页可见评价及219评价标签；不代表可抓全219条；TapTap实体需匹配，不自动当同一平台版本<div class="muted">补缺：S04/S05；人工样本S21</div></td></tr><tr><td><b>S10 · 游戏发行商/开发商官网与公开帮助</b><div class="muted">按商店关联的官方网站逐站登记</div></td><td><span class="tag">V0_PER_SITE</span><div>公开网页/RSS</div></td><td>官方简介、发行/版本声明、玩法说明、变现公告、媒体入口</td><td>逐站白名单；站点提供RSS则优先；HTML抽取<div class="muted">关注产品每日；其余每周</div></td><td>不是任意公司官网都可批量采集；宣传累计用户量不当DAU/下载事实；声明记录适用平台版本<div class="muted">补缺：S21；商店详情</div></td></tr><tr><td><b>S11 · B站公开游戏视频和讨论</b><div class="muted"><a href="https://www.bilibili.com/" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V0_UNVERIFIED</span><div>公开单页；搜索/评论批量权限待核</div></td><td>视频入口、公开标题、发布日期、可见讨论</td><td>首期检索线索+白名单单页；通过准入才自动DOM；不使用私有签名接口<div class="muted">白名单每日；重点调研每周</div></td><td>没有本轮批量可得性验证；拿不到评论就记未支持；初期不作全站热度指数<div class="muted">补缺：S16发现；S21记录；授权供应商</div></td></tr><tr><td><b>S12 · YouTube Data API</b><div class="muted"><a href="https://developers.google.com/youtube/data" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V1_DOC</span><div>官方API，需要项目凭证</div></td><td>公开视频检索/元数据/可见评论的展示入口</td><td>官方search/videos/commentThreads；先只启用参考入口与允许的原始展示<div class="muted">搜索预算初设20次/日；实际受项目配额限制</div></td><td>衍生指标及统计存储另有限制；未获相应用途许可前不进推荐分、不做AI舆情衍生、不永久存竞品统计；评论分页非全量保证<div class="muted">补缺：保留允许的参考链接；授权材料S21</div></td></tr><tr><td><b>S13 · TikTok Creative Center Top Ads</b><div class="muted"><a href="https://ads.tiktok.com/resources/help/article/how-to-use-the-top-ads-dashboard" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V1_DOC</span><div>公开精选；完整范围需登录</div></td><td>海外精选广告、地区/行业过滤、素材入口</td><td>首期人工选材/链接导入；自动化需另验许可与可访问范围<div class="muted">每周研究20–50个候选</div></td><td>官方帮助称未登录仅展示5条；精选样本不是全量素材库、花费榜；TikTok不等于国内抖音<div class="muted">补缺：S20；S21</div></td></tr><tr><td><b>S14 · Google Ads Transparency Center</b><div class="muted"><a href="https://adstransparency.google.com/" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V1_DOC</span><div>公开检索；自动化能力待核</div></td><td>广告主、广告素材、展示地区/时间过滤</td><td>先人工链接导入；公开DOM PoC后才自动<div class="muted">关注广告主每周</div></td><td>官方帮助确认可按广告主/网站/地区/时间查询；未证实普适开放API；不推算花费/获利<div class="muted">补缺：S20；S21</div></td></tr><tr><td><b>S15 · DataEye 等机构自己的公开报告</b><div class="muted"><a href="https://www.dataeye.com/report.html" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V2_PAGE</span><div>公开报告页面，全文权限逐件核查</div></td><td>公开买量榜、市场报告、玩法趋势、发布周期</td><td>白名单文章；允许的PDF下载与表格提取；OCR保留页码<div class="muted">每日发现新报告；内容按月/季/年发布</div></td><td>本次核到DataEye公开报告页；报告指标沿用原定义；买量榜不能当玩家榜；摘要不等于全文<div class="muted">补缺：S20授权数据；S25研究</div></td></tr><tr><td><b>S16 · 有使用许可的搜索服务</b><div class="muted">供应商选型后填实际API文档；PoC可人工搜索</div></td><td><span class="tag">V0_UNVERIFIED</span><div>授权搜索API/人工搜索</div></td><td>候选URL、别名、官方材料、相关新闻</td><td>固定查询模板+去重；搜索只发现原始页，取正文另做准入<div class="muted">发现任务每日，预算50查询/日启动</div></td><td>未选择具体供应商；不可把搜索命中量当真实热度；非搜索引擎结果页无限抓取<div class="muted">补缺：人工发现S25；各来源站内公开入口</div></td></tr><tr><td><b>S17 · Google Trends 公开导出</b><div class="muted"><a href="https://support.google.com/trends/answer/4365538?hl=en" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V1_DOC</span><div>公开页面/CSV导出，具体访问条件待核</div></td><td>搜索词、地区、时间窗、归一化指数</td><td>先按官方CSV导出导入；自动接口需另评估<div class="muted">重点候选每周</div></td><td>核到官方CSV流程；单次窗口归一化，跨窗口/不同批次不能直接相减；不是搜索绝对量<div class="muted">补缺：记录缺失；S25定性研究</div></td></tr><tr><td><b>S18 · 百度指数等国内搜索指数</b><div class="muted"><a href="https://index.baidu.com/" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V0_UNVERIFIED</span><div>需核查账号/词权限/可导出能力</div></td><td>国内搜索热度辅助线索</td><td>人工导出或授权接口；默认关闭自动抓取<div class="muted">候选每周，准入后执行</div></td><td>未核实匿名可得性和接口；不作为第一期必需指标<div class="muted">补缺：S08/S15定性线索；未知</div></td></tr><tr><td><b>S19 · 商店/小游戏市场数据供应商</b><div class="muted">待采购确定供应商、接口、榜单原始出处</div></td><td><span class="tag">V0_VENDOR</span><div>付费/合作授权</div></td><td>补足Top100、历史、估算下载/活跃、评论等约定字段</td><td>样本验收后API或受控CSV导入<div class="muted">合同约定</div></td><td>未确认任何供应商覆盖微信人气榜；逐字段验收，估计不当真值；同源数据不多计证据<div class="muted">补缺：公开部分覆盖；人工S21</div></td></tr><tr><td><b>S20 · DataEye 官方 API 服务</b><div class="muted"><a href="https://www.dataeye.com/api.html" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V1_DOC</span><div>商业授权API</div></td><td>买量/投放素材/广告主/达人等服务介绍中的维度</td><td>先申请带稳定ID、口径、更新时间的样本，再接API<div class="muted">签约口径决定，优先每日</div></td><td>已核到官方API服务页；小游戏覆盖、价格、实际字段/延迟/SLA仍须确认；不冒充玩家人气榜<div class="muted">补缺：S13/S14/S15有限线索</div></td></tr><tr><td><b>S21 · 人工结构化试玩与材料导入</b><div class="muted">内部表单：平台原生可见入口/已获许可材料</div></td><td><span class="tag">INTERNAL_PLANNED</span><div>人工观察/授权素材</div></td><td>小游戏身份、IAA核查、广告触发、核心玩法、实机与性能</td><td>研究员按目标平台/版本/地区填写；可上传本人录屏截图及引用<div class="muted">深研候选每周；变现/版本变更触发复核</div></td><td>试玩15–30分钟是观察窗，不证明全生命周期无内购；榜单截图需日期/深度；不索取私人账号凭证<div class="muted">补缺：S25发行方补证；保持未知</div></td></tr><tr><td><b>S22 · 公司内部测试与经营数据</b><div class="muted">内部表单/数据中台只读接口</div></td><td><span class="tag">INTERNAL_PLANNED</span><div>内部授权</div></td><td>选用/制作状态、工期、留存、eCPM/LTV/ROI、测试结果</td><td>Java表单或事件/日报导入；组织隔离<div class="muted">业务事件实时；测试每日</div></td><td>只能覆盖自有项目；实验样本/费用范围独立，不能移植为竞品事实<div class="muted">补缺：人工填报并附依据</div></td></tr><tr><td><b>S23 · 自有游戏平台数据接口/后台</b><div class="muted"><a href="https://developers.google.com/android-publisher/reply-to-reviews" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V1_DOC</span><div>开发者权限/OAuth或主体授权</div></td><td>自有Google Play评论；抖音自有游戏经营数据等逐平台授权</td><td>官方授权接入；独立租户凭证；数据不进入公共竞争者池<div class="muted">自有产品按业务需要</div></td><td>Google官方评论API面向有权限的自有应用；抖音数据助手同理；不可代替全市场竞品采集<div class="muted">补缺：S04/S05/S09公开样本</div></td></tr><tr><td><b>S24 · 确定性派生计算</b><div class="muted">内部规则引擎</div></td><td><span class="tag">INTERNAL_PLANNED</span><div>内部派生</div></td><td>首次观察、排名变化、覆盖、玩法家族统计、计分输入</td><td>Java按版本规则由有效事实计算；记录输入ID与时间窗<div class="muted">批次到齐/每日/周报冻结时</div></td><td>只使用允许分析的数据；缺失不补0；不同队列不合并名次<div class="muted">补缺：保留缺失状态</div></td></tr><tr><td><b>S25 · 研究员结论与AI有引用草案</b><div class="muted">内部研究工作台</div></td><td><span class="tag">INTERNAL_PLANNED</span><div>人工/AI处理允许材料</div></td><td>玩法标签、情感/主题、差异、工程估算、假设</td><td>AI提议并定位证据；关键判断由规则/负责人确认<div class="muted">新资料/版本变化触发</div></td><td>AI不能补造排名、收入、纯IAA证据；来源不允许衍生时禁止对应任务<div class="muted">补缺：人工处理/unknown</div></td></tr><tr><td><b>S26 · 第三方公开榜单页面候选</b><div class="muted"><a href="https://quickminigame.com/rank/popularity" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V1_ENTRY</span><div>公开页面，来源可信度待核</div></td><td>可见微信/抖音榜单线索</td><td>先核榜单出处、更新时间、深度、与原榜对照；再决定是否接入<div class="muted">通过准入后每日</div></td><td>页面自称官方同步不等于已验证；只可见Top50/Top10时按实际深度；不得标官方Top100<div class="muted">补缺：S21；S19</div></td></tr><tr><td><b>S27 · Meta Ad Library 候选</b><div class="muted"><a href="https://www.facebook.com/ads/library/" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V0_UNVERIFIED</span><div>公开入口；地区、API及使用条件待核</div></td><td>海外广告参考入口</td><td>首期人工参考；接口能力与适用广告范围单独核查<div class="muted">重点候选每周</div></td><td>本轮未验证目标地区与游戏广告数据可得性；不作为首期评分依赖<div class="muted">补缺：S13/S14/S20</div></td></tr><tr><td><b>S28 · 抖音公开视频与话题</b><div class="muted"><a href="https://www.douyin.com/" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V0_UNVERIFIED</span><div>公开单页/分享页；登录范围待核</div></td><td>内容链接、日期、作者来源内ID、可见互动/评论</td><td>白名单分享URL；访问门槛出现即降级为人工记录<div class="muted">白名单每日；深研每周</div></td><td>不等于小游戏热门榜；未验证全量评论，固定采样否则不算增长<div class="muted">补缺：S21；授权供应商</div></td></tr><tr><td><b>S29 · 微博公开讨论</b><div class="muted"><a href="https://weibo.com/" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V0_UNVERIFIED</span><div>公开单页；搜索与完整评论待核</div></td><td>事件/回应/公开讨论线索</td><td>首期链接导入与原文核验；准入后定向采集<div class="muted">重点事件每日</div></td><td>本轮未验证批量访问；媒体转述重复不能计独立口碑<div class="muted">补缺：S15；S21</div></td></tr><tr><td><b>S30 · 小红书公开分享页</b><div class="muted"><a href="https://www.xiaohongshu.com/" target="_blank" rel="noopener noreferrer">查看来源入口 ↗</a></div></td><td><span class="tag">V0_UNVERIFIED</span><div>公开单页/分享页；授权条件待核</div></td><td>用户体验、攻略、内容趋势线索</td><td>首期人工链接导入；仅在许可与稳定性确认后自动<div class="muted">深研候选每周</div></td><td>本轮未验证批量评论或自动检索；不对受限入口设计绕过<div class="muted">补缺：S21；授权供应商</div></td></tr></tbody></table></div></section><section id="mapping" class="chapter"><div class="eyebrow">开发交接 · 全字段对应关系</div><h1>全字段采集映射说明</h1>
+<p>22-field-collection-mapping.csv包含201行：原有120个原子字段逐项覆盖，加上81个游戏档案展示字段。后者是产品视图投影，不是再新增81个独立采集指标。</p>
+<p>每行定义数据获得类别、可选来源ID、默认频率、关键口径、缺失处理与证据要求。多个source_ids表示按平台与准入条件选择的替代/补充路径，不表示每个来源都提供该字段，也不表示跨来源数值可以合并。</p>
+<p>PUBLIC_*并不承诺完全自动：仅在该来源字段通过PoC和准入后开启。PUBLIC_SAMPLE是可见样本，不能称全量；LICENSED_ESTIMATE须采购确认且始终展示“估计”；INTERNAL_ONLY不属于公网可得范围；AI_WITH_*只处理有使用依据的输入并产生可审查结论。</p>
+<p>reference_atomic_key用于说明主要上游语义，并非数据库一对一字段绑定。例如档案“包体大小”属于版本档案扩展属性，“留存”属于内部测试结果，“制作工期”属于基于团队能力的工程估算。Java开发时应建立明确类型，不把所有属性塞进一个无约束JSON字段。</p>
+<p>所有字段默认遵循平台实体、市场、适用版本、observed_at、available_at、来源、使用策略和证据定位。不存在/未采集/来源不支持/没有权限/来源故障/已过期/有冲突分开；AI不得将unknown替换为看似合理的数字。</p>
+<div class="table-tools"><h3>201 行字段路径</h3><select id="mapping-scope" aria-label="字段目录范围"><option value="">全部目录</option><option value="atomic120">120 原子字段</option><option value="profile81">81 展示字段</option></select><input id="mapping-filter" placeholder="筛选字段、来源 ID 或处理方式…" aria-label="筛选字段"><span id="mapping-count">201 行</span></div><div class="table-scroll"><table id="mapping-table"><thead><tr><th>目录 / 字段</th><th>获得方式 / 来源</th><th>频率</th><th>具体规则</th></tr></thead><tbody><tr data-scope="atomic120"><td><span class="muted">atomic120 · 产品身份与生命周期</span><br><b>稳定外部ID</b><br><code>external_id</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 产品身份与生命周期</span><br><b>名称与别名</b><br><code>canonical_name</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 产品身份与生命周期</span><br><b>平台</b><br><code>platform</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 产品身份与生命周期</span><br><b>发行/可用市场</b><br><code>market</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 产品身份与生命周期</span><br><b>语言</b><br><code>locale</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 产品身份与生命周期</span><br><b>开发主体</b><br><code>developer</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 产品身份与生命周期</span><br><b>发行主体</b><br><code>publisher</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 产品身份与生命周期</span><br><b>实际首次上线</b><br><code>release_at</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 产品身份与生命周期</span><br><b>系统首次观察</b><br><code>first_seen_at</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每次新增有效观察</td><td>用首次有效观察事件时间；导入历史材料另存材料日期，不冒充系统历史抓取</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 产品身份与生命周期</span><br><b>版本与更新日志</b><br><code>version_history</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 产品身份与生命周期</span><br><b>上架/下架/暂停状态</b><br><code>availability</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 产品身份与生命周期</span><br><b>跨平台同款关系</b><br><code>cross_platform_relation</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S01|S04|S05|S10|S21|S25</span></td><td>发现同名或官方关联时</td><td>稳定ID为实体键；名称/图标相似仅提出关联；强证据或人工确认后合并研究对象</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 榜单与市场表现</span><br><b>榜单及定义版本</b><br><code>chart_id</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S02|S03|S06|S07|S08|S19|S21|S26</span></td><td>每日固定时点</td><td>全榜原样保存后分类；同源同市场同定义；实际深度不等于目标100；无发布时间保存observed_at</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 榜单与市场表现</span><br><b>原始榜单名次</b><br><code>rank</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S02|S03|S06|S07|S08|S19|S21|S26</span></td><td>每日固定时点</td><td>全榜原样保存后分类；同源同市场同定义；实际深度不等于目标100；无发布时间保存observed_at</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 榜单与市场表现</span><br><b>快照覆盖范围</b><br><code>chart_coverage</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S02|S03|S06|S07|S08|S19|S21|S26</span></td><td>每日固定时点</td><td>全榜原样保存后分类；同源同市场同定义；实际深度不等于目标100；无发布时间保存observed_at</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 榜单与市场表现</span><br><b>首次观察上榜日</b><br><code>first_chart_seen</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日及周报冻结</td><td>只按同一序列和有效日计算；部分榜未见为unknown；首次观察不是首次上榜；来源切换产生断点</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 榜单与市场表现</span><br><b>进入/离开监测范围</b><br><code>entry_exit_events</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日及周报冻结</td><td>只按同一序列和有效日计算；部分榜未见为unknown；首次观察不是首次上榜；来源切换产生断点</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 榜单与市场表现</span><br><b>有效观察日数</b><br><code>observed_days</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日及周报冻结</td><td>只按同一序列和有效日计算；部分榜未见为unknown；首次观察不是首次上榜；来源切换产生断点</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 榜单与市场表现</span><br><b>Top100有效日数</b><br><code>top100_days</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日及周报冻结</td><td>只按同一序列和有效日计算；部分榜未见为unknown；首次观察不是首次上榜；来源切换产生断点</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 榜单与市场表现</span><br><b>单榜名次变化</b><br><code>rank_change</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日及周报冻结</td><td>只按同一序列和有效日计算；部分榜未见为unknown；首次观察不是首次上榜；来源切换产生断点</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 榜单与市场表现</span><br><b>下载估计</b><br><code>download_estimate</code></td><td>ESTIMATE_OR_PUBLIC_BUCKET<br><span class="tag">S05|S19</span></td><td>关注每日，其余每周</td><td>GP公开下载档位与供应商估计分字段；iOS不由名次换算下载；保留模型/误差/时间窗</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 榜单与市场表现</span><br><b>活跃估计</b><br><code>active_estimate</code></td><td>LICENSED_ESTIMATE<br><span class="tag">S19</span></td><td>依供应商更新</td><td>竞品活跃无可靠公开来源则unknown；来源报告数字须说明期间与方法，不由热度推造DAU</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 榜单与市场表现</span><br><b>单市场趋势</b><br><code>market_trend</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日及周报冻结</td><td>只按同一序列和有效日计算；部分榜未见为unknown；首次观察不是首次上榜；来源切换产生断点</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 榜单与市场表现</span><br><b>口径/覆盖断点</b><br><code>coverage_break</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日及周报冻结</td><td>只按同一序列和有效日计算；部分榜未见为unknown；首次观察不是首次上榜；来源切换产生断点</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩家评价与体验</span><br><b>来源显示评分</b><br><code>rating_display</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S04|S05|S09|S19</span></td><td>关注每日，长尾每周</td><td>只填源明确显示字段；评分人数不等于文字评价数；缩写保留原文/舍入精度；星级缺失不反推</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩家评价与体验</span><br><b>来源评分数</b><br><code>rating_count</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S04|S05|S09|S19</span></td><td>关注每日，长尾每周</td><td>只填源明确显示字段；评分人数不等于文字评价数；缩写保留原文/舍入精度；星级缺失不反推</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩家评价与体验</span><br><b>来源文字评价数</b><br><code>review_count</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S04|S05|S09|S19</span></td><td>关注每日，长尾每周</td><td>只填源明确显示字段；评分人数不等于文字评价数；缩写保留原文/舍入精度；星级缺失不反推</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩家评价与体验</span><br><b>星级分布</b><br><code>star_distribution</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S04|S05|S09|S19</span></td><td>关注每日，长尾每周</td><td>只填源明确显示字段；评分人数不等于文字评价数；缩写保留原文/舍入精度；星级缺失不反推</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩家评价与体验</span><br><b>原文/授权摘录</b><br><code>review_text</code></td><td>PUBLIC_SAMPLE<br><span class="tag">S04|S05|S09|S21</span></td><td>关注每日增量；允许时7日重叠与30日编辑复查</td><td>按source_review_id版本化；无ID保守指纹；仅可见样本，版本/国家未知时不推断；遵守逐源保留策略</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩家评价与体验</span><br><b>评论编辑与版本</b><br><code>review_revision</code></td><td>PUBLIC_SAMPLE<br><span class="tag">S04|S05|S09|S21</span></td><td>关注每日增量；允许时7日重叠与30日编辑复查</td><td>按source_review_id版本化；无ID保守指纹；仅可见样本，版本/国家未知时不推断；遵守逐源保留策略</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩家评价与体验</span><br><b>发布/更新时间</b><br><code>review_date</code></td><td>PUBLIC_SAMPLE<br><span class="tag">S04|S05|S09|S21</span></td><td>关注每日增量；允许时7日重叠与30日编辑复查</td><td>按source_review_id版本化；无ID保守指纹；仅可见样本，版本/国家未知时不推断；遵守逐源保留策略</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩家评价与体验</span><br><b>评论所述游戏版本</b><br><code>game_version</code></td><td>PUBLIC_SAMPLE<br><span class="tag">S04|S05|S09|S21</span></td><td>关注每日增量；允许时7日重叠与30日编辑复查</td><td>按source_review_id版本化；无ID保守指纹；仅可见样本，版本/国家未知时不推断；遵守逐源保留策略</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩家评价与体验</span><br><b>整体情感</b><br><code>sentiment</code></td><td>AI_WITH_EVIDENCE<br><span class="tag">S25</span></td><td>新增/修改且允许分析的评论</td><td>附原文定位；讽刺/混合/无法判断独立标签；去重后分析；主题不得写成全体玩家占比</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩家评价与体验</span><br><b>方面情感</b><br><code>aspect_sentiment</code></td><td>AI_WITH_EVIDENCE<br><span class="tag">S25</span></td><td>新增/修改且允许分析的评论</td><td>附原文定位；讽刺/混合/无法判断独立标签；去重后分析；主题不得写成全体玩家占比</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩家评价与体验</span><br><b>问题与期待</b><br><code>player_need</code></td><td>AI_WITH_EVIDENCE<br><span class="tag">S25</span></td><td>新增/修改且允许分析的评论</td><td>附原文定位；讽刺/混合/无法判断独立标签；去重后分析；主题不得写成全体玩家占比</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩家评价与体验</span><br><b>抽样/分母/偏差</b><br><code>sample_coverage</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每批评论</td><td>保留查询、排序、分页、时间窗、原始/去重/可判断n、k、截断原因；总量未知不编覆盖率</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 社区舆情与讨论</span><br><b>讨论载体与类型</b><br><code>content_type</code></td><td>PUBLIC_SAMPLE<br><span class="tag">S08|S10|S11|S15|S28|S29|S30|S21</span></td><td>固定面板每日；补充材料周更</td><td>仅准入源可见字段；作者仅来源内去标识；未标商业不代表自然；YouTube默认不进入本分析链</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 社区舆情与讨论</span><br><b>提及与去重簇</b><br><code>mention_cluster</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S24|S25</span></td><td>每批材料</td><td>转载、同文、多账号同步聚成根来源族；源数量不等于独立证据数量</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 社区舆情与讨论</span><br><b>来源内去标识作者</b><br><code>source_author</code></td><td>PUBLIC_SAMPLE<br><span class="tag">S08|S10|S11|S15|S28|S29|S30|S21</span></td><td>固定面板每日；补充材料周更</td><td>仅准入源可见字段；作者仅来源内去标识；未标商业不代表自然；YouTube默认不进入本分析链</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 社区舆情与讨论</span><br><b>点赞/评论/转发观测值</b><br><code>interaction_snapshot</code></td><td>PUBLIC_SAMPLE<br><span class="tag">S08|S10|S11|S15|S28|S29|S30|S21</span></td><td>固定面板每日；补充材料周更</td><td>仅准入源可见字段；作者仅来源内去标识；未标商业不代表自然；YouTube默认不进入本分析链</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 社区舆情与讨论</span><br><b>根来源族</b><br><code>source_family</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S24|S25</span></td><td>每批材料</td><td>转载、同文、多账号同步聚成根来源族；源数量不等于独立证据数量</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 社区舆情与讨论</span><br><b>商业内容已知标记</b><br><code>paid_label</code></td><td>PUBLIC_SAMPLE<br><span class="tag">S08|S10|S11|S15|S28|S29|S30|S21</span></td><td>固定面板每日；补充材料周更</td><td>仅准入源可见字段；作者仅来源内去标识；未标商业不代表自然；YouTube默认不进入本分析链</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 社区舆情与讨论</span><br><b>讨论主题</b><br><code>topic</code></td><td>AI_WITH_EVIDENCE<br><span class="tag">S25</span></td><td>每批准入材料；重点事件日更</td><td>事件发生/发布时间/抓取时间分开；AI异常为待核查线索，不直接判刷量</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 社区舆情与讨论</span><br><b>固定范围提及变化</b><br><code>mention_growth</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日/每周</td><td>只比较固定来源/查询/采样规则/窗口；扩采时建立断点；不足样本仅定性</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 社区舆情与讨论</span><br><b>负面率变化</b><br><code>negative_shift</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日/每周</td><td>只比较固定来源/查询/采样规则/窗口；扩采时建立断点；不足样本仅定性</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 社区舆情与讨论</span><br><b>舆情事件</b><br><code>event</code></td><td>AI_WITH_EVIDENCE<br><span class="tag">S25</span></td><td>每批准入材料；重点事件日更</td><td>事件发生/发布时间/抓取时间分开；AI异常为待核查线索，不直接判刷量</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 社区舆情与讨论</span><br><b>疑似异常信号</b><br><code>suspected_anomaly</code></td><td>AI_WITH_EVIDENCE<br><span class="tag">S25</span></td><td>每批准入材料；重点事件日更</td><td>事件发生/发布时间/抓取时间分开；AI异常为待核查线索，不直接判刷量</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 社区舆情与讨论</span><br><b>事件复核结论</b><br><code>event_review</code></td><td>MANUAL_REVIEW<br><span class="tag">S10|S21|S25</span></td><td>事件出现或新回应时</td><td>保留原始说法/反证/官方回应与裁决人；网络指控不是已证实事件</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩法与产品结构</span><br><b>核心操作循环</b><br><code>core_loop</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩法与产品结构</span><br><b>操作方式</b><br><code>controls</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩法与产品结构</span><br><b>规则与限制</b><br><code>constraints</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩法与产品结构</span><br><b>胜负与失败条件</b><br><code>win_fail</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩法与产品结构</span><br><b>单局时长</b><br><code>session_duration</code></td><td>MANUAL_MEASUREMENT<br><span class="tag">S21</span></td><td>每个深研版本</td><td>记录局数、每局时长、设备、观察员；给范围不推总体平均</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩法与产品结构</span><br><b>首局学习成本</b><br><code>onboarding</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩法与产品结构</span><br><b>难度曲线</b><br><code>difficulty</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩法与产品结构</span><br><b>关卡/内容供给方式</b><br><code>level_supply</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩法与产品结构</span><br><b>外围系统</b><br><code>meta_systems</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩法与产品结构</span><br><b>表现与技术依赖</b><br><code>art_tech_cost</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S21|S22|S25</span></td><td>深研与估算修订</td><td>2D/3D来自观察；真实引擎/服务端未知；制作工期由团队范围与能力估算</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩法与产品结构</span><br><b>截图/实机/视频入口</b><br><code>gameplay_media</code></td><td>PUBLIC_LINK_OR_AUTHORIZED_ASSET<br><span class="tag">S04|S05|S10|S11|S12|S21|S28</span></td><td>发现/更新时</td><td>默认保存原链接/许可嵌入；下载转存/AI视频分析需材料许可；不得把广告当实机</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 玩法与产品结构</span><br><b>素材与玩法一致性</b><br><code>ad_play_match</code></td><td>MANUAL_REVIEW<br><span class="tag">S13|S14|S20|S21|S25</span></td><td>深研时</td><td>分别保存广告与实机证据、时间点、对应版本；没有实机不得作一致性定论</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 广告素材与投放</span><br><b>素材与变体ID</b><br><code>creative_id</code></td><td>PUBLIC_SAMPLE_OR_LICENSED<br><span class="tag">S13|S14|S20|S21|S27</span></td><td>公开周更；授权按合同</td><td>仅实际可见/授权字段；地区是投放范围而非开发者所在地；落地产品用ID确认</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 广告素材与投放</span><br><b>投放渠道/版位</b><br><code>ad_platform</code></td><td>PUBLIC_SAMPLE_OR_LICENSED<br><span class="tag">S13|S14|S20|S21|S27</span></td><td>公开周更；授权按合同</td><td>仅实际可见/授权字段；地区是投放范围而非开发者所在地；落地产品用ID确认</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 广告素材与投放</span><br><b>投放市场</b><br><code>ad_market</code></td><td>PUBLIC_SAMPLE_OR_LICENSED<br><span class="tag">S13|S14|S20|S21|S27</span></td><td>公开周更；授权按合同</td><td>仅实际可见/授权字段；地区是投放范围而非开发者所在地；落地产品用ID确认</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 广告素材与投放</span><br><b>广告主/投放主体</b><br><code>advertiser</code></td><td>PUBLIC_SAMPLE_OR_LICENSED<br><span class="tag">S13|S14|S20|S21|S27</span></td><td>公开周更；授权按合同</td><td>仅实际可见/授权字段；地区是投放范围而非开发者所在地；落地产品用ID确认</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 广告素材与投放</span><br><b>形式/时长</b><br><code>creative_format</code></td><td>PUBLIC_SAMPLE_OR_LICENSED<br><span class="tag">S13|S14|S20|S21|S27</span></td><td>公开周更；授权按合同</td><td>仅实际可见/授权字段；地区是投放范围而非开发者所在地；落地产品用ID确认</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 广告素材与投放</span><br><b>前段钩子与卖点</b><br><code>hook</code></td><td>AI_WITH_REVIEW<br><span class="tag">S21|S25</span></td><td>新素材或验证结果时</td><td>允许分析的素材才送模型；区分镜头描述与创意假设，不写成效果承诺</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 广告素材与投放</span><br><b>首次/末次观察</b><br><code>creative_first_last</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>采集批次后</td><td>只统计本来源监测范围与有效观察日；首次看到不是投放开始；缺日不当停止投放</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 广告素材与投放</span><br><b>观察活跃天数</b><br><code>creative_active_days</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>采集批次后</td><td>只统计本来源监测范围与有效观察日；首次看到不是投放开始；缺日不当停止投放</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 广告素材与投放</span><br><b>落地产品/版本</b><br><code>landing_version</code></td><td>PUBLIC_SAMPLE_OR_LICENSED<br><span class="tag">S13|S14|S20|S21|S27</span></td><td>公开周更；授权按合同</td><td>仅实际可见/授权字段；地区是投放范围而非开发者所在地；落地产品用ID确认</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 广告素材与投放</span><br><b>素材新增/活跃数量</b><br><code>creative_volume</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>采集批次后</td><td>只统计本来源监测范围与有效观察日；首次看到不是投放开始；缺日不当停止投放</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 广告素材与投放</span><br><b>花费/曝光估计</b><br><code>spend_impression_estimate</code></td><td>LICENSED_ESTIMATE<br><span class="tag">S20|S19</span></td><td>依供应商更新</td><td>公开透明库不推算预算；来源原始估计/口径/区间明确，不能以素材数换算花费</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 广告素材与投放</span><br><b>可复用创意假设</b><br><code>creative_test_hypothesis</code></td><td>AI_WITH_REVIEW<br><span class="tag">S21|S25</span></td><td>新素材或验证结果时</td><td>允许分析的素材才送模型；区分镜头描述与创意假设，不写成效果承诺</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 变现与经营线索</span><br><b>变现模式</b><br><code>monetization_mode</code></td><td>RULES_WITH_EVIDENCE<br><span class="tag">S24|S25|S21</span></td><td>新版本/新证据/到期时</td><td>平台+市场+版本级资格；含广告不等于纯IAA；证据冲突转待核，明确内购保留负面约束</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 变现与经营线索</span><br><b>广告变现证据</b><br><code>ad_evidence</code></td><td>PUBLIC_AND_OBSERVED<br><span class="tag">S04|S05|S10|S21</span></td><td>发现及版本更新</td><td>公开标志/声明和实机分层；一个平台有内购不自动否定另一个有证据版本，也不能跨平台确认纯IAA</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 变现与经营线索</span><br><b>广告形式</b><br><code>ad_formats</code></td><td>PUBLIC_AND_OBSERVED<br><span class="tag">S04|S05|S10|S21</span></td><td>发现及版本更新</td><td>公开标志/声明和实机分层；一个平台有内购不自动否定另一个有证据版本，也不能跨平台确认纯IAA</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 变现与经营线索</span><br><b>广告触发与频次</b><br><code>ad_trigger</code></td><td>MANUAL_OBSERVATION<br><span class="tag">S21</span></td><td>每个深研版本</td><td>记录观察时长、触发次数、激励/插屏/横幅、失败/复活/奖励情境；频次不外推所有用户</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 变现与经营线索</span><br><b>内购/付费证据</b><br><code>iap_evidence</code></td><td>PUBLIC_AND_OBSERVED<br><span class="tag">S04|S05|S10|S21</span></td><td>发现及版本更新</td><td>公开标志/声明和实机分层；一个平台有内购不自动否定另一个有证据版本，也不能跨平台确认纯IAA</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 变现与经营线索</span><br><b>排除内购依据</b><br><code>no_iap_basis</code></td><td>MANUAL_REVIEW<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>正式入库前及版本变化</td><td>需要目标版本明确声明或可审计检查表+反证检索；没看到支付按钮只是有限观察，不作绝对不存在证明</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 变现与经营线索</span><br><b>资格有效期</b><br><code>qualification_window</code></td><td>RULES_WITH_EVIDENCE<br><span class="tag">S24|S25|S21</span></td><td>新版本/新证据/到期时</td><td>平台+市场+版本级资格；含广告不等于纯IAA；证据冲突转待核，明确内购保留负面约束</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 变现与经营线索</span><br><b>奖励兑现与打断</b><br><code>ad_experience</code></td><td>MANUAL_OBSERVATION<br><span class="tag">S21</span></td><td>每个深研版本</td><td>记录观察时长、触发次数、激励/插屏/横幅、失败/复活/奖励情境；频次不外推所有用户</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 变现与经营线索</span><br><b>收入估计</b><br><code>revenue_estimate</code></td><td>LICENSED_ESTIMATE<br><span class="tag">S19|S20</span></td><td>依供应商更新</td><td>明确是否IAP/广告/总收入、估计范围；无竞品广告收入数据时unknown</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 变现与经营线索</span><br><b>自有测试eCPM</b><br><code>internal_ecpm</code></td><td>INTERNAL_ONLY<br><span class="tag">S22</span></td><td>自有测试每日</td><td>自有项目与竞品事实隔离；人群/渠道/版本/币种/收入确认窗口明确</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 变现与经营线索</span><br><b>自有LTV/ROI</b><br><code>internal_ltv_roi</code></td><td>INTERNAL_ONLY<br><span class="tag">S22</span></td><td>自有测试每日</td><td>自有项目与竞品事实隔离；人群/渠道/版本/币种/收入确认窗口明确</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 变现与经营线索</span><br><b>经营未知项</b><br><code>economics_unknowns</code></td><td>DERIVED_AND_REVIEW<br><span class="tag">S24|S25</span></td><td>证据变更时</td><td>记录未知成本、变现、留存等；unknown不默认为0或行业均值</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 同类竞争与供给</span><br><b>玩法家族</b><br><code>family_id</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S24|S25</span></td><td>新产品/标签版本更新</td><td>机制标签+人工确认；同名不代表同家族；对照集保存纳入条件与版本</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 同类竞争与供给</span><br><b>对照竞品集合</b><br><code>peer_set</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S24|S25</span></td><td>新产品/标签版本更新</td><td>机制标签+人工确认；同名不代表同家族；对照集保存纳入条件与版本</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 同类竞争与供给</span><br><b>同类新增观察</b><br><code>peer_new</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每周；关注池可每日</td><td>仅监测范围内供给/表现，保存分母和断点；掉出Top100不等于失败/下架</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 同类竞争与供给</span><br><b>同类头部成员</b><br><code>peer_head</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每周；关注池可每日</td><td>仅监测范围内供给/表现，保存分母和断点；掉出Top100不等于失败/下架</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 同类竞争与供给</span><br><b>同类持续表现</b><br><code>peer_persistence</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每周；关注池可每日</td><td>仅监测范围内供给/表现，保存分母和断点；掉出Top100不等于失败/下架</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 同类竞争与供给</span><br><b>下滑/退出成员</b><br><code>peer_decline</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每周；关注池可每日</td><td>仅监测范围内供给/表现，保存分母和断点；掉出Top100不等于失败/下架</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 同类竞争与供给</span><br><b>同类供给密度</b><br><code>supply_density</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每周；关注池可每日</td><td>仅监测范围内供给/表现，保存分母和断点；掉出Top100不等于失败/下架</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 同类竞争与供给</span><br><b>供给/表现集中度</b><br><code>concentration</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每周；关注池可每日</td><td>仅监测范围内供给/表现，保存分母和断点；掉出Top100不等于失败/下架</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 同类竞争与供给</span><br><b>机制/人群/表现差异</b><br><code>differentiation</code></td><td>AI_WITH_REVIEW<br><span class="tag">S21|S22|S25</span></td><td>深研/周报</td><td>需求缺口与跨平台机会是待测假设；失败原因需证据；包括未成功与已下滑对照减少幸存者偏差</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 同类竞争与供给</span><br><b>竞品未满足需求</b><br><code>unmet_need</code></td><td>AI_WITH_REVIEW<br><span class="tag">S21|S22|S25</span></td><td>深研/周报</td><td>需求缺口与跨平台机会是待测假设；失败原因需证据；包括未成功与已下滑对照减少幸存者偏差</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 同类竞争与供给</span><br><b>跨平台机会假设</b><br><code>platform_gap</code></td><td>AI_WITH_REVIEW<br><span class="tag">S21|S22|S25</span></td><td>深研/周报</td><td>需求缺口与跨平台机会是待测假设；失败原因需证据；包括未成功与已下滑对照减少幸存者偏差</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 同类竞争与供给</span><br><b>失败案例与原因</b><br><code>failed_lessons</code></td><td>AI_WITH_REVIEW<br><span class="tag">S21|S22|S25</span></td><td>深研/周报</td><td>需求缺口与跨平台机会是待测假设；失败原因需证据；包括未成功与已下滑对照减少幸存者偏差</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 传播、搜索与外部事件</span><br><b>搜索词与同义词</b><br><code>search_term</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S16|S25</span></td><td>建档/别名更新</td><td>产品名+发行主体/包名/玩法词，维护排除同名词；查询版本化</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 传播、搜索与外部事件</span><br><b>来源搜索指数</b><br><code>search_index</code></td><td>PUBLIC_EXPORT_OR_LICENSED<br><span class="tag">S17|S18|S19</span></td><td>每周</td><td>原始指数+市场+关键词+窗口+归一化范围；不把缺数据或小于阈值设0</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 传播、搜索与外部事件</span><br><b>同口径搜索变化</b><br><code>search_change</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>同批导入后</td><td>同口径同批可比基线方可比较；不能拼接各次独立0–100值成长期趋势</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 传播、搜索与外部事件</span><br><b>创作者内容</b><br><code>creator_content</code></td><td>PUBLIC_SAMPLE<br><span class="tag">S11|S28|S29|S30|S21</span></td><td>固定面板每日；深研周更</td><td>仅准入材料；展示量是来源观察值，不等于唯一用户；YouTube参考链接另存且默认不衍生</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 传播、搜索与外部事件</span><br><b>来源展示触达</b><br><code>creator_reach</code></td><td>PUBLIC_SAMPLE<br><span class="tag">S11|S28|S29|S30|S21</span></td><td>固定面板每日；深研周更</td><td>仅准入材料；展示量是来源观察值，不等于唯一用户；YouTube参考链接另存且默认不衍生</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 传播、搜索与外部事件</span><br><b>UGC玩法内容</b><br><code>ugc</code></td><td>PUBLIC_SAMPLE<br><span class="tag">S11|S28|S29|S30|S21</span></td><td>固定面板每日；深研周更</td><td>仅准入材料；展示量是来源观察值，不等于唯一用户；YouTube参考链接另存且默认不衍生</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 传播、搜索与外部事件</span><br><b>媒体报道</b><br><code>news</code></td><td>PUBLIC_MATERIAL<br><span class="tag">S04|S07|S08|S10|S15</span></td><td>每日发现</td><td>记录原始链接、发布日、发生日、涉及版本和根来源，文章发布时间不替代事件日期</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 传播、搜索与外部事件</span><br><b>编辑推荐/平台活动</b><br><code>platform_feature</code></td><td>PUBLIC_MATERIAL<br><span class="tag">S04|S07|S08|S10|S15</span></td><td>每日发现</td><td>记录原始链接、发布日、发生日、涉及版本和根来源，文章发布时间不替代事件日期</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 传播、搜索与外部事件</span><br><b>季节/节日关联</b><br><code>seasonality</code></td><td>AI_WITH_REVIEW<br><span class="tag">S24|S25</span></td><td>每周</td><td>保留时间先后与替代解释；同周期相关不证明因果或成功可迁移</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 传播、搜索与外部事件</span><br><b>外部事件</b><br><code>external_event</code></td><td>PUBLIC_MATERIAL<br><span class="tag">S04|S07|S08|S10|S15</span></td><td>每日发现</td><td>记录原始链接、发布日、发生日、涉及版本和根来源，文章发布时间不替代事件日期</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 传播、搜索与外部事件</span><br><b>跨市场传播线索</b><br><code>cross_market_spread</code></td><td>AI_WITH_REVIEW<br><span class="tag">S24|S25</span></td><td>每周</td><td>保留时间先后与替代解释；同周期相关不证明因果或成功可迁移</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 传播、搜索与外部事件</span><br><b>热度驱动假设</b><br><code>driver_hypothesis</code></td><td>AI_WITH_REVIEW<br><span class="tag">S24|S25</span></td><td>每周</td><td>保留时间先后与替代解释；同周期相关不证明因果或成功可迁移</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 内部能力与验证反馈</span><br><b>团队技能与资产</b><br><code>team_profile</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 内部能力与验证反馈</span><br><b>原型人力/时间预算</b><br><code>prototype_budget</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 内部能力与验证反馈</span><br><b>选用与负责人</b><br><code>selection</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 内部能力与验证反馈</span><br><b>状态/日期/备注</b><br><code>progress</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 内部能力与验证反馈</span><br><b>参考目标平台版本</b><br><code>reference_version</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 内部能力与验证反馈</span><br><b>实验假设与继续条件</b><br><code>test_hypothesis</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 内部能力与验证反馈</span><br><b>实验版本/人群/渠道</b><br><code>test_context</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 内部能力与验证反馈</span><br><b>测试样本及观察窗</b><br><code>test_sample</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 内部能力与验证反馈</span><br><b>结果和失败原因</b><br><code>test_result</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 内部能力与验证反馈</span><br><b>实际人力/费用</b><br><code>cost_actual</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 内部能力与验证反馈</span><br><b>推荐有用/错误/缺口</b><br><code>recommendation_feedback</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="atomic120"><td><span class="muted">atomic120 · 内部能力与验证反馈</span><br><b>规则改进与回测</b><br><code>calibration</code></td><td>DERIVED<br><span class="tag">S22|S24|S25</span></td><td>定期回测，默认月度</td><td>以真实未来结果、时间外切分和来源缺失模式评估；只提规则修订草案，版本审核后生效</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 基础身份</span><br><b>游戏名称</b><br><code>name</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 基础身份</span><br><b>别名</b><br><code>aliases</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 基础身份</span><br><b>平台稳定ID</b><br><code>external_id</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 基础身份</span><br><b>开发主体</b><br><code>developer</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 基础身份</span><br><b>发行主体</b><br><code>publisher</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 基础身份</span><br><b>发行市场</b><br><code>market</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 基础身份</span><br><b>支持语言</b><br><code>language</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 基础身份</span><br><b>商店详情入口</b><br><code>store_url</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S10|S21</span></td><td>建档/迁移时</td><td>只使用实际商店URL与稳定ID；不能按名称猜造链接</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 基础身份</span><br><b>启动 / 试玩入口</b><br><code>launch_url</code></td><td>PUBLIC_LINK_OR_MANUAL<br><span class="tag">S04|S05|S10|S21</span></td><td>建档/链接失效时</td><td>小游戏二维码/深链须人工验证，可能有场景限制；无公共URL时保留启动操作说明</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 商店资料与版本</span><br><b>官方简介</b><br><code>description</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S10</span></td><td>关注日更，长尾周更</td><td>官方简介原文与AI玩法摘要分开；只保留允许的文本范围</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 商店资料与版本</span><br><b>商店分类</b><br><code>category</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S09</span></td><td>关注日更，长尾周更</td><td>商店原分类与内部玩法标签分开</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 商店资料与版本</span><br><b>实际上线日期</b><br><code>release_at</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 商店资料与版本</span><br><b>系统首次观察</b><br><code>first_seen</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每次新增有效观察</td><td>用首次有效观察事件时间；导入历史材料另存材料日期，不冒充系统历史抓取</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 商店资料与版本</span><br><b>当前版本</b><br><code>version</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 商店资料与版本</span><br><b>版本更新日期</b><br><code>updated_at</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 商店资料与版本</span><br><b>更新说明</b><br><code>release_notes</code></td><td>PUBLIC_STRUCTURED<br><span class="tag">S01|S04|S05|S07|S08|S10|S21</span></td><td>发现即补；关注日更，长尾周更</td><td>按平台实体/地区/版本保存；小游戏字段不足走人工；来源未提供则unknown；显示更新时间不等于首次上线</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 商店资料与版本</span><br><b>包体大小</b><br><code>package_size</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S01|S04|S05</span></td><td>版本更新时</td><td>记录设备/包版本/单位；源未展示不能用网页资源大小替代</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 商店资料与版本</span><br><b>设备要求</b><br><code>min_os</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S01|S04|S05|S10</span></td><td>版本更新时</td><td>源未展示为unknown；不由引擎推断最低系统</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 核心玩法</span><br><b>一句话玩法</b><br><code>summary</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 核心玩法</span><br><b>核心循环</b><br><code>core_loop</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 核心玩法</span><br><b>操作方式</b><br><code>controls</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 核心玩法</span><br><b>胜负与失败条件</b><br><code>win_fail</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 核心玩法</span><br><b>单局时长</b><br><code>session</code></td><td>MANUAL_MEASUREMENT<br><span class="tag">S21</span></td><td>每个深研版本</td><td>记录局数、每局时长、设备、观察员；给范围不推总体平均</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 核心玩法</span><br><b>关卡供给</b><br><code>levels</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 核心玩法</span><br><b>外围系统</b><br><code>meta</code></td><td>OBSERVATION_AND_AI<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>新增/重要版本更新时</td><td>官方说明形成草案；重点候选实机验证；观察到的关卡范围不等于全关卡机制</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 核心玩法</span><br><b>目标人群定位</b><br><code>audience</code></td><td>AI_WITH_REVIEW<br><span class="tag">S21|S22|S25</span></td><td>深研/周报</td><td>需求缺口与跨平台机会是待测假设；失败原因需证据；包括未成功与已下滑对照减少幸存者偏差</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 美术与体验</span><br><b>美术风格</b><br><code>style</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S21|S22|S25</span></td><td>深研与估算修订</td><td>2D/3D来自观察；真实引擎/服务端未知；制作工期由团队范围与能力估算</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 美术与体验</span><br><b>表现形式</b><br><code>render</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S21|S22|S25</span></td><td>深研与估算修订</td><td>2D/3D来自观察；真实引擎/服务端未知；制作工期由团队范围与能力估算</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 美术与体验</span><br><b>画面方向</b><br><code>orientation</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S21|S22|S25</span></td><td>深研与估算修订</td><td>2D/3D来自观察；真实引擎/服务端未知；制作工期由团队范围与能力估算</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 美术与体验</span><br><b>动画与反馈</b><br><code>animation</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S21|S22|S25</span></td><td>深研与估算修订</td><td>2D/3D来自观察；真实引擎/服务端未知；制作工期由团队范围与能力估算</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 美术与体验</span><br><b>联网与服务依赖</b><br><code>network</code></td><td>MANUAL_OBSERVATION<br><span class="tag">S21|S10</span></td><td>深研版本实测</td><td>记录离线/弱网测试条件；不据截图推断服务端架构</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 美术与体验</span><br><b>性能与加载体验</b><br><code>performance</code></td><td>MANUAL_MEASUREMENT<br><span class="tag">S21</span></td><td>深研版本实测</td><td>设备、网络、次数、加载耗时/卡顿记录；评论只作问题线索，不作实测值</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告与变现</span><br><b>变现模式</b><br><code>mode</code></td><td>RULES_WITH_EVIDENCE<br><span class="tag">S24|S25|S21</span></td><td>新版本/新证据/到期时</td><td>平台+市场+版本级资格；含广告不等于纯IAA；证据冲突转待核，明确内购保留负面约束</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告与变现</span><br><b>广告形式</b><br><code>ad_formats</code></td><td>PUBLIC_AND_OBSERVED<br><span class="tag">S04|S05|S10|S21</span></td><td>发现及版本更新</td><td>公开标志/声明和实机分层；一个平台有内购不自动否定另一个有证据版本，也不能跨平台确认纯IAA</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告与变现</span><br><b>广告触发与奖励</b><br><code>ad_triggers</code></td><td>MANUAL_OBSERVATION<br><span class="tag">S21</span></td><td>每个深研版本</td><td>记录观察时长、触发次数、激励/插屏/横幅、失败/复活/奖励情境；频次不外推所有用户</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告与变现</span><br><b>观察广告频次</b><br><code>ad_frequency</code></td><td>MANUAL_OBSERVATION<br><span class="tag">S21</span></td><td>每个深研版本</td><td>记录观察时长、触发次数、激励/插屏/横幅、失败/复活/奖励情境；频次不外推所有用户</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告与变现</span><br><b>内购证据</b><br><code>iap_basis</code></td><td>PUBLIC_AND_OBSERVED<br><span class="tag">S04|S05|S10|S21</span></td><td>发现及版本更新</td><td>公开标志/声明和实机分层；一个平台有内购不自动否定另一个有证据版本，也不能跨平台确认纯IAA</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告与变现</span><br><b>排除内购依据</b><br><code>no_iap_basis</code></td><td>MANUAL_REVIEW<br><span class="tag">S04|S05|S10|S21|S25</span></td><td>正式入库前及版本变化</td><td>需要目标版本明确声明或可审计检查表+反证检索；没看到支付按钮只是有限观察，不作绝对不存在证明</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告与变现</span><br><b>资格适用范围</b><br><code>monetization_valid</code></td><td>RULES_WITH_EVIDENCE<br><span class="tag">S24|S25|S21</span></td><td>新版本/新证据/到期时</td><td>平台+市场+版本级资格；含广告不等于纯IAA；证据冲突转待核，明确内购保留负面约束</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 市场表现</span><br><b>当前榜单状态</b><br><code>chart_status</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日</td><td>单榜单单日；成功但部分覆盖、完整范围外、来源失败分别显示</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 市场表现</span><br><b>所选榜单名次</b><br><code>rank</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S02|S03|S06|S07|S08|S19|S21|S26</span></td><td>每日固定时点</td><td>全榜原样保存后分类；同源同市场同定义；实际深度不等于目标100；无发布时间保存observed_at</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 市场表现</span><br><b>监测期最好名次</b><br><code>peak</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日及周报冻结</td><td>只按同一序列和有效日计算；部分榜未见为unknown；首次观察不是首次上榜；来源切换产生断点</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 市场表现</span><br><b>有效快照数</b><br><code>observed_days</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日及周报冻结</td><td>只按同一序列和有效日计算；部分榜未见为unknown；首次观察不是首次上榜；来源切换产生断点</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 市场表现</span><br><b>下载量估计</b><br><code>downloads</code></td><td>ESTIMATE_OR_PUBLIC_BUCKET<br><span class="tag">S05|S19</span></td><td>关注每日，其余每周</td><td>GP公开下载档位与供应商估计分字段；iOS不由名次换算下载；保留模型/误差/时间窗</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 市场表现</span><br><b>活跃用户估计</b><br><code>active</code></td><td>LICENSED_ESTIMATE<br><span class="tag">S19</span></td><td>依供应商更新</td><td>竞品活跃无可靠公开来源则unknown；来源报告数字须说明期间与方法，不由热度推造DAU</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 玩家评价</span><br><b>来源展示评分</b><br><code>rating</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S04|S05|S09|S19</span></td><td>关注每日，长尾每周</td><td>只填源明确显示字段；评分人数不等于文字评价数；缩写保留原文/舍入精度；星级缺失不反推</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 玩家评价</span><br><b>来源评分数</b><br><code>rating_count</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S04|S05|S09|S19</span></td><td>关注每日，长尾每周</td><td>只填源明确显示字段；评分人数不等于文字评价数；缩写保留原文/舍入精度；星级缺失不反推</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 玩家评价</span><br><b>来源文字评价数</b><br><code>review_count</code></td><td>PUBLIC_CONDITIONAL<br><span class="tag">S04|S05|S09|S19</span></td><td>关注每日，长尾每周</td><td>只填源明确显示字段；评分人数不等于文字评价数；缩写保留原文/舍入精度；星级缺失不反推</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 玩家评价</span><br><b>本次分析样本</b><br><code>sample</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每批评论</td><td>保留查询、排序、分页、时间窗、原始/去重/可判断n、k、截断原因；总量未知不编覆盖率</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 玩家评价</span><br><b>认可的体验</b><br><code>likes</code></td><td>AI_WITH_EVIDENCE<br><span class="tag">S25</span></td><td>新增/修改且允许分析的评论</td><td>附原文定位；讽刺/混合/无法判断独立标签；去重后分析；主题不得写成全体玩家占比</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 玩家评价</span><br><b>主要抱怨与期待</b><br><code>complaints</code></td><td>AI_WITH_EVIDENCE<br><span class="tag">S25</span></td><td>新增/修改且允许分析的评论</td><td>附原文定位；讽刺/混合/无法判断独立标签；去重后分析；主题不得写成全体玩家占比</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 舆情与传播</span><br><b>固定范围提及</b><br><code>mentions</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S24|S25</span></td><td>每批材料</td><td>转载、同文、多账号同步聚成根来源族；源数量不等于独立证据数量</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 舆情与传播</span><br><b>同口径传播变化</b><br><code>social_growth</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每日/每周</td><td>只比较固定来源/查询/采样规则/窗口；扩采时建立断点；不足样本仅定性</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 舆情与传播</span><br><b>搜索趋势</b><br><code>search</code></td><td>PUBLIC_EXPORT_OR_LICENSED<br><span class="tag">S17|S18|S19</span></td><td>每周</td><td>原始指数+市场+关键词+窗口+归一化范围；不把缺数据或小于阈值设0</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 舆情与传播</span><br><b>创作者内容</b><br><code>creators</code></td><td>PUBLIC_SAMPLE<br><span class="tag">S11|S28|S29|S30|S21</span></td><td>固定面板每日；深研周更</td><td>仅准入材料；展示量是来源观察值，不等于唯一用户；YouTube参考链接另存且默认不衍生</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 舆情与传播</span><br><b>事件与回应</b><br><code>event</code></td><td>MANUAL_REVIEW<br><span class="tag">S10|S21|S25</span></td><td>事件出现或新回应时</td><td>保留原始说法/反证/官方回应与裁决人；网络指控不是已证实事件</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 舆情与传播</span><br><b>来源独立性</b><br><code>independence</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S24|S25</span></td><td>每批材料</td><td>转载、同文、多账号同步聚成根来源族；源数量不等于独立证据数量</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告素材与投放</span><br><b>素材入口</b><br><code>creative_assets</code></td><td>PUBLIC_LINK_OR_AUTHORIZED_ASSET<br><span class="tag">S13|S14|S20|S21|S27</span></td><td>新素材/每周</td><td>广告素材入口独立于实机入口；链接优先，转存/AI分析取决于权限</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告素材与投放</span><br><b>素材前段吸引点</b><br><code>hook</code></td><td>AI_WITH_REVIEW<br><span class="tag">S21|S25</span></td><td>新素材或验证结果时</td><td>允许分析的素材才送模型；区分镜头描述与创意假设，不写成效果承诺</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告素材与投放</span><br><b>观察到的创意变体</b><br><code>creative_variants</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>采集批次后</td><td>只统计本来源监测范围与有效观察日；首次看到不是投放开始；缺日不当停止投放</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告素材与投放</span><br><b>首次 / 末次观察</b><br><code>creative_window</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>采集批次后</td><td>只统计本来源监测范围与有效观察日；首次看到不是投放开始；缺日不当停止投放</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告素材与投放</span><br><b>投放地区与渠道</b><br><code>ad_market</code></td><td>PUBLIC_SAMPLE_OR_LICENSED<br><span class="tag">S13|S14|S20|S21|S27</span></td><td>公开周更；授权按合同</td><td>仅实际可见/授权字段；地区是投放范围而非开发者所在地；落地产品用ID确认</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 广告素材与投放</span><br><b>广告与实机一致性</b><br><code>ad_match</code></td><td>MANUAL_REVIEW<br><span class="tag">S13|S14|S20|S21|S25</span></td><td>深研时</td><td>分别保存广告与实机证据、时间点、对应版本；没有实机不得作一致性定论</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 同类竞争</span><br><b>玩法家族</b><br><code>family</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S24|S25</span></td><td>新产品/标签版本更新</td><td>机制标签+人工确认；同名不代表同家族；对照集保存纳入条件与版本</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 同类竞争</span><br><b>对照产品</b><br><code>peers</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S24|S25</span></td><td>新产品/标签版本更新</td><td>机制标签+人工确认；同名不代表同家族；对照集保存纳入条件与版本</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 同类竞争</span><br><b>监测范围内供给</b><br><code>supply</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每周；关注池可每日</td><td>仅监测范围内供给/表现，保存分母和断点；掉出Top100不等于失败/下架</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 同类竞争</span><br><b>产品差异</b><br><code>differences</code></td><td>AI_WITH_REVIEW<br><span class="tag">S21|S22|S25</span></td><td>深研/周报</td><td>需求缺口与跨平台机会是待测假设；失败原因需证据；包括未成功与已下滑对照减少幸存者偏差</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 同类竞争</span><br><b>下滑与失败案例</b><br><code>declines</code></td><td>DERIVED<br><span class="tag">S24</span></td><td>每周；关注池可每日</td><td>仅监测范围内供给/表现，保存分母和断点；掉出Top100不等于失败/下架</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 同类竞争</span><br><b>未满足需求</b><br><code>gap</code></td><td>AI_WITH_REVIEW<br><span class="tag">S21|S22|S25</span></td><td>深研/周报</td><td>需求缺口与跨平台机会是待测假设；失败原因需证据；包括未成功与已下滑对照减少幸存者偏差</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 制作适配与机会</span><br><b>最小原型范围</b><br><code>prototype</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S21|S22|S25</span></td><td>进入深研/范围调整时</td><td>AI给最小原型草案，负责人确定功能范围/资产复用/验收</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 制作适配与机会</span><br><b>功能 / 内容工作量</b><br><code>workload</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S21|S22|S25</span></td><td>深研与估算修订</td><td>2D/3D来自观察；真实引擎/服务端未知；制作工期由团队范围与能力估算</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 制作适配与机会</span><br><b>关键技术与资产依赖</b><br><code>dependencies</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S21|S22|S25</span></td><td>深研与估算修订</td><td>2D/3D来自观察；真实引擎/服务端未知；制作工期由团队范围与能力估算</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 制作适配与机会</span><br><b>工期情景范围</b><br><code>effort</code></td><td>REVIEWED_INFERENCE<br><span class="tag">S21|S22|S25</span></td><td>范围确定后/新风险出现时</td><td>负责人给人日范围与假设；不能从排行榜直接估成本</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 制作适配与机会</span><br><b>优先验证假设</b><br><code>hypothesis</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 制作适配与机会</span><br><b>继续 / 停止条件</b><br><code>stop_rule</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 内部选用与验证</span><br><b>当前选用记录</b><br><code>selection_records</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 内部选用与验证</span><br><b>内部测试方案</b><br><code>test_plan</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 内部选用与验证</span><br><b>实际工期与费用</b><br><code>actual_cost</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 内部选用与验证</span><br><b>内部留存结果</b><br><code>retention</code></td><td>INTERNAL_ONLY<br><span class="tag">S22</span></td><td>测试日报</td><td>自有测试同版本/渠道/人群的留存分子分母；非竞品留存</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 内部选用与验证</span><br><b>内部广告收益 / LTV</b><br><code>economics</code></td><td>INTERNAL_ONLY<br><span class="tag">S22</span></td><td>自有测试每日</td><td>自有项目与竞品事实隔离；人群/渠道/版本/币种/收入确认窗口明确</td></tr><tr data-scope="profile81"><td><span class="muted">profile81 · 内部选用与验证</span><br><b>实验结论与反馈</b><br><code>outcome</code></td><td>INTERNAL_ONLY<br><span class="tag">S22|S21</span></td><td>业务事件/填报；测试日报</td><td>内部字段非公网采集；负责人确认；多人独立选用记录；结果与参考版本关联</td></tr></tbody></table></div></section><section id="runtime" class="chapter"><div class="eyebrow">开发交接 · 运行与存储</div><h1>Java / MySQL 采集架构与数据契约</h1>
+<p>采集方案1.0；补充18章，沿用Game/PlatformEntity/MarketListing/Release及证据模型。以下为开发契约，未实现生产后端。技术组件选团队当前有维护支持的稳定版本，落地前固定版本与依赖。</p>
+<h2>1. 模块与运行边界</h2>
+<p>采用Java模块化服务：SourceRegistry、Scheduler、FetchWorker、ParseValidate、IdentityResolver、EvidenceStore、AiEnrichment、FeatureBuilder、ReportBuilder、OpsConsole。HTTP可用Java HTTP客户端，HTML用明确规则解析；需要浏览器时使用隔离的Java浏览器工作器。AI服务通过统一模型网关，按来源使用策略限制输入。</p>
+<p>启动阶段用MySQL任务表+租约+事务outbox即可。队列积压、吞吐和运维要求达到阈值后，可替换为现有消息基础设施，领域数据结构不变。Redis用于可选缓存/限流，不作为唯一任务持久化。公开原始事实可以统一采一次，但按授权范围服务各组织；内部材料、凭证、测试和选用记录必须租户隔离，授权数据不能因为缓存共享泄漏。</p>
+<p>建议状态流为：scheduled → leased → fetched → parsed → validated → committed；异常分retry_wait / access_blocked / quarantined / dead_letter。AI分析是事实提交之后的独立任务，模型挂掉不阻塞原始榜单入库。</p>
+<h2>2. 连接器能力合同</h2>
+<p>每个adapter显式声明supported_metrics、scope、access_mode、pagination_mode、max_verified_depth、requires_browser、supports_as_of、supports_etag、allowed_uses与policy_version。尚未验证的能力不能默认true。</p>
+<p>建议接口语义：</p>
+<pre><code class="language-java">interface SourceAdapter {
+    Capability describe();
+    FetchResult fetch(FetchRequest request, AccessContext access);
+    ParseResult parse(RawArtifact raw, SourceDefinition definition);
+    ValidationResult validate(ParseResult result, ValidationContext context);
+}
+</code></pre>
+<p>FetchRequest包含sourceDefinitionVersion、resourceKey、requestedMarket、locale、deviceClass、scheduledBusinessDate、requestedAsOf、cursor、预算及幂等键。FetchResult包含HTTP状态、实际URL、响应头白名单、观测时间、证据对象、原始哈希及抓取失败原因。ParseResult包括实际市场、榜定义、发布期间、记录集合、已验深度、缺口、分页完整度和解析证据。不要把解析成功等同于完整覆盖。</p>
+<p>尚未确定HTTP路径的来源由source registry标待PoC；不向Codex提供虚构微信/抖音私有接口、签名算法或浏览器Cookie模板。已文档化请求可采用Apple Search/Lookup官方参数，具体返回字段仍先验收。</p>
+<h2>3. 核心表与索引</h2>
+<table>
+<thead>
+<tr>
+<th>表/领域对象</th>
+<th>关键内容</th>
+<th>唯一性/主要索引</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>source_definition + source_policy</td>
+<td>定义/出处/访问/用途/保留/准入状态/版本</td>
+<td>source_id+definition_version；policy单独版本</td>
+</tr>
+<tr>
+<td>source_probe_run</td>
+<td>检测环境、时间、实际URL、返回范围、失败/限制、人工核验</td>
+<td>source_id+probe_at</td>
+</tr>
+<tr>
+<td>collection_task</td>
+<td>资源、计划日、市场、任务类、状态、重试、租约/心跳、预算</td>
+<td>dedupe_key；status+next_run_at；租约token</td>
+</tr>
+<tr>
+<td>collection_attempt</td>
+<td>每次请求的状态、耗时、返回字节、实际范围</td>
+<td>task_id+attempt_no</td>
+</tr>
+<tr>
+<td>raw_artifact</td>
+<td>允许的原文对象地址、hash、类型、保留期限、删除状态</td>
+<td>source_id+content_hash+policy_scope；不可跨权限自动复用</td>
+</tr>
+<tr>
+<td>evidence_ref</td>
+<td>字段、原文区间/DOM定位/页码/图片坐标、适用范围</td>
+<td>artifact_id+locator_hash；entity_id+field_key</td>
+</tr>
+<tr>
+<td>identity_candidate / entity_link</td>
+<td>未匹配对象、候选关联、理由、人工裁决</td>
+<td>platform+external_id唯一；关联带版本</td>
+</tr>
+<tr>
+<td>observation</td>
+<td>类型化事实头、来源/版本/时间、数据状态、血缘</td>
+<td>entity+metric+market+observed_at；available_at</td>
+</tr>
+<tr>
+<td>chart_snapshot</td>
+<td>榜定义、国家、设备、来源发布日、抓取时点、覆盖、修订</td>
+<td>source_version+chart+market+device+scheduled_slot+revision</td>
+</tr>
+<tr>
+<td>chart_entry</td>
+<td>snapshot、平台ID、原始名次、行证据</td>
+<td>snapshot_id+rank；snapshot_id+entity_id；重复需隔离</td>
+</tr>
+<tr>
+<td>listing_snapshot</td>
+<td>元数据/版本/IAP等来源值</td>
+<td>listing_id+observed_at；字段事实与断言可追溯</td>
+</tr>
+<tr>
+<td>review + review_revision</td>
+<td>来源评论ID/指纹、正文/允许摘录、日期、版本、原始星级、修订</td>
+<td>source_id+native_review_key；revision_hash</td>
+</tr>
+<tr>
+<td>sampling_run</td>
+<td>query/sort/window/cursor、n/k/去重、截断/偏差</td>
+<td>source+panel_version+entity+sampling_window</td>
+</tr>
+<tr>
+<td>public_content / mention_link</td>
+<td>文章视频讨论、根来源族、实体关联、商业标记</td>
+<td>source+native_content_key；root_cluster_id</td>
+</tr>
+<tr>
+<td>creative_observation</td>
+<td>广告素材/落地实体/观察时间、地区、权限</td>
+<td>source+native_creative_id+observed_at</td>
+</tr>
+<tr>
+<td>ai_job + claim_draft</td>
+<td>输入版本/hash、模型/提示词/schema、引用、草案/弃权</td>
+<td>job_dedupe_key；entity+field+review_state</td>
+</tr>
+<tr>
+<td>feature_snapshot</td>
+<td>输入观测ID、指标定义、窗口、区间、覆盖、未知原因</td>
+<td>cohort+entity+window+definition_version+knowledge_cutoff</td>
+</tr>
+<tr>
+<td>weekly_report_revision</td>
+<td>候选/算法版本/输入清单/决策/层级/变更原因</td>
+<td>report_week+scope+revision</td>
+</tr>
+<tr>
+<td>audit_event / deletion_task</td>
+<td>人工编辑/权限/规则/删除血缘</td>
+<td>tenant+resource+event_at</td>
+</tr>
+</tbody></table>
+<p>类型明确的高频字段使用专列，变化较多且低频的源原始属性可用受Schema约束的JSON扩展。数值存decimal或合适整型，计数不使用float；原始“5.78M”“1B+”独立保存display_value、numeric_lower/upper及is_rounded，未经确认不伪造精确整数。大对象只存对象地址，访问由后端按权限签发。</p>
+<h2>4. 时间语义与幂等</h2>
+<ul>
+<li>source_published_at：来源明确发布时点，缺失则null。</li>
+<li>event_at / window_start、window_end：事件发生或统计期间，不能用抓取时点替代。</li>
+<li>observed_at：本次实际看到页面/接口内容的时点。</li>
+<li>available_at：通过校验进入可用于决策数据集的时间，用于历史知识回放。</li>
+<li>scheduled_business_date：任务对应业务日，不因此宣称抓到了该日历史。</li>
+<li>knowledge_cutoff：报告冻结知识时点；business_cutoff：观察/事件业务截止。</li>
+</ul>
+<p>数据库统一UTC，另存来源时区及日粒度date_origin；UI默认Asia/Shanghai，不把美国来源日期盲转成中国榜日期。周报冻结例：业务窗截至周日23:59:59+08，周一09:00+08冻结；实际周一观测不能回填周日，无独立有效源日期就不使用。</p>
+<p>任务dedupe_key由source版本、任务类型、资源稳定键、市场、设备、计划时槽、明确的as_of及分页游标hash组成。同任务重试不重复写业务事实；重新解析同一raw生成新的parser_revision，不改原始证据；人工纠正写修订而非覆盖。</p>
+<p>工作器使用随机lease_token并心跳续租，过期重新领取；写入时检查token避免旧worker重复提交。事实与outbox在同一事务提交，下游以event_id幂等。只有连接器声明并验证ETag语义才用条件请求；304记录“来源确认未变”及对应原始引用，不伪造新发布时间。</p>
+<h2>5. 覆盖与失败的类型</h2>
+<p>chart_snapshot分别保存target_depth、observed_count、verified_contiguous_depth、missing_rank_ranges、is_complete_for_requested_scope、pagination_exhausted、source_market_verified。完整性不是observed_count==100这么简单，必须验证范围内没有缺名次/重复实体/错误地区。</p>
+<p>例如期望Top100实际只读到1–25：status=partial，verified_contiguous_depth=25。第18名可进入同尺度位置指数；未出现产品保持unknown。完整Top100中未见某产品才允许out_of_monitored_range，raw rank仍为null。404/403/429/空响应/结构变化必须分别处理，不产生“0个项目的完整榜”。</p>
+<p>字段value_status建议包括observed、observed_zero、unknown_not_collected、unsupported、permission_required、fetch_failed、partial_scope、stale、conflict、not_applicable、removed。missing_reason是枚举+解释，不能只用空字符串。即使所有输入未知，也可产生补证动作。</p>
+<h2>6. 限流、重试与源健康</h2>
+<p>逐host并发初设1，任务预算、每日请求/字节/AI成本上限、域名间公平调度可配置。普通HTML初始间隔3～5秒；API按官方额度/协议更严格者。HTTP超时初设20秒，浏览器任务60秒；默认最多3次尝试，429尊重Retry-After，5xx/网络错误使用带抖动的退避。429/权限失败不能通过换IP绕过。</p>
+<p>出现结构异常、地区不符、重复ID、非法名次或不可能的计数下降进入隔离；计数下降不直接拒绝，可能是真实清理/删评，应保留原值并复核。与过去差异过大先告警，不因为“变化异常”自动删掉可能的爆发。</p>
+<p>监控按来源+市场+榜定义显示：计划任务数、有效完成数、覆盖深度、最后成功、数据时效、异常/重复率、身份匹配率、AI引用合格率、人工队列、采集费用、受影响周报。公开Top25源可以达成“Top25任务成功”，但Top100目标覆盖仍只有部分，两项指标分开。</p>
+<h2>7. AI任务与数据使用控制</h2>
+<p>输入仅含该任务允许的材料、field_schema、scope、policy与evidence_refs。输出claims[{field,value,type,evidence_ids,locator,scope,unknown_reason}]以及conflicts/suggested_tasks。JSON Schema校验后还要验证引用存在、引用内容支持字段、时间/版本一致；数值不能脱离原文推算。</p>
+<p>任务分事实抽取、翻译、玩法标签、评价方面、实体关联候选、冲突识别、研究摘要、采集缺口建议。模型不能直接发布规则、合并实体、裁定IAA或改生产数据；依据充分的确定性规则可以自动入库，人工只处理关键裁决与异常。</p>
+<p>每批允许材料去重后再调用；内容hash+模型版本+提示词版本+任务类型作为缓存键。模型不可用时只暂停增强字段；下游解释用规则模板。外部网页文本当不可信数据，任何“忽略规则/发送凭证”等内容不得成为执行指令。</p>
+<h2>8. 权限、保留与安全的必要实现</h2>
+<p>逐来源明确fetch_allowed、store_allowed、derive_allowed、ai_processing_allowed、redistribute_allowed、media_download_allowed，不以“公网”代替这些配置。来源条款/robots/合同及可访问范围作为准入记录，限制出现时降低频率或切换正式路径，不引入绕过机制。</p>
+<p>抓取URL只允许白名单host与HTTP(S)，每次重定向重新检查目标，防私网/元数据地址/DNS重绑定；限制响应体大小、类型与解压比。凭证只放密钥服务，日志遮蔽token、Cookie及非必要个人信息，人工上传检查内容类型/恶意文件。</p>
+<p>source policy变更触发血缘扫描：原文、评论、媒体、AI派生、特征、引用报告与导出均受影响。需要删除时不可仅删对象库却保留完整复制文本；允许保留的决策元数据或不可逆汇总也必须明确有依据。报告历史若内容依法或依约删除，显示“证据已移除/不可复算原因”，不伪称仍能全文复现。</p>
+<h2>9. 管理端新增的最小功能</h2>
+<p>沿用两级菜单。在“实际使用”显示资料来源、覆盖/缺失、某日快照、版本比较及补证入口；在“配置管理”下扩展数据源登记、采集任务/失败队列、字段映射、采样面板、源策略、AI抽取Schema与质量统计。</p>
+<p>数据源页面必须区分“文档已核对、样例可见、PoC通过、试运行通过”；默认不把后两项勾选。新增源采用草案→样本验证→范围确认→小流量试运行→启用，停用源只停新抓取，不删除已有合法历史。</p>
+</section><section id="rollout" class="chapter"><div class="eyebrow">开发交接 · 实施与验收</div><h1>PoC、排期、成本与验收</h1>
+<p>本章给出可执行启动方案。排期以2名后端/数据工程师、1名前端参与管理端、0.5～1名研究运营为估算前提，不能视为已有团队承诺；凭证审批或采购时间另计。</p>
+<h2>1. 第一个工作包：7日来源验证</h2>
+<p>第1～2日建立SourceRegistry、最小任务记录、证据目录和样本结果格式；每平台选10个ID明确的产品，包含IAA声明样例、明确IAP反例、同名/跨平台歧义、低评论量/无评论量案例。总样本约40个平台实体，覆盖四国Google Play展示差异。来源许可不明时先人工核验，不能为跑满样本绕过限制。</p>
+<p>第1～7日按计划时点重复检查核心榜源。每次保留实际URL、地区/设备、来源日期/抓取时间、是否匿名、条数/连续名次深度、重复与缺口、响应/限制及核验人。7天试运行只能说明一周稳定性，不能证明长期SLA；上线后累计28日再复评。</p>
+<table>
+<thead>
+<tr>
+<th>PoC</th>
+<th>具体问题</th>
+<th>通过条件</th>
+<th>不通过后的上线方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Apple元数据</td>
+<td>指定中国市场ID是否返回稳定字段</td>
+<td>ID/字段类型/日期/来源验证通过，10个样例可复核</td>
+<td>详情页或授权元数据</td>
+</tr>
+<tr>
+<td>iOS榜单</td>
+<td>公开页/RSS实际覆盖多少名</td>
+<td>每个方案独立登记深度，排名与人工页面一致，无虚增</td>
+<td>上线真实Top25/其他深度；Top100采购补缺</td>
+</tr>
+<tr>
+<td>GP四国榜单</td>
+<td>实际市场/设备/榜型是否可确认，深度多少</td>
+<td>四国分别验收；不接受只换URL参数的截图</td>
+<td>未过的市场显示缺口；授权榜/人工</td>
+</tr>
+<tr>
+<td>GP详情</td>
+<td>评分、计数、下载档位、广告/IAP语义</td>
+<td>源原文与标准字段对应明确；缩写不伪精确</td>
+<td>原文展示+待映射，不进数值分析</td>
+</tr>
+<tr>
+<td>抖音趋势</td>
+<td>匿名能否取得榜项、ID、日期</td>
+<td>三种榜分别登记字段和定义；不是只验证页面打开</td>
+<td>官方/第三方授权或人工材料</td>
+</tr>
+<tr>
+<td>微信公开来源</td>
+<td>出处、日期、榜类型、深度可信否</td>
+<td>有原始出处，人工抽查；图表OCR错误可追溯</td>
+<td>按篇收录；每日Top100另寻授权</td>
+</tr>
+<tr>
+<td>评论样本</td>
+<td>是最新还是精选，能否按时窗更新</td>
+<td>逐源存采样协议与真实可得条数；去重/编辑处理</td>
+<td>定性样本或人工，不计算总体正向率</td>
+</tr>
+<tr>
+<td>材料与AI</td>
+<td>引用、类型、未知及权限是否正确</td>
+<td>50份允许材料抽查；关键事实无无依据写入</td>
+<td>暂停该字段自动写入，AI仅草稿</td>
+</tr>
+</tbody></table>
+<p>试运行目标：对已明确承诺的范围，7日计划任务有效完成率≥95%；每日任务的7日样本实际意味着应7/7通过，不能靠增加重试任务做大分母。HTTP200但字段解析失败、地区错或覆盖未达承诺不算成功。按单源/市场分别验收，不用平均值遮住微信完全缺失。</p>
+<p>排名/稳定ID属于关键字段，PoC抽查和已标注黄金样本要求零错误；这只是样本验收，不宣称全市场零错误。AI引用支持率可设≥95%的试运行目标，IAA/身份等高风险资格仍走确定性校验/复核，不被平均准确率豁免。</p>
+<h2>2. 后续4～6周推进顺序</h2>
+<ol>
+<li>第1周：完成上述PoC与缺口清单；决定哪些源按部分覆盖上线，哪些需要授权样本；确定来源预算。</li>
+<li>第2～3周：上线任务/证据/身份/榜单/基础档案，支持指定日期、覆盖状态、受控CSV和人工导入；搭建评论采样协议与IAA核查表。</li>
+<li>第3～4周：接入可见评价、材料白名单、AI有引用抽取、人工复核与字段补证；每周实际深研少量产品，先测工作量。</li>
+<li>第5～6周：接V2.2推荐，冻结证据生成周报；做整源掉线、日期缺口、部分榜、政策删除、跨平台歧义等演练；已取得许可的供应商再补缺。</li>
+</ol>
+<p>最小可用版不以“30来源全部接通”为前提。要求每个核心平台至少有明确的观察/导入路径，清楚展示可得深度和未接通能力；若业务硬要求全平台连续Top100，未满足部分必须列为发布阻断条件，不能仅靠界面展示占位通过。</p>
+<h2>3. 成本模型：先量工作量，再报价</h2>
+<p>启动预算示例假设关注池300、长尾1,700个平台实体：详情日请求约300+1700/7≈543，加上新增实体和重试；榜单请求量取决于榜型/市场/分页，不等于100名×100次请求。若10条榜每条1～5页则约10～50请求/日，属于计划假设，不代表10条源都可用。</p>
+<p>评论若300个关注实体各1～3个允许的页面，约300～900请求/日，新增样本可能远小于网页条数；所有请求受来源限额而不是预算强行拉满。发现搜索先设50查询/日、YouTube参考检索20查询/日作为内部预算，实际运行要读取官方/供应商当前额度，未开通则不执行。</p>
+<p>人工核查假设每周10～20个重点版本、每个试玩15～30分钟，约2.5～10小时；加上记录、IAA查证、版本/身份冲突和周报复核，先预留每周8～16小时并实测。复杂产品自动转更长任务，不能为了效率跳过关键证据。</p>
+<p>月成本 = 运行计算与浏览器小时 + 对象存储/流量 + 搜索/API费用 + AI输入/输出token费用 + 人工时间 + 购买数据费用。AI只处理新增/修改且去重后允许的材料；榜单数值无需每次调用模型。按实际tokens和选定模型单价计算，不在未选模型前承诺金额。</p>
+<p>粗存储测算：每天3,000个可保存响应、压缩后平均100KB，约0.3GB/日、9GB/30日；不含视频、索引/副本。这个估算须以PoC实际平均字节修正；不能因此给所有来源统一30日保留。视频默认链接，截图/原始文档按许可策略限额。</p>
+<h2>4. 采购只问可验收的事情</h2>
+<p>向候选供应商索取7日样本与字段字典，包含：目标平台/国家/设备、榜类型及原始出处、稳定ID、日期与更新时点、实际TopN、分页、历史起点与缺口、评论采样方法、是否估算、修订/删除策略、API/导出权限、内部展示/AI分析/报告再分发权、配额/SLA和计费。</p>
+<p>DataEye官方页面已说明提供API与广告情报服务，可列为买量数据候选；不据此假设它提供微信官方人气榜或真实竞品收益。其他商店/小游戏供应商逐一验证再登记，不在当前文档中写未经确认的覆盖或报价。</p>
+<p>采购优先级：①关键平台可靠日榜与身份；②连续可比的评论样本；③素材/买量观察；④经营估算。公开源的Top25与供应商Top100先并行，不直接拼接历史；即使数据一致也要记录相同根来源，不能当两份独立成功证据。</p>
+<h2>5. 必做验收案例</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>输入或故障</th>
+<th>必须输出的行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>C01</td>
+<td>目标100、仅看到1～25名</td>
+<td>partial；实际25；未见游戏不判Top100榜外</td>
+</tr>
+<tr>
+<td>C02</td>
+<td>Top25中已见第18名</td>
+<td>保留rank=18；可用该日已知位置；不按25缩放分数</td>
+</tr>
+<tr>
+<td>C03</td>
+<td>HTTP200但空列表/登录页</td>
+<td>解析异常或access_blocked；不存完整0条榜</td>
+</tr>
+<tr>
+<td>C04</td>
+<td>昨天抓取失败，今天成功</td>
+<td>昨天missing；今天事实不得补造昨天</td>
+</tr>
+<tr>
+<td>C05</td>
+<td>来源有指定日期历史接口</td>
+<td>验证source_date后可补历史，available_at仍为今天</td>
+</tr>
+<tr>
+<td>C06</td>
+<td>同名不同包名/小游戏ID</td>
+<td>分实体；自动提出关联而非合并</td>
+</tr>
+<tr>
+<td>C07</td>
+<td>只显示Contains ads</td>
+<td>IAA仍待核；有IAP标记则按版本保留反证</td>
+</tr>
+<tr>
+<td>C08</td>
+<td>老版纯IAA、新版出现内购</td>
+<td>新版资格转冲突/不匹配；旧版本事实保留</td>
+</tr>
+<tr>
+<td>C09</td>
+<td>评分计数“164万”但只见6条评论</td>
+<td>分别存缩写评分量与6条样本，不产生164万文字评论</td>
+</tr>
+<tr>
+<td>C10</td>
+<td>精选评论全正向</td>
+<td>输出样本主题；不宣称全体100%好评</td>
+</tr>
+<tr>
+<td>C11</td>
+<td>评论被修改或展开区重复</td>
+<td>修订/去重；不重复增加正负样本分母</td>
+</tr>
+<tr>
+<td>C12</td>
+<td>扩大查询或来源导致内容翻倍</td>
+<td>新panel_version/覆盖断点；不直接标热度翻倍</td>
+</tr>
+<tr>
+<td>C13</td>
+<td>五站转载一份机构报告</td>
+<td>同一根来源族，不计5份独立证据</td>
+</tr>
+<tr>
+<td>C14</td>
+<td>第三方买量榜名次很好</td>
+<td>投放信号单列，不能独立通过玩家需求门槛</td>
+</tr>
+<tr>
+<td>C15</td>
+<td>429/403/验证码</td>
+<td>有限退避/停止/授权补缺，不换IP绕过</td>
+</tr>
+<tr>
+<td>C16</td>
+<td>AI超时或无引用输出</td>
+<td>原始事实继续入库，增强字段unknown/草稿</td>
+</tr>
+<tr>
+<td>C17</td>
+<td>替换数据供应商</td>
+<td>原始系列独立；未经可比审核不拼上涨曲线</td>
+</tr>
+<tr>
+<td>C18</td>
+<td>source policy禁止分析或到期删除</td>
+<td>不送AI/不算分；执行删除传播并标历史影响</td>
+</tr>
+<tr>
+<td>C19</td>
+<td>YouTube公开播放量可取得</td>
+<td>默认原始展示/参考，不自动生成热度衍生指标</td>
+</tr>
+<tr>
+<td>C20</td>
+<td>两worker同时完成相同任务</td>
+<td>幂等提交、租约校验，只产生一次有效业务事件</td>
+</tr>
+<tr>
+<td>C21</td>
+<td>一个平台长期缺失</td>
+<td>该平台缺口独立显示，其他队列继续出报告</td>
+</tr>
+<tr>
+<td>C22</td>
+<td>来源缺失让已知负面证据抓不到</td>
+<td>既有有效约束保留，不能自动恢复正式推荐</td>
+</tr>
+<tr>
+<td>C23</td>
+<td>正式合格项目不足5个</td>
+<td>输出实际数量及线索/补证；不凑满或编造</td>
+</tr>
+<tr>
+<td>C24</td>
+<td>用户查看2026-10-01历史日期</td>
+<td>取该日有效事实；区分当时已知与后补版本，不返回最新榜冒充历史</td>
+</tr>
+<tr>
+<td>C25</td>
+<td>租户A导入私有测试或供应商材料</td>
+<td>租户B无权读取、检索或通过AI摘要间接获取</td>
+</tr>
+</tbody></table>
+<h2>6. Codex开发任务边界</h2>
+<p>先实现：来源注册与策略 → 幂等任务与证据 → 通过PoC的连接器 → 身份/覆盖/评论样本 → AI草案 → V2.2特征与周报 → 运维质量页。每个连接器先小样本fixture回放，再源准入环境少量验证；未经验证的候选地址不得默认开启生产定时任务。</p>
+<p>此次交付提供方案、来源登记、201行字段映射、配置样例与验收清单；没有运行真实采集器、没有创建定时采集任务、没有获取平台凭证、没有接Java/MySQL、也没有修改线上V2.3原型。上线前应运行本章案例并另存实际验证报告。</p>
+</section><footer>本文件可离线阅读。CSV与JSON在同一开发交接包内；实际接口、权限和连续可得性按逐源PoC验收。本轮不包含真实市场采集结果。</footer></main><script>
+function filterTable(id, query, scope){let n=0;document.querySelectorAll('#'+id+' tbody tr').forEach(r=>{let show=r.textContent.toLowerCase().includes(query.toLowerCase())&&(!scope||r.dataset.scope===scope);r.hidden=!show;if(show)n++});return n}
+document.getElementById('source-filter').addEventListener('input',e=>{document.getElementById('source-count').textContent=filterTable('source-table',e.target.value,'')+' 项'});
+function filterFields(){document.getElementById('mapping-count').textContent=filterTable('mapping-table',document.getElementById('mapping-filter').value,document.getElementById('mapping-scope').value)+' 行'}
+document.getElementById('mapping-filter').addEventListener('input',filterFields);document.getElementById('mapping-scope').addEventListener('change',filterFields);
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){document.querySelectorAll('aside a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id))}})},{rootMargin:'-80px 0px -70% 0px'});document.querySelectorAll('section[id]').forEach(e=>observer.observe(e));
+</script></body></html>
