@@ -12,7 +12,7 @@ import java.util.*;
 public final class AppBrainAdapter implements SourceAdapter {
     @Override public String key() { return "appbrain"; }
     @Override public URI sourceUrl(CaptureRequest request) {
-        if (!key().equals(request.sourceKey()) || !Set.of("us", "gb", "de", "fr").contains(request.region()))
+        if (!key().equals(request.sourceKey()) || !"top-free".equals(request.chartKey()) || !Set.of("us", "gb", "de", "fr").contains(request.region()))
             throw new CaptureException("INVALID_SCOPE", "AppBrain 只支持 us/gb/de/fr");
         return URI.create("https://www.appbrain.com/stats/google-play-rankings/top_free/game/" + request.region());
     }

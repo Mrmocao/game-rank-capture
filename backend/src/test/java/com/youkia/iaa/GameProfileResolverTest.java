@@ -20,6 +20,17 @@ class GameProfileResolverTest {
     @Test void platformScopesHaveIndependentQualification(){var wx=iaa();var ios=iaa();ios.put("mode",resolve("mode",h(7,"mixed")));assertEquals(true,GameProfileResolver.qualification(wx).get("eligible"));assertEquals(false,GameProfileResolver.qualification(ios).get("eligible"));}
     @Test void laterAvailabilityCannotChangeEarlierKnowledge(){var future=h(2,"mixed");future.put("availableAt",end.plusDays(1));assertEquals("IAA",GameProfileResolver.text(resolve("mode",h(1,"IAA"),future).get("value")));}
     @Test void futureObservationCannotLeak(){var row=h(1,"secret");row.put("observedAt",end.plusDays(1));var f=resolve("summary",row);assertEquals("not_yet_known",f.get("status"));assertNull(f.get("value"));}
+    @Test void lateMaterialIsExcludedFromStrictHistoricalReplay(){var late=h(1,"SYNTHETIC late observation");late.put("availableAt",end.plusDays(1));assertEquals("not_yet_known",resolve("summary",late).get("status"));}
+    @Test void laterKnowledgeCanReviseEarlierBusinessDayWithoutApplyingPresentExpiry(){
+        var late=h(1,"SYNTHETIC late observation");late.put("availableAt",end.plusDays(1));late.put("validUntil",end.plusHours(1));
+        var revised=GameProfileResolver.resolve(catalog.field("summary"),List.of(late),end,end.plusDays(1),1L);
+        assertEquals("available",revised.get("status"));assertEquals("SYNTHETIC late observation",GameProfileResolver.text(revised.get("value")));
+    }
+    @Test void revisionStillExcludesObservationsAfterBusinessCutoff(){
+        var future=h(1,"SYNTHETIC future fact");future.put("observedAt",end.plusHours(1));future.put("availableAt",end.plusDays(1));
+        var revised=GameProfileResolver.resolve(catalog.field("summary"),List.of(future),end,end.plusDays(1),1L);
+        assertEquals("not_yet_known",revised.get("status"));assertNull(revised.get("value"));
+    }
     @Test void conflictingValidValuesRequireExplicitReview(){var one=h(1,"IAA");var two=h(2,"mixed");assertEquals("conflict",resolve("mode",one,two).get("status"));two.put("supersedesId",1L);assertEquals("mixed",GameProfileResolver.text(resolve("mode",one,two).get("value")));}
     @Test void futureSupersessionCannotHideKnownFact(){var one=h(1,"IAA");var two=h(2,"mixed");two.put("supersedesId",1L);two.put("availableAt",end.plusDays(1));assertEquals("IAA",GameProfileResolver.text(resolve("mode",one,two).get("value")));}
     @Test void releaseChangeInvalidatesSensitiveFacts(){var f=GameProfileResolver.resolve(catalog.field("mode"),List.of(h(1,"IAA")),end,2L);assertEquals("stale",f.get("status"));assertNull(f.get("value"));}

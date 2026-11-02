@@ -27,6 +27,8 @@ data/icons/
 /backend/data/
 /external-capture/data/
 /external-capture/output/
+/browser-capture/data/
+**/browser-sessions/
 
 # 历史现场验证包含部署会话、真实材料和截图，仅本地保留。
 /validation/

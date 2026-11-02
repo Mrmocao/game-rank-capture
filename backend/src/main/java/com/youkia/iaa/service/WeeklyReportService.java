@@ -13,10 +13,11 @@ import java.util.*;
 @Service
 public class WeeklyReportService {
     private final JdbcTemplate jdbc;private final ObjectMapper mapper;private final MarketWeeklySkill skill;
-    private final MarketInsightService insights;private final ResearchService research;
+    private final MarketInsightService insights;private final ResearchService research;private final String tenant;
     public WeeklyReportService(JdbcTemplate j,ObjectMapper m){this(j,m,new ResearchService(j,m));}
+    public WeeklyReportService(JdbcTemplate j,ObjectMapper m,ResearchService r){this(j,m,r,"default");}
     @org.springframework.beans.factory.annotation.Autowired
-    public WeeklyReportService(JdbcTemplate j,ObjectMapper m,ResearchService r){jdbc=j;mapper=m;skill=new MarketWeeklySkill(m);insights=new MarketInsightService(j,m,skill);research=r;}
+    public WeeklyReportService(JdbcTemplate j,ObjectMapper m,ResearchService r,@org.springframework.beans.factory.annotation.Value("${PROFILE_TENANT_ID:default}") String tenant){jdbc=j;mapper=m;skill=new MarketWeeklySkill(m);insights=new MarketInsightService(j,m,skill);research=r;this.tenant=tenant;}
     public Map<String,Object> skill(){var s=new LinkedHashMap<>(skill.snapshot());s.put("researchProfile",research.profile());return s;}
     @Transactional public Map<String,Object> generate(LocalDate start,LocalDate end){return generate(start,end,null);}
     @Transactional public Map<String,Object> generate(LocalDate start,LocalDate end,LocalDateTime availableAt){
@@ -25,7 +26,9 @@ public class WeeklyReportService {
         LocalDateTime now=LocalDateTime.now(ZoneOffset.UTC),cutoff=availableAt==null?now:availableAt;
         if(cutoff.isAfter(now))throw new IllegalArgumentException("可用材料截止不能晚于当前时间UTC");
         jdbc.queryForObject("SELECT id FROM insight_generation_lock WHERE id=1 FOR UPDATE",Integer.class);
-        var profile=research.profile();var parameters=V22RecommendationEngine.Profile.from(research.map((JsonNode)profile.get("parameters")));
+        var profile=research.profile();var effectiveParameters=new LinkedHashMap<>(research.map((JsonNode)profile.get("parameters")));
+        effectiveParameters.put("target",5);effectiveParameters.put("explorationSlots",Math.min(5,((Number)effectiveParameters.getOrDefault("explorationSlots",2)).intValue()));
+        var parameters=V22RecommendationEngine.Profile.from(effectiveParameters);
         Long rule=jdbc.queryForObject("SELECT id FROM rule_version ORDER BY version_number DESC LIMIT 1",Long.class);
         LocalDate day=end.minusDays(1);var analysis=insights.analyze(day,cutoff);
         List<Map<String,Object>> candidates=new ArrayList<>(analysis.candidates());Set<String> present=new HashSet<>();candidates.forEach(c->present.add(c.get("version_id")+":"+c.get("region")));
@@ -50,6 +53,8 @@ public class WeeklyReportService {
         coverage.put("shortfallReason",run.get("diagnostic"));coverage.put("historyNotice","本期采用"+(availableAt==null?"当前已知材料对历史统计日的修订":"指定可用时间回放")+"；保存可用时间截止，迟到资料不会改写旧报告。");
         var health=jdbc.queryForList("SELECT source_key,status,result_json,started_at,finished_at FROM insight_collection_attempt WHERE started_at<=? ORDER BY id DESC LIMIT 30",cutoff);
         Map<String,Object> frozen=new LinkedHashMap<>();frozen.put("algorithmVersion","2.2.0");frozen.put("profile",profile);frozen.put("inputs",inputs);frozen.put("result",run);frozen.put("health",health);frozen.put("isSimulation",false);
+        var leads=new CaptureResearchLeadService(jdbc,mapper).build(tenant,day,cutoff,5-((List<?>)run.get("selected")).size());
+        frozen.put("captureResearchLeads",leads);frozen.put("effectiveParameters",effectiveParameters);
         // The running clock is intentionally not hashed. A no-change retry reuses the old cutoff and content.
         String digest=MarketWeeklySkill.hash(canonical(Map.of("start",start.toString(),"end",end.toString(),"rule",rule,"skill",skill.sha256,"frozen",frozen,"coverage",coverage)));
         var previous=jdbc.queryForList("SELECT id FROM weekly_report WHERE period_start=? AND period_end=? AND input_sha256=? ORDER BY revision DESC LIMIT 1",Long.class,start,end,digest);
@@ -76,7 +81,16 @@ public class WeeklyReportService {
     private List<Map<String,Object>> missingHistory(LocalDate day){List<Map<String,Object>> h=new ArrayList<>();for(int i=13;i>=0;i--){var p=new LinkedHashMap<String,Object>();p.put("date",day.minusDays(i).toString());p.put("rank",null);p.put("state","MISSING_SNAPSHOT");h.add(p);}return h;}
     public Map<String,Object> history(int page,int size){
         if(page<1||size<1||size>100)throw new IllegalArgumentException("分页参数无效");
-        return Map.of("items",jdbc.queryForList("SELECT r.id,r.period_start,r.period_end,r.revision,r.generated_at,r.status,r.model_metadata,(SELECT COUNT(*) FROM report_item i WHERE i.report_id=r.id) item_count FROM weekly_report r ORDER BY r.period_start DESC,r.generated_at DESC,r.id DESC LIMIT ? OFFSET ?",size,(page-1L)*size),"total",jdbc.queryForObject("SELECT COUNT(*) FROM weekly_report",Long.class),"page",page,"pageSize",size);
+        // Sort only scalar keys. MySQL filesort can otherwise carry multi-MB frozen JSON and exceed sort_buffer_size.
+        var ids=jdbc.queryForList("SELECT id FROM weekly_report ORDER BY period_start DESC,generated_at DESC,id DESC LIMIT ? OFFSET ?",Long.class,size,(page-1L)*size);
+        List<Map<String,Object>> items=new ArrayList<>();
+        if(!ids.isEmpty()){
+            String placeholders=String.join(",",Collections.nCopies(ids.size(),"?"));
+            var rows=jdbc.queryForList("SELECT r.id,r.period_start,r.period_end,r.revision,r.generated_at,r.status,r.model_metadata,(SELECT COUNT(*) FROM report_item i WHERE i.report_id=r.id) item_count,COALESCE(JSON_LENGTH(JSON_EXTRACT(r.research_snapshot,'$.captureResearchLeads.items')),0) research_lead_count FROM weekly_report r WHERE r.id IN ("+placeholders+")",ids.toArray());
+            Map<Long,Map<String,Object>> byId=new HashMap<>();rows.forEach(row->byId.put(((Number)row.get("id")).longValue(),row));
+            ids.forEach(id->{if(byId.containsKey(id))items.add(byId.get(id));});
+        }
+        return Map.of("items",items,"total",jdbc.queryForObject("SELECT COUNT(*) FROM weekly_report",Long.class),"page",page,"pageSize",size);
     }
     public Map<String,Object> latest(){try{return report(jdbc.queryForObject("SELECT id FROM weekly_report ORDER BY period_start DESC,generated_at DESC,id DESC LIMIT 1",Long.class));}catch(EmptyResultDataAccessException e){return Map.of("items",List.of(),"message","尚未生成周报");}}
     public Map<String,Object> report(long id){
@@ -87,6 +101,8 @@ public class WeeklyReportService {
         out.put("periodStart",r.get("period_start"));out.put("periodEnd",r.get("period_end"));out.put("revision",r.get("revision"));out.put("status",r.get("status"));
         out.put("ruleVersionId",String.valueOf(r.get("rule_version_id")));out.put("coverage",r.get("coverage_json"));out.put("generatedAt",r.get("generated_at"));out.put("items",items);
         for(var f:Map.of("modelMetadata","model_metadata","skillSnapshot","skill_snapshot","candidateAudit","candidate_audit","researchSnapshot","research_snapshot").entrySet())out.put(f.getKey(),r.get(f.getValue())==null?null:research.read(r.get(f.getValue())));
+        JsonNode snapshot=(JsonNode)out.get("researchSnapshot");
+        if(snapshot!=null&&snapshot.has("captureResearchLeads"))out.put("researchLeads",snapshot.path("captureResearchLeads"));
         out.put("availableCutoff",r.get("available_cutoff"));out.put("inputSha256",r.get("input_sha256"));
         out.put("domesticCount",items.stream().filter(x->"DOMESTIC".equals(x.get("section"))).count());out.put("overseasCount",items.stream().filter(x->"OVERSEAS".equals(x.get("section"))).count());out.put("observationCount",items.stream().filter(x->"OBSERVATION".equals(x.get("section"))).count());return out;
     }

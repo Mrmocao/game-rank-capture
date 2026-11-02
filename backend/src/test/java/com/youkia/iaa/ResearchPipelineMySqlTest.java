@@ -76,4 +76,20 @@ class ResearchPipelineMySqlTest {
         var summary=service.opinionSummary(b,day);assertEquals(5,summary.get("rawCount"));assertEquals(4,summary.get("clusters"));assertEquals(3,summary.get("denominator"));assertEquals(1,summary.get("ambiguous"));assertEquals(true,summary.get("comparable"));
         ((ObjectNode)reviews.get(0)).put("sourceFamily","another");assertEquals(false,service.opinionSummary(b,day).get("comparable"));
     }
+    @Test void largeFrozenJsonHistoryUsesBoundedSortingAndPreservesPageOrder()throws Exception{
+        var ctx=context();ctx.tx.executeWithoutResult(tx->{
+            var j=ctx.jdbc;Long sortSize=j.queryForObject("SELECT @@session.sort_buffer_size",Long.class);
+            try{
+                var expected=j.queryForList("SELECT id FROM weekly_report ORDER BY period_start DESC,generated_at DESC,id DESC LIMIT 2",Long.class);
+                assertFalse(expected.isEmpty(),"real database must contain baseline reports");
+                String large="{\"captureResearchLeads\":{\"items\":[{},{}]},\"syntheticPadding\":\""+"x".repeat(2_000_000)+"\"}";
+                j.update("UPDATE weekly_report SET research_snapshot=? WHERE id=?",large,expected.getFirst());
+                j.execute("SET SESSION sort_buffer_size=32768");
+                var result=new WeeklyReportService(j,mapper).history(1,2);
+                var rows=(List<Map<String,Object>>)result.get("items");
+                assertEquals(expected,rows.stream().map(r->((Number)r.get("id")).longValue()).toList());
+                assertEquals(2,((Number)rows.getFirst().get("research_lead_count")).intValue());
+            }finally{j.execute("SET SESSION sort_buffer_size="+sortSize);tx.setRollbackOnly();}
+        });
+    }
 }

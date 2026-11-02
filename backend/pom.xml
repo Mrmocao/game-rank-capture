@@ -9,6 +9,8 @@
     <name>iaa-radar-api</name><description>游探 IAA 产品情报系统 API</description>
     <properties><java.version>21</java.version><flyway.version>11.10.0</flyway.version></properties>
     <dependencies>
+        <dependency><groupId>com.youkia</groupId><artifactId>external-capture</artifactId><version>0.1.0-SNAPSHOT</version></dependency>
+        <dependency><groupId>com.youkia</groupId><artifactId>browser-capture</artifactId><version>0.1.0-SNAPSHOT</version></dependency>
         <dependency><groupId>com.networknt</groupId><artifactId>json-schema-validator</artifactId><version>1.5.9</version></dependency>
         <dependency><groupId>org.jsoup</groupId><artifactId>jsoup</artifactId><version>1.21.2</version></dependency>
         <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>

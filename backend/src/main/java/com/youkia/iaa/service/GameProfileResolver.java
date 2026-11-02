@@ -8,9 +8,13 @@ import java.util.*;
 public final class GameProfileResolver {
     private GameProfileResolver(){}
     public static Map<String,Object> resolve(JsonNode definition,List<Map<String,Object>> history,LocalDateTime cutoff,Long currentRelease){
+        return resolve(definition,history,cutoff,cutoff,currentRelease);
+    }
+    /** Historical report revisions may use later knowledge about earlier observations. */
+    public static Map<String,Object> resolve(JsonNode definition,List<Map<String,Object>> history,LocalDateTime cutoff,LocalDateTime knowledgeCutoff,Long currentRelease){
         String key=definition.path("key").asText();var out=new LinkedHashMap<String,Object>();
         out.put("key",key);out.put("label",definition.path("label").asText());out.put("domain",definition.path("domain").asText());out.put("tab",definition.path("tab").asText());out.put("type",definition.path("type").asText());out.put("layer",definition.path("layer").asText());
-        var visible=history.stream().filter(x->!time(x.get("observedAt")).isAfter(cutoff)&&!time(x.get("availableAt")).isAfter(cutoff)).toList();
+        var visible=history.stream().filter(x->!time(x.get("observedAt")).isAfter(cutoff)&&!time(x.get("availableAt")).isAfter(knowledgeCutoff)).toList();
         Set<String> superseded=new HashSet<>();visible.forEach(x->{if(x.get("supersedesId")!=null)superseded.add(x.get("supersedesId").toString());});
         var facts=visible.stream().filter(x->!"inference".equals(x.get("kind"))&&!superseded.contains(String.valueOf(x.get("id")))).toList();
         var current=new ArrayList<Map<String,Object>>();boolean stale=false;

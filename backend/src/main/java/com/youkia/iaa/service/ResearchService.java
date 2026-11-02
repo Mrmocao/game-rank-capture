@@ -20,6 +20,7 @@ public class ResearchService {
     public Map<String,Object> profile(){var row=jdbc.queryForMap("SELECT * FROM research_profile ORDER BY revision DESC LIMIT 1");row.put("parameters",read(row.remove("profile_json")));return row;}
     @Transactional public Map<String,Object> publish(JsonNode body){
         String actor=required(body,"actor");JsonNode parameters=body.path("parameters");var p=V22RecommendationEngine.Profile.from(map(parameters));
+        if(p.target()>5)bad("当前业务约定每期最多5项，请将目标设为5；资料不足时不补齐");
         jdbc.queryForObject("SELECT id FROM insight_generation_lock WHERE id=1 FOR UPDATE",Integer.class);
         int rev=jdbc.queryForObject("SELECT COALESCE(MAX(revision),0)+1 FROM research_profile",Integer.class);
         String raw=json(p);jdbc.update("INSERT INTO research_profile(revision,profile_json,content_sha256,created_by,created_at) VALUES(?,?,?,?,UTC_TIMESTAMP(3))",rev,raw,MarketWeeklySkill.hash(raw),actor);

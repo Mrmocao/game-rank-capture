@@ -20,10 +20,17 @@ public final class CapturePipeline {
     }
 
     public Observation.Bundle collect(CaptureRequest request) throws IOException, InterruptedException {
-        return accept(request, fetcher.fetch(adapter(request).sourceUrl(request)));
+        return accept(request, fetcher.fetch(adapter(request).sourceUrl(request), request.expectedSourceDate()));
     }
 
     public Observation.Bundle accept(CaptureRequest request, RawMaterial material) throws IOException {
+        var bundle = inspect(request, material);
+        sink.save(bundle, material);
+        return bundle;
+    }
+
+    /** Pure validation entry point for storage adapters that own their transaction. */
+    public Observation.Bundle inspect(CaptureRequest request, RawMaterial material) {
         var adapter = adapter(request);
         if (!adapter.sourceUrl(request).equals(material.sourceUrl()))
             throw new CaptureException("SOURCE_SCOPE_MISMATCH", "材料来源 URL 与请求不符");
@@ -47,12 +54,10 @@ public final class CapturePipeline {
                     || entry.externalId() != null && (entry.externalId().isBlank() || !ids.add(entry.externalId())))
                 throw new CaptureException("INVALID_ENTRY", "排名、身份或证据定位缺失/重复");
         }
-        var bundle = new Observation.Bundle("1.0", request, observation,
+        return new Observation.Bundle("1.1", request, observation,
                 Observation.Coverage.calculate(request.requestedTopN(), observation.entries()),
                 new Observation.Evidence(material.sourceUrl(), material.capturedAt(), material.transport(),
                         material.sha256(), material.bytes().length));
-        sink.save(bundle, material);
-        return bundle;
     }
 
     private SourceAdapter adapter(CaptureRequest request) {

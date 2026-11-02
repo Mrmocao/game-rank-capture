@@ -48,7 +48,10 @@ public final class V22RecommendationEngine {
         double ml=g((now-(before+7-bDays))/7,p.growthScale),mu=g(((now+7-nDays)-before)/7,p.growthScale);
         ds.put("M",range("M",ml,mu,observed==14?ml:null,Math.min(bDays,nDays)/7d,status(c,"ranks",observed,14),"前7日与后7日分别求界，缺日不回填",evidence));
         Double k=nullable(c.get("positive")),n=nullable(c.get("sample"));
-        if(k!=null&&n!=null&&(!Double.isFinite(k)||!Double.isFinite(n)||k<0||n<=0||k>n||k!=Math.rint(k)||n!=Math.rint(n))){errors.add("评价分子分母无效");k=null;n=null;}
+        if(k!=null&&n!=null&&(!Double.isFinite(k)||!Double.isFinite(n)||k<0||n<0||k>n||k!=Math.rint(k)||n!=Math.rint(n))){errors.add("评价分子分母无效");k=null;n=null;}
+        // All sampled comments may be mixed/unclassifiable: 0/0 means no usable
+        // denominator, not a corrupt candidate and not 0% positive feedback.
+        if(n!=null&&n==0){k=null;n=null;}
         if(k!=null&&n!=null&&"comparable".equals(c.get("reviewScope"))&&usable(c,"reviews")){
             double q=k/n,den=1+p.z*p.z/n,center=(q+p.z*p.z/(2*n))/den,half=p.z*Math.sqrt(q*(1-q)/n+p.z*p.z/(4*n*n))/den;
             ds.put("P",range("P",100*Math.max(0,center-half),100*Math.min(1,center+half),100*q,1,"observed","Wilson比例范围，k="+k.intValue()+"/n="+n.intValue()+"；不能修复抽样偏差",evidence));
@@ -139,6 +142,24 @@ public final class V22RecommendationEngine {
             if(globalFamilies.getOrDefault(fam,0)>=p.familyCap){r.put("unselectedReason","全期玩法家族上限");continue;}
             if(selected.size()>=p.target){r.put("unselectedReason","跨队列轮转配额已满");continue;}
             selected.add(r);products.add(product);globalFamilies.merge(fam,1,Integer::sum);r.put("selected",true);r.put("unselectedReason",null);
+        }
+        // Local shortlists may lose slots to cross-platform deduplication or the
+        // global family cap. Keep scanning each cohort's remaining lower-bound
+        // order before declaring a shortage; never compare scores across cohorts.
+        if(selected.size()<p.target){
+            List<List<Map<String,Object>>> reserves=new ArrayList<>();int queueIndex=0;
+            for(var pool:cohorts.values()){
+                var shortlist=queues.get(queueIndex++);
+                reserves.add(pool.stream().filter(r->!shortlist.contains(r)).toList());
+            }
+            int remaining=reserves.stream().mapToInt(List::size).max().orElse(0);
+            for(int i=0;i<remaining&&selected.size()<p.target;i++)for(var queue:reserves)if(i<queue.size()&&selected.size()<p.target){
+                var r=queue.get(i);String product=String.valueOf(r.get("productId")),fam=family(r);
+                if(products.contains(product)){r.put("unselectedReason","同原产品跨平台去重");continue;}
+                if(globalFamilies.getOrDefault(fam,0)>=p.familyCap){r.put("unselectedReason","全期玩法家族上限");continue;}
+                selected.add(r);products.add(product);globalFamilies.merge(fam,1,Integer::sum);
+                r.put("slot","保守补位");r.put("selected",true);r.put("unselectedReason",null);
+            }
         }
         for(int i=0;i<inputs.size();i++)if(Boolean.TRUE.equals(inputs.get(i).get("alreadyTracked"))){rows.get(i).put("unselectedReason","已制作或无新增依据，移入已关注动态");}
         Map<String,Object> out=new LinkedHashMap<>();out.put("rows",rows);out.put("selectedIds",selected.stream().map(r->r.get("id")).toList());out.put("selected",selected);out.put("target",p.target);

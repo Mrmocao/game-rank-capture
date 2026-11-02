@@ -22,18 +22,18 @@ public class GameProfileService {
     public JsonNode definitions(){return catalog.document();}
     /** Scoped recommendation projection; coverage is deliberately absent from numeric inputs. */
     public void enrichRecommendation(Map<String,Object> input,long product,long entity,String market,LocalDate day,LocalDateTime availableAt){
-        LocalDateTime end=cutoff(day,"Asia/Shanghai");if(availableAt.isBefore(end))end=availableAt;
-        final var knownAt=end;
-        var scopes=jdbc.queryForList("SELECT l.*,v.product_id FROM market_listing l JOIN platform_version v ON v.id=l.platform_version_id WHERE l.tenant_id=? AND l.platform_version_id=? AND v.product_id=? AND l.market=? AND l.available_at<=? AND l.first_observed_at<=? ORDER BY l.id",tenant,entity,product,market,knownAt,knownAt);
+        LocalDateTime end=cutoff(day,"Asia/Shanghai");
+        final var knownAt=availableAt;
+        var scopes=jdbc.queryForList("SELECT l.*,v.product_id FROM market_listing l JOIN platform_version v ON v.id=l.platform_version_id WHERE l.tenant_id=? AND l.platform_version_id=? AND v.product_id=? AND l.market=? AND l.available_at<=? AND l.first_observed_at<=? ORDER BY l.id",tenant,entity,product,market,knownAt,end);
         // Legacy packets without an application release cannot certify current IAA.
         input.put("iaaCurrent",false);
         if(scopes.isEmpty())return;
         var scope=scopes.getFirst();long lid=num(scope,"id");
-        var releases=jdbc.queryForList("SELECT * FROM release_record WHERE tenant_id=? AND listing_id=? AND released_at<=? AND available_at<=? ORDER BY released_at DESC,id DESC LIMIT 1",tenant,lid,end,end);
+        var releases=jdbc.queryForList("SELECT * FROM release_record WHERE tenant_id=? AND listing_id=? AND released_at<=? AND available_at<=? ORDER BY released_at DESC,id DESC LIMIT 1",tenant,lid,end,knownAt);
         Long release=releases.isEmpty()?null:num(releases.getFirst(),"id");
-        var histories=observations(lid,end);var fields=new LinkedHashMap<String,Map<String,Object>>();
+        var histories=observations(lid,end,knownAt);var fields=new LinkedHashMap<String,Map<String,Object>>();
         if(histories.isEmpty()){input.put("profileFacts",Map.of("schemaVersion","2.3.0","listingId",lid,"market",market,"language",scope.get("language"),"status","missing","isSynthetic",false));return;}
-        for(var definition:catalog.fields()){String key=definition.path("key").asText();fields.put(key,GameProfileResolver.resolve(definition,histories.getOrDefault(key,List.of()),end,release));}
+        for(var definition:catalog.fields()){String key=definition.path("key").asText();fields.put(key,GameProfileResolver.resolve(definition,histories.getOrDefault(key,List.of()),end,knownAt,release));}
         boolean synthetic=fields.values().stream().anyMatch(f->Boolean.TRUE.equals(f.get("isSynthetic"))||f.get("isSynthetic") instanceof Number n&&n.intValue()!=0);
         var qualification=GameProfileResolver.qualification(fields);
         input.put("profileFacts",Map.of("schemaVersion","2.3.0","listingId",lid,"releaseId",release==null?"unknown":release,"market",market,"language",scope.get("language"),"qualification",qualification,"fields",fields,"isSynthetic",synthetic));
@@ -132,10 +132,13 @@ public class GameProfileService {
         return result;
     }
     private Map<String,List<Map<String,Object>>> observations(long listing,LocalDateTime end){
+        return observations(listing,end,end);
+    }
+    private Map<String,List<Map<String,Object>>> observations(long listing,LocalDateTime end,LocalDateTime knowledgeCutoff){
         var result=new LinkedHashMap<String,List<Map<String,Object>>>();
-        var rows=jdbc.queryForList("SELECT o.*,r.app_version,e.rights,e.is_synthetic,e.source_name,e.source_url FROM profile_field_observation o JOIN profile_evidence e ON e.id=o.evidence_id AND e.tenant_id=o.tenant_id LEFT JOIN release_record r ON r.id=o.release_id WHERE o.tenant_id=? AND o.listing_id=? AND o.available_at<=? AND o.observed_at<=? ORDER BY o.available_at,o.id",tenant,listing,end,end);
+        var rows=jdbc.queryForList("SELECT o.*,r.app_version,e.rights,e.is_synthetic,e.source_name,e.source_url FROM profile_field_observation o JOIN profile_evidence e ON e.id=o.evidence_id AND e.tenant_id=o.tenant_id LEFT JOIN release_record r ON r.id=o.release_id WHERE o.tenant_id=? AND o.listing_id=? AND o.available_at<=? AND o.observed_at<=? ORDER BY o.available_at,o.id",tenant,listing,knowledgeCutoff,end);
         for(var r:rows){var h=observation(r);result.computeIfAbsent(String.valueOf(r.get("field_key")),k->new ArrayList<>()).add(h);}
-        var claims=jdbc.queryForList("SELECT c.*,e.rights,e.is_synthetic,e.source_name,e.source_url FROM profile_claim c JOIN profile_evidence e ON e.id=c.evidence_id AND e.tenant_id=c.tenant_id WHERE c.tenant_id=? AND c.listing_id=? AND c.available_at<=? AND c.observed_at<=? AND c.status='draft' ORDER BY c.available_at,c.id",tenant,listing,end,end);
+        var claims=jdbc.queryForList("SELECT c.*,e.rights,e.is_synthetic,e.source_name,e.source_url FROM profile_claim c JOIN profile_evidence e ON e.id=c.evidence_id AND e.tenant_id=c.tenant_id WHERE c.tenant_id=? AND c.listing_id=? AND c.available_at<=? AND c.observed_at<=? AND c.status='draft' ORDER BY c.available_at,c.id",tenant,listing,knowledgeCutoff,end);
         for(var r:claims){r.put("value_kind","inference");r.put("data_status","available");var h=observation(r);h.put("id","claim-"+r.get("id"));h.put("reviewed",false);h.put("modelMetadata",read(r.get("model_metadata")));result.computeIfAbsent(String.valueOf(r.get("field_key")),k->new ArrayList<>()).add(h);}
         return result;
     }

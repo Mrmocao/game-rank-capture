@@ -2,6 +2,20 @@
 
 建议统一前缀 `/api/v1`；Java后台为事实源；前端只展示与提交，不在浏览器计算入库结论。
 
+## 独立外部榜单采集（2026-11-02 已实现）
+
+前缀 `/api/v1/admin/ranking-capture`，沿用工作区认证，租户由服务端决定。此接口保存外部观察，不写产品快照或触发周报。
+
+| 方法/路径 | 语义 |
+| --- | --- |
+| GET /sources | 默认八榜来源、榜单键、URL、权威性与公开范围 |
+| POST /run | 无 body 执行八榜；可传 requests 数组指定来源范围，同步返回逐项结果 |
+| GET /runs?batchId= | 每次执行及失败日志，无 batchId 时最近200条 |
+| GET /observations?platform=&date=&source=&chart= | 有效观察列表，date 为来源业务日，最近200份 |
+| GET /observations/{id} | 完整来源 bundle 与原材料相对路径 |
+
+范围校验错误返回422；HTTP200不表示各源均成功，须检查 `attempts[].status/freshness/coverage`。请求与实际验证示例见 [采集说明](10-RANKING-CAPTURE.md)。
+
 ## 1. 通用约定
 - 请求/返回JSON，日期YYYY-MM-DD，时间ISO8601；分页page从1开始，pageSize默认20、最大100。
 - 成功：`{"data":...,"requestId":"..."}`；列表data包含items/total/page/pageSize。
@@ -79,3 +93,16 @@ READER：读产品、榜单、周报及选用记录；EDITOR：增加选用、�
 当前报告生成是同步HTTP 200，不返回202任务ID：`POST /api/v1/admin/reports/generate?periodStart=...&periodEnd=...`，使用当前已发布规则，最多7天；返回冻结报告、reused与inputSha256。相同内容重试复用，改变数据追加revision。报告历史分页 `GET /api/v1/reports?page=1&pageSize=20`；详情 `/reports/{id}`；当前Skill `/reports/skill`。每期合计最多5款（含市场观察）。旧报告原数量保留。
 
 免费来源运行 `POST /api/v1/admin/insight-collection/run` 同步返回每源attempt结果（SUCCESS/FAILED）；`GET /api/v1/admin/insight-collection?date=...` 返回覆盖与近期任务。HTTP 200不等于所有来源成功，必须逐项检查status。当前未实现完整的来源配置CRUD、通用任务异步队列或文章AI抽取；不能把本节接口当作前述全套设计已完成。
+
+
+## 8. 独立信息抓取工作台（2026-11-02）
+
+新增管理接口 /api/v1/admin/capture-workspace：目标登记/配置、定时计划、Top100运行、AI诊断工单和真实重试。读取独立external_capture与capture配置表，不触发产品或周报。完整路径、请求体和状态见 [工作台API](11-CAPTURE-WORKSPACE.md#api)。旧低层榜单接口保持兼容。
+
+## 2026-11-02 抓取研究短名单扩展
+
+`GET /reports/{id}`、`GET /reports/latest`新增`researchLeads`，仅从本报告冻结的`research_snapshot.captureResearchLeads`读取，旧报告没有该字段时不实时补算。`items`仍只表示正式推荐，不能将线索显示为已验证纯IAA。`researchLeads.items`含signalType/signalLabel、逐日history及evidence、counterEvidence、gaps、formalEligible=false、monetization=UNKNOWN；thresholds和algorithmVersion随期冻结。
+
+`GET /reports`历史分页增加research_lead_count；先对标量ID排序分页，再读取摘要，避免对多MB冻结JSON执行filesort。正式与线索合计最多5；新研究目标发布不得超过5，生成时effectiveParameters冻结实际生效配置。报告时间范围左闭右开，本周截至11月2日使用2026-11-02至2026-11-03；研究线索独立回看10月27日至11月2日。
+
+`GET /access`返回enabled=false、authenticated=true时直接进入工作区；网络错误是连接状态，不代表用户必须输入口令。

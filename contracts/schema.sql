@@ -751,3 +751,129 @@ CREATE TABLE source_definition (
 CREATE TABLE collection_task_definition (
  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '采集任务定义ID', tenant_id VARCHAR(64) NOT NULL COMMENT '所属工作区', source_id VARCHAR(32) NOT NULL COMMENT '来源登记编号', task_type VARCHAR(40) NOT NULL COMMENT '任务类型', schedule_json JSON NOT NULL COMMENT '业务日、时区、频率、范围和限流策略', state VARCHAR(24) NOT NULL COMMENT 'DRAFT、DISABLED或ENABLED', revision INT NOT NULL DEFAULT 0 COMMENT '乐观锁版本', created_at DATETIME(3) NOT NULL COMMENT '创建时间UTC', updated_at DATETIME(3) NOT NULL COMMENT '更新时间UTC', UNIQUE KEY uq_collection_task(tenant_id,source_id,task_type), KEY idx_collection_task_state(state,source_id)
 ) COMMENT='采集计划模板；任务启用不等于上游数据可用';
+
+-- V13: 独立外部榜单采集；已有数据库由 Flyway 增量迁移。
+CREATE TABLE external_capture_run (
+ id CHAR(36) PRIMARY KEY COMMENT '每次真实执行的UUID',
+ batch_id CHAR(36) NOT NULL COMMENT '同次批量采集编号',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '工作区，由服务端指定',
+ source_key VARCHAR(80) NOT NULL COMMENT '稳定来源键，如gravity-wechat',
+ chart_key VARCHAR(64) NOT NULL COMMENT '来源内榜单键，如popularity',
+ region VARCHAR(16) NOT NULL COMMENT '请求地区',
+ requested_top_n INT NOT NULL COMMENT '请求前N名，不代表实际覆盖',
+ requested_date DATE NOT NULL COMMENT '运行请求日，不能覆盖来源日期',
+ status VARCHAR(24) NOT NULL COMMENT 'RUNNING/SUCCEEDED/PARTIAL/FAILED/INTERRUPTED',
+ stage VARCHAR(32) NOT NULL COMMENT 'FETCHING/FETCHED/STORED/FAILED/EXPIRED',
+ freshness VARCHAR(16) NULL COMMENT 'CURRENT/STALE/UNKNOWN，独立于覆盖状态',
+ active_scope CHAR(64) NULL COMMENT '运行互斥键，结束清空；仅限制同工作区来源榜单地区',
+ lease_until DATETIME(3) NULL COMMENT '互斥有效期UTC；崩溃任务10分钟后可恢复',
+ source_url TEXT NOT NULL COMMENT '固定公开榜单URL，不含凭据',
+ captured_at DATETIME(3) NULL COMMENT '本次材料实际取得时间UTC',
+ raw_sha256 CHAR(64) NULL COMMENT '本次原始字节SHA256',
+ raw_locator TEXT NULL COMMENT '原始材料相对采集根目录路径',
+ observation_id BIGINT NULL COMMENT '本次产生或复用的来源观察ID，无产品关联',
+ reused BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否复用同范围同材料观察',
+ result_json JSON NULL COMMENT '覆盖、来源日与文件交付摘要',
+ error_code VARCHAR(80) NULL COMMENT '脱敏稳定错误码',
+ started_at DATETIME(3) NOT NULL COMMENT '运行开始时间UTC',
+ finished_at DATETIME(3) NULL COMMENT '运行结束时间UTC',
+ UNIQUE KEY uq_external_capture_active(active_scope),
+ KEY idx_external_capture_runs(tenant_id,started_at),
+ KEY idx_external_capture_batch(tenant_id,batch_id)
+) COMMENT='外部榜单真实执行日志；失败不会清空已成功的观察';
+
+CREATE TABLE external_ranking_observation (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '不可变来源观察ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属工作区',
+ dedupe_key CHAR(64) NOT NULL COMMENT '工作区来源榜单地区TopN解析器版本源日期及材料哈希去重键',
+ source_key VARCHAR(80) NOT NULL COMMENT '来源适配器键',
+ origin_family VARCHAR(80) NOT NULL COMMENT '原始来源族apple或gravity-engine等',
+ source_authority VARCHAR(24) NOT NULL COMMENT 'OFFICIAL或THIRD_PARTY',
+ chart_key VARCHAR(64) NOT NULL COMMENT '来源内榜单键',
+ board_name VARCHAR(200) NOT NULL COMMENT '原榜名',
+ platform VARCHAR(32) NOT NULL COMMENT 'WECHAT/DOUYIN/IOS/GOOGLE_PLAY',
+ region VARCHAR(16) NOT NULL COMMENT '来源地区范围',
+ source_date DATE NULL COMMENT '来源显示日期，未提供则空',
+ business_date DATE NULL COMMENT '按来源时间策略得到的业务日',
+ captured_at DATETIME(3) NOT NULL COMMENT '首次取得这份材料的时间UTC',
+ available_at DATETIME(3) NOT NULL COMMENT '本系统保存该观察的时间UTC',
+ parser_version VARCHAR(64) NOT NULL COMMENT '确定性解析器版本',
+ completeness VARCHAR(32) NOT NULL COMMENT 'REQUESTED_RANGE_COMPLETE或PARTIAL，完整仅针对请求范围',
+ requested_top_n INT NOT NULL COMMENT '请求前N名',
+ actual_count INT NOT NULL COMMENT '实际观察行数',
+ max_observed_rank INT NOT NULL COMMENT '最大可见名次，不表示连续覆盖',
+ contiguous_top_n INT NOT NULL COMMENT '从第1名开始连续覆盖数',
+ source_url TEXT NOT NULL COMMENT '公开来源URL',
+ raw_sha256 CHAR(64) NOT NULL COMMENT '原始字节SHA256',
+ raw_locator TEXT NOT NULL COMMENT '原始材料相对采集根目录路径',
+ bundle_json JSON NOT NULL COMMENT '来源观察契约1.1完整内容含缺口证据和警告',
+ UNIQUE KEY uq_external_observation(dedupe_key),
+ KEY idx_external_observation_scope(tenant_id,platform,region,business_date),
+ KEY idx_external_observation_chart(tenant_id,source_key,chart_key,business_date)
+) COMMENT='独立外部来源观察，不自动合并或写入产品库';
+
+CREATE TABLE external_ranking_entry (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '来源榜单明细ID',
+ observation_id BIGINT NOT NULL COMMENT '所属不可变观察',
+ rank_position INT NOT NULL COMMENT '来源真实名次，缺口不补齐',
+ external_id VARCHAR(200) COLLATE utf8mb4_bin NULL COMMENT '来源明确提供的平台ID，未知为空',
+ name VARCHAR(500) NOT NULL COMMENT '来源名称，不能作为跨来源唯一身份',
+ developer VARCHAR(500) NULL COMMENT '来源显示开发商或发行方，未知为空',
+ evidence_locator TEXT NOT NULL COMMENT '原始材料中的JSON路径或DOM定位',
+ source_fields JSON NOT NULL COMMENT '标签、简介、变化原文、图片引用等来源字段',
+ UNIQUE KEY uq_external_entry_rank(observation_id,rank_position),
+ FOREIGN KEY(observation_id) REFERENCES external_ranking_observation(id)
+) COMMENT='外部榜单逐行事实，保持来源口径和未知平台身份';
+
+
+-- V14 capture workspace reference
+CREATE TABLE capture_target_config (
+ tenant_id VARCHAR(64) NOT NULL COMMENT '服务端工作区',
+ target_key VARCHAR(80) NOT NULL COMMENT '稳定采集目标键',
+ name VARCHAR(200) NOT NULL COMMENT '目标显示名称',
+ source_url VARCHAR(1000) NOT NULL COMMENT '目标网站或固定采集入口，不允许凭证',
+ source_key VARCHAR(80) NULL COMMENT '已实现来源适配器键；空值为候选登记',
+ region VARCHAR(16) NOT NULL COMMENT '目标地区',
+ tool_key VARCHAR(64) NOT NULL COMMENT '抓取工具稳定键',
+ field_scope TEXT NOT NULL COMMENT '预期获取的信息字段与口径',
+ notes TEXT NOT NULL COMMENT '来源说明与维护备注',
+ enabled BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否纳入抓取范围；不代表定时计划已开启',
+ revision INT NOT NULL DEFAULT 0 COMMENT '配置乐观锁版本',
+ created_at DATETIME(3) NOT NULL COMMENT '创建时间UTC',
+ updated_at DATETIME(3) NOT NULL COMMENT '更新时间UTC',
+ PRIMARY KEY(tenant_id,target_key)
+) COMMENT='外部信息抓取目标；候选登记与可执行适配器分开';
+
+CREATE TABLE capture_schedule_config (
+ tenant_id VARCHAR(64) PRIMARY KEY COMMENT '服务端工作区',
+ enabled BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否启用独立采集计划',
+ cron_expression VARCHAR(80) NOT NULL COMMENT '受控每日计划表达式',
+ timezone VARCHAR(40) NOT NULL COMMENT '计划时区固定Asia/Shanghai',
+ revision INT NOT NULL DEFAULT 0 COMMENT '计划乐观锁版本',
+ next_due_at DATETIME(3) NULL COMMENT '下一次应执行时间UTC',
+ worker_seen_at DATETIME(3) NULL COMMENT '执行器最近心跳UTC',
+ last_started_at DATETIME(3) NULL COMMENT '最近计划开始时间UTC',
+ last_finished_at DATETIME(3) NULL COMMENT '最近计划结束时间UTC',
+ last_result_json JSON NULL COMMENT '最近计划结果摘要',
+ active_token CHAR(36) NULL COMMENT '本次计划执行租约所有者',
+ lease_until DATETIME(3) NULL COMMENT '防重复运行租约到期时间UTC',
+ updated_at DATETIME(3) NOT NULL COMMENT '更新时间UTC'
+) COMMENT='独立采集持久计划与执行器状态，不触发周报';
+
+CREATE TABLE capture_repair_job (
+ id CHAR(36) PRIMARY KEY COMMENT '修复工单UUID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '服务端工作区',
+ run_id CHAR(36) NOT NULL COMMENT '失败运行ID',
+ target_key VARCHAR(80) NOT NULL COMMENT '关联采集目标',
+ tool_key VARCHAR(64) NOT NULL COMMENT '关联抓取工具',
+ error_code VARCHAR(80) NOT NULL COMMENT '来源失败稳定错误码',
+ status VARCHAR(40) NOT NULL COMMENT 'OPEN/NEEDS_LOGIN/AI_RUNNING/AI_SUGGESTED/AI_FAILED/RETRYING/RECOVERED/STILL_FAILING',
+ context_json JSON NOT NULL COMMENT '脱敏范围、错误、材料摘要与维护路径，不含凭证',
+ proposal_json JSON NULL COMMENT '经结构校验的AI诊断与修改建议，非已发布代码',
+ ai_error_code VARCHAR(80) NULL COMMENT 'AI失败稳定错误码，不保存响应秘钥',
+ retry_batch_id CHAR(36) NULL COMMENT '验证重试产生的真实批次ID',
+ created_at DATETIME(3) NOT NULL COMMENT '工单创建时间UTC',
+ updated_at DATETIME(3) NOT NULL COMMENT '工单最近更新时间UTC',
+ UNIQUE KEY uq_capture_repair_run(tenant_id,run_id),
+ KEY idx_capture_repair_state(tenant_id,status,updated_at)
+) COMMENT='AI诊断与Agent修复交接工单，真实重试后才确认恢复';

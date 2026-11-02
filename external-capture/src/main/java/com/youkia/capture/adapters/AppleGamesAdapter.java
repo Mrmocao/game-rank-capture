@@ -12,7 +12,7 @@ public final class AppleGamesAdapter implements SourceAdapter {
     public AppleGamesAdapter(ObjectMapper mapper) { this.mapper = mapper; }
     @Override public String key() { return "apple-games"; }
     @Override public URI sourceUrl(CaptureRequest request) {
-        if (!key().equals(request.sourceKey()) || !Set.of("cn", "us", "gb", "de", "fr").contains(request.region()))
+        if (!key().equals(request.sourceKey()) || !"top-free".equals(request.chartKey()) || !Set.of("cn", "us", "gb", "de", "fr").contains(request.region()))
             throw new CaptureException("INVALID_SCOPE", "Apple 游戏榜只支持 cn/us/gb/de/fr");
         return URI.create("https://itunes.apple.com/" + request.region()
                 + "/rss/topfreeapplications/limit=" + request.requestedTopN() + "/genre=6014/json");
@@ -24,6 +24,8 @@ public final class AppleGamesAdapter implements SourceAdapter {
                 throw new CaptureException("SOURCE_SCOPE_MISMATCH", "Apple 材料国家、分类或 TopN 不匹配");
             var updated = OffsetDateTime.parse(feed.path("updated").path("label").asText());
             var entries = feed.path("entry");
+            // RSS serializes a single result as an object when limit=1.
+            if (request.requestedTopN() == 1 && entries.isObject()) entries = mapper.createArrayNode().add(entries);
             if (!entries.isArray() || entries.isEmpty() || entries.size() > request.requestedTopN())
                 throw new CaptureException("INVALID_ENTRIES", "Apple 条数无效");
             List<Observation.Entry> rows = new ArrayList<>(); int rank = 0;
@@ -37,6 +39,10 @@ public final class AppleGamesAdapter implements SourceAdapter {
                 fields.put("summary", entry.path("summary").path("label").asText());
                 fields.put("releaseDateRaw", entry.path("im:releaseDate").path("label").asText());
                 fields.put("rankBasis", "STORE_FREE_RANK");
+                fields.put("originFamily", "apple"); fields.put("sourceAuthority", "OFFICIAL");
+                fields.put("identityState", "SOURCE_ID_PROVIDED");
+                var images = entry.path("im:image");
+                if (images.isArray() && !images.isEmpty()) fields.put("thumbnailUrl", images.get(images.size() - 1).path("label").asText());
                 rows.add(new Observation.Entry(++rank, id, entry.path("im:name").path("label").asText(),
                         entry.path("im:artist").path("label").asText(), "feed.entry[" + (rank - 1) + "]", fields));
             }

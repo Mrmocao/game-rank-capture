@@ -75,4 +75,38 @@ class V22RecommendationEngineTest {
         var r=mapper.valueToTree(V22RecommendationEngine.evaluate(c,Profile.defaults()));
         assertEquals("conflict",r.at("/dimensions/P/status").asText());assertEquals(100,r.at("/dimensions/F/upper").asDouble());
     }
+    @Test void noClassifiableReviewsRemainUnknownWithoutInvalidatingOtherEvidence()throws Exception{
+        var c=cases().getFirst();c.put("positive",0);c.put("sample",0);
+        var r=mapper.valueToTree(V22RecommendationEngine.evaluate(c,Profile.defaults()));
+        assertEquals("conditional",r.path("route").asText());assertTrue(r.path("errors").isEmpty());
+        assertEquals(0,r.at("/dimensions/P/lower").asDouble());assertEquals(100,r.at("/dimensions/P/upper").asDouble());
+        assertTrue(r.at("/dimensions/P/estimate").isNull());assertEquals(0,r.at("/dimensions/P/inputCoverage").asDouble());
+        c.put("positive",1);assertEquals("lead",V22RecommendationEngine.evaluate(c,Profile.defaults()).get("route"));
+        c.put("positive",0);c.put("sample",10);
+        r=mapper.valueToTree(V22RecommendationEngine.evaluate(c,Profile.defaults()));
+        assertEquals(0,r.at("/dimensions/P/estimate").asDouble());assertEquals(1,r.at("/dimensions/P/inputCoverage").asDouble());
+        assertTrue(r.at("/dimensions/P/upper").asDouble()<100);
+    }
+    @Test void globalProductDeduplicationBackfillsFromBeyondLocalShortlist()throws Exception{
+        List<Map<String,Object>> inputs=new ArrayList<>();
+        for(int i=1;i<=6;i++)inputs.add(candidate("c"+i,i<=2?"same-product":"p"+i,"f"+i,"A",i));
+        var result=mapper.valueToTree(V22RecommendationEngine.run(inputs,Profile.from(Map.of("target",5,"explorationSlots",0))));
+        assertEquals(List.of("c1","c3","c4","c5","c6"),mapper.convertValue(result.path("selectedIds"),List.class));
+        assertEquals("同原产品跨平台去重",result.path("rows").get(1).path("unselectedReason").asText());
+        assertEquals("保守补位",result.path("selected").get(4).path("slot").asText());
+    }
+    @Test void globalFamilyLimitBackfillsWithoutWeakeningEligibility()throws Exception{
+        List<Map<String,Object>> inputs=new ArrayList<>();
+        for(int i=1;i<=7;i++)inputs.add(candidate("c"+i,i<=2?"same-product":"p"+i,i==4?"f3":"f"+i,"A",i));
+        var invalid=candidate("invalid","invalid","invalid","A",1);invalid.put("mode","unknown");invalid.put("iaaCurrent",false);inputs.add(invalid);
+        var tracked=candidate("tracked","tracked","tracked","A",1);tracked.put("alreadyTracked",true);inputs.add(tracked);
+        var result=mapper.valueToTree(V22RecommendationEngine.run(inputs,Profile.from(Map.of("target",5,"familyCap",1,"explorationSlots",0))));
+        assertEquals(List.of("c1","c3","c5","c6","c7"),mapper.convertValue(result.path("selectedIds"),List.class));
+        Set<String> families=new HashSet<>();result.path("selected").forEach(r->assertTrue(families.add(r.path("family").asText())));
+        assertEquals("lead",result.path("rows").get(7).path("route").asText());
+        assertEquals("已制作或无新增依据，移入已关注动态",result.path("rows").get(8).path("unselectedReason").asText());
+    }
+    private Map<String,Object> candidate(String id,String product,String family,String cohort,int rank)throws Exception{
+        var c=new LinkedHashMap<>(cases().getFirst());c.put("id",id);c.put("productId",product);c.put("family",family);c.put("cohort",cohort);c.put("ranks",Collections.nCopies(14,rank));return c;
+    }
 }

@@ -1,5 +1,15 @@
 # 游探 / 锦鲤云 IAA 产品情报系统
 
+## 外部榜单采集（2026-11-02）
+
+已完成每榜连续Top100真实采集与入库。采用 [专用浏览器登录与会话复用](browser-capture/README.md)，登录后滚动加载微信/抖音完整榜单，登录失效时提示重新登录。
+
+实际取得 Apple 中国游戏免费榜100条、微信第三方3榜各100条、抖音第三方4榜各100条，共8榜800条排名记录，逐榜无缺口；数据库、材料哈希和逐行证据定位一致。微信/抖音为引力引擎第三方口径，不冒充官方客户端榜。独立核心无业务依赖，后端适配层写入V13三张采集表，不自动合并产品或生成周报。首轮匿名240条保留为历史部分覆盖观察。
+
+运行 `./scripts/run-ranking-capture.ps1 -Run`；完整构建从根目录执行 `mvn package`。脚本读取 `.env`，新环境先备份并运行 `-Migrate`。详见 [实际采集、API与验证](docs/10-RANKING-CAPTURE.md)。
+
+新增 **数据采集 → 信息抓取**（`#/capture`）：目标网站与字段、工具维护位置、真实执行记录、完整榜单、42项来源目录、AI诊断和Agent修复交接。已在当前Windows注册独立采集执行器，按用户设置每天北京时间 **08:30、23:00** 执行8榜；需电脑开机且Windows用户已登录、网站会话有效。V14已应用到`.env`配置库，公网部署状态及本轮验收见 [周采集交付说明](docs/12-WEEKLY-CAPTURE-DELIVERY.md)。详见 [工作台与定时运维](docs/11-CAPTURE-WORKSPACE.md)。以下原有实现与发布记录按当时状态保留。
+
 从可追溯的市场材料发现游戏机会，保留独立平台榜单、证据、缺口、研究行动与每周历史。当前工程统一采用 **V2.7 采集与门户设计、V2.3 游戏档案设计，推荐算法保持 2.2.0**，不提供旧版/新版切换。整体设计与后续开发维护入口是 [ARCHITECTURE-DESIGN.md](ARCHITECTURE-DESIGN.md)。
 
 仓库：[Mrmocao/game-rank-capture](https://github.com/Mrmocao/game-rank-capture)。源码、迁移、测试、契约与设计文档纳入 Git；`.env`、访问口令、备份、原始材料及 `validation/` 现场记录不上传。
@@ -11,8 +21,8 @@
 - 材料提交进入待复核，复核保留审计；AI 草案与来源事实分开。应用更新、过期、冲突和显式替代分别处理，AI 不能证明纯 IAA。
 - 补全任务按范围去重并校验修订；多人选用相互独立，记录参考平台/市场；当前协作进度与历史市场事实分开。
 - 授权材料可提交至已配置的 OpenAI-compatible 模型；输出通过 JSON Schema、字段类型、引用与范围校验，仅生成待复核 AI 材料。失败/弃权留痕并形成补证任务。
-- 每周精选沿用 V2.2 六维范围模型，冻结候选、规则、研究方案和证据输入；新配置不改旧报告。最新设计默认目标 8 款、允许 5～10 款，资格不足就少出。
-- 单组织工作区登录：生产配置访问口令，浏览器使用 8 小时 HttpOnly 会话；API 可用 Bearer。尚无企业 SSO 和人员级角色管理。
+- 每周精选沿用 V2.2 六维范围模型，冻结候选、规则、研究方案和证据输入；新配置不改旧报告。按最新业务确认，正式精选与待核研究线索合计最多5项；资格不足不补齐。
+- 工作区默认免登录，生产口令留空。可选共享口令仍保留，启用后使用8小时HttpOnly会话；本期不建设用户体系。
 - V2.7 来源中心：42 个来源登记、12 个小游戏门户和 28 个门户字段模板；来源登记、真实运行、执行日志、证据血缘分开显示。所有新增来源默认关闭，未执行不显示成功率。
 - 采集运维导航：信息范围与字段、数据源管理、工具与接入、采集任务、执行日志、异常与补采、信息来源与证据。V12 持久化 `source_definition` 和任务定义，已有运行表继续保存真实尝试。
 
@@ -23,7 +33,7 @@
 1. 安装 Java 21、Maven 3.9+、Node 20+、MySQL 8。**不需要 Docker 或 MySQL CLI**。
 2. 复制 `.env.example` 为 `.env`，填写已创建数据库的 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD`，通过 JDBC 连接。
 3. 填写 `APP_CONFIG_ENCRYPTION_KEY` 以保护 AI 密钥。当前生产按业务要求关闭登录，`PROFILE_ACCESS_TOKEN` 留空即可；如以后需要公网共享口令，再填写独立值。`PROFILE_TENANT_ID` 由服务端固定。
-4. 根目录执行 `mvn -f backend/pom.xml spring-boot:run`，Flyway 自动执行至 V11。现有库先备份；全新库不要先手工执行参考 DDL 再运行 Flyway。
+4. 根目录执行 `mvn package`，再运行 `java -jar backend/target/iaa-radar-api-0.1.0-SNAPSHOT.jar`，Flyway 自动执行至 V14。现有库先备份；全新库不要先手工执行参考 DDL 再运行 Flyway。运行中不要重新打包其正在使用的JAR；常驻实例使用独立版本副本。
 5. 执行 `npm ci --prefix frontend`、`npm run dev --prefix frontend`，访问 `http://localhost:5173`，开发 API 默认 `http://localhost:8080/api/v1`。
 
 开发模拟数据仅在明确需要时使用 `dev` profile。生产不得启用 `dev`；已执行过的历史 V2 seed 迁移必须保留以满足 Flyway 校验，开发另使用可重复 seed。DEMO/SYNTHETIC 材料不是市场证据。
@@ -61,3 +71,11 @@ JDBC/Flyway 已在配置数据库与生产数据库执行 V9～V12；两者是�
 - `backend/`、`frontend/`：当前 Java/Vue 工程；`contracts/`：DDL/API/AI 契约。
 - `Game-Market-Insight-V2-Design-Pack/`：用户提供的设计依据与独立原型夹具；原型测试结果不代替工程验收。
 - [独立采集模块](external-capture/README.md)：尚未整体替换后端现有采集层。
+
+## 最近一周真实数据与精选验收（2026-11-02）
+
+10月27日至11月2日已取得50份连续Top100榜单、5,000条排名并通过生产JDBC逐行证据验证。来源为引力引擎微信3榜、抖音4榜，以及11月2日Apple中国免费游戏榜。历史Apple未回填。服务器另执行一次Apple真实采集。迁移与初始化、精选1.1.0门槛、免登录部署及尚未覆盖范围见 [交付运行说明](docs/12-WEEKLY-CAPTURE-DELIVERY.md)。
+
+精选经独立大模型子agent检查后增加连续观察和热度/增势门槛，最新回落及反面证据必须披露。评估记录在 [独立评估](docs/acceptance/2026-11-02-shortlist-independent-review.md)，证据不足仍保持待核研究线索。
+
+本次交付：[本周标准列表](docs/acceptance/2026-11-02-weekly-shortlist.md) · [完成矩阵与真实验收](docs/acceptance/2026-11-02-release-acceptance.md) · [线上报告9（免登录）](http://14.103.231.1:18080/#/reports?date=2026-11-02&reportId=9)。

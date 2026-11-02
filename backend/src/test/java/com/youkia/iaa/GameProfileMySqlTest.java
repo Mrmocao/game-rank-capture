@@ -53,6 +53,20 @@ class GameProfileMySqlTest {
         var export=c.profiles.export(c.product,c.listing,today,"Asia/Shanghai");assertEquals("game-profile-2.3.0",export.get("schemaVersion"));assertFalse(((Map<?,?>)export.get("marketProfile")).containsKey("collaboration"));assertNotNull(export.get("currentCollaboration"));
         assertEquals(0,c.j.queryForObject("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name LIKE 'profile_%' AND column_comment=''",Integer.class));
     });}
+    @Test void reportRevisionSeparatesObservationDateFromKnowledgeDate()throws Exception{transaction(c->{
+        approve(c,"version","1.0","");approve(c,"summary","SYNTHETIC yesterday observation received today","1.0");
+        LocalDate day=today.minusDays(1);LocalDateTime businessEnd=day.plusDays(1).atStartOfDay(ZoneId.of("Asia/Shanghai")).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime().minusNanos(1);
+        var strict=new LinkedHashMap<String,Object>();c.profiles.enrichRecommendation(strict,c.product,c.entity,"CN",day,businessEnd);
+        assertEquals("missing",((Map<?,?>)strict.get("profileFacts")).get("status"));
+        var revised=new LinkedHashMap<String,Object>();c.profiles.enrichRecommendation(revised,c.product,c.entity,"CN",day,LocalDateTime.now(ZoneOffset.UTC).plusSeconds(1));
+        var fields=(Map<String,Map<String,Object>>)((Map<?,?>)revised.get("profileFacts")).get("fields");
+        assertEquals("available",fields.get("summary").get("status"));assertEquals("SYNTHETIC yesterday observation received today",GameProfileResolver.text(fields.get("summary").get("value")));
+        var future=material(c,"developer","SYNTHETIC observed today","");future.put("observedAt",today.toString());c.profiles.review(((Number)c.profiles.submit(future,"SYNTHETIC-FUTURE-OBSERVATION").get("id")).longValue(),review(0));
+        revised=new LinkedHashMap<>();c.profiles.enrichRecommendation(revised,c.product,c.entity,"CN",day,LocalDateTime.now(ZoneOffset.UTC).plusSeconds(1));
+        fields=(Map<String,Map<String,Object>>)((Map<?,?>)revised.get("profileFacts")).get("fields");assertNull(fields.get("developer").get("value"));
+        // The ordinary dossier's strict as-known-at view must remain unchanged.
+        assertNull(((Map<String,Map<String,Object>>)profile(c,day).get("fields")).get("summary").get("value"));
+    });}
     @Test void qualificationRequiresCurrentReviewedReleaseAndEvidence()throws Exception{transaction(c->{
         approve(c,"version","1.0","");var b=material(c,"mode","IAA","1.0");b.put("scopeConfirmed",true);b.put("adBasis","SYNTHETIC广告核查");b.put("noIapBasis","SYNTHETIC排除内购核查");c.profiles.review(((Number)c.profiles.submit(b,"SYNTHETIC-MODE").get("id")).longValue(),review(0));
         approve(c,"ad_formats",List.of("rewarded"),"1.0");approve(c,"no_iap_basis","SYNTHETIC完整核查","1.0");approve(c,"monetization_valid","SYNTHETIC CN 1.0","1.0");assertEquals("available",field(c,"mode").get("status"));assertEquals("simulation",((Map<?,?>)profile(c,today).get("qualification")).get("status"));assertEquals(false,((Map<?,?>)profile(c,today).get("qualification")).get("eligible"));

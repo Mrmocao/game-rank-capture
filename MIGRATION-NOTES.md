@@ -1,6 +1,18 @@
 # 迁移与开发 seed
 
-> 当前最新迁移为 V12。V9～V12 已在配置库与生产库通过 Flyway/JDBC 执行；历史说明按当时状态保留，不代表当前待办。不修改任何已执行迁移的校验和。
+> 当前最新迁移为 V14。2026-11-02 当前 `.env` 配置库已增量执行 V12/V13/V14；本次没有迁移独立部署库。下方旧记录中的实例状态仅代表当时执行，当前状态以目标库 `flyway_schema_history` 为准。不修改任何已执行迁移的校验和。
+
+## V14 信息抓取工作台（2026-11-02）
+
+新增 `capture_target_config`、`capture_schedule_config`、`capture_repair_job`，持久化目标与工具绑定、计划及执行器心跳、AI诊断与重试验证工单。数据库迁移前备份 `data/backups/before-capture-workspace-v14-20261102.sql`，48表2884行。迁移成功后按用户要求启用每天08:30及23:00的计划；新安装默认关闭。
+
+旧 `RANKING_CAPTURE_ENABLED/CRON` 不再控制计划。当前Windows通过用户Startup快捷方式启动独立CLI `--worker`，每分钟检查数据库中的到期时间；Task Scheduler因0x800710e0拒绝启动，已移除本次创建的旧任务。Spring也可轮询同一计划，租约防止重复领取。恢复旧代码前应关闭新计划及对应执行器；保留表和证据，不能删除已执行的迁移文件。
+
+## V13 独立外部榜单采集（2026-11-02）
+
+新增 `external_capture_run`、`external_ranking_observation`、`external_ranking_entry`，保存采集日志、不可变观察、真实名次和材料证据；无产品或报告外键。配置库迁移前备份 `data/backups/before-external-capture-v13-20261102.sql`（43表1304行），执行 V12/V13 后，365条旧榜单/报告冻结记录逐行回查未变化。
+
+新采集材料位于 `CAPTURE_MATERIAL_DIR`，须与数据库共同备份；文件路径相对该根目录。完整运行方式与真实验证见 [采集说明](docs/10-RANKING-CAPTURE.md)。恢复旧应用时可保留V13结构和历史数据，不删除已执行迁移或采集观察。
 
 `backend/src/main/resources/db/migration/V1__initial_schema.sql` 来自交接 DDL，并保留追加式历史和快照 revision 约束，同时包含 AI 中转配置表。`backend/src/main/resources/db/demo/V2__demo_seed.sql` 只在 `dev` profile 执行，通过固定 `demo-` 外部 ID 和 `DEMO` 来源标记，重复执行不会产生重复版本。`V3__ai_provider_config.sql` 为旧数据库补齐 AI 配置表，使用 `IF NOT EXISTS`。
 
@@ -67,3 +79,9 @@ java --class-path <mysql-connector-j.jar> scripts/JdbcVerifyPreserved.java <env-
 ```
 
 DDL参考 `contracts/schema.sql` 已与V9～V11对齐；实际安装由Flyway负责，勿对已安装库重复执行CREATE/ALTER。升级失败切回旧应用和原环境文件，保留新增结构及历史，禁止drop表、清空历史、Flyway repair或修改旧SQL。备份恢复须在独立库演练，目前未执行全量恢复演练。
+
+## 2026-11-02 生产采集迁移与历史保持
+
+V13新增external_capture_run、external_ranking_observation、external_ranking_entry；V14新增抓取工作台目标、计划、修复工单及租约记录。均经Flyway/JDBC应用，表和列有中文注释。升级前JDBC备份45表，核对旧weekly_report/report_item/ranking_snapshot/ranking_entry共1,261行保持一致。不修改已应用迁移。
+
+生产材料目录配置CAPTURE_MATERIAL_DIR=/opt/iaa-radar/shared/external-captures；服务器无引力登录会话，CAPTURE_WORKER_ENABLED=false。工作区口令继续留空。研究目标另发布新修订为5，新报告冻结实际生效参数。最近7日材料分日重放、重复运行复用观察；具体命令及回滚方式见docs/12-WEEKLY-CAPTURE-DELIVERY.md。
