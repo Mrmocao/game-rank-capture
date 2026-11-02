@@ -2,7 +2,11 @@
 
 本模块只实现浏览器会话与滚动取材，依赖 `external-capture` 契约，不引用后端、数据库或业务服务。后端通过 `MaterialFetcher` 接口选择该传输。公开 Apple RSS 仍使用 HTTP。
 
-## 初次登录
+## 当前生产部署
+
+浏览器传输支持Linux服务器。生产已安装Chrome并使用服务器独立profile，systemd执行采集，用户电脑不承担后台。初次/到期登录通过临时SSH远程窗口完成；第6天检查提示、实际失效告警和一键维护见[服务器运行与续登说明](../docs/14-SERVER-CAPTURE-OPERATIONS.md)。以下PowerShell登录命令适用于开发机手动验证，不是当前生产启动方式。
+
+## 开发机初次登录
 
 在项目根目录 `.env` 配置固定绝对路径：
 

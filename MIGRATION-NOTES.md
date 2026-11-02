@@ -90,3 +90,8 @@ V13新增external_capture_run、external_ranking_observation、external_ranking_
 ## V15 来源候选多人研究记录（2026-11-02）
 
 追加source_candidate_selection，全部表列中文注释；复合外键定位external_ranking_entry的原观察和名次，组织+request_key唯一，source_snapshot冻结填报时依据。已通过Flyway/JDBC应用于配置库3306及生产13306；contracts/schema.sql已同步。无需MySQL CLI或Docker。生产迁移前备份51表10,086行，旧报告/榜单1,263行逐行比较不变。应用回滚保留V15，不降级或改旧迁移。
+
+
+## 2026-11-02 服务器采集部署调整
+
+无新增DDL，Flyway仍V15且校验通过；仅生产配置库中的采集计划启用08:30/23:00，原Windows配置库计划关闭。服务器使用新profile就地登录，不迁移Cookie或复制本机.env。原报告9/10及冻结榜单保留；新采集生成报告11/12。独立systemd worker和服务器报告桥替代本地常驻，回滚应用前应协调对应服务，避免旧Windows启动项重新参与生产。具体运维见docs/14。

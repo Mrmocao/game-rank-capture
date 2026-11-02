@@ -1,0 +1,18 @@
+[Unit]
+Description=IAA server capture completion and weekly report bridge
+After=network-online.target iaa-radar.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=iaa-radar
+Group=iaa-radar
+EnvironmentFile=/etc/iaa-radar/app.env
+ExecStart=/usr/bin/python3 /opt/iaa-radar/shared/server-capture-reports.py --root /opt/iaa-radar
+Restart=on-failure
+RestartSec=20
+MemoryMax=128M
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

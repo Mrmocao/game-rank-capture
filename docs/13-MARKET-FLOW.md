@@ -1,6 +1,8 @@
 # 来源采集到市场研究的当前流程
 
-适用于2026-11-02起的单一当前设计。Java21、MySQL8、JDBC/Flyway、Vue；不需要Docker或MySQL CLI。
+当前生产已切换为服务器原生采集，见[服务器采集与续登维护](14-SERVER-CAPTURE-OPERATIONS.md)。本文Windows采集/SSH交付命令保留为手动材料导入工具；对应本机常驻任务已停用。业务读模型与冻结规则继续有效。
+
+适用于2026-11-02起的设计。Java21、MySQL8、JDBC/Flyway、Vue；不需要Docker或MySQL CLI。
 
 ## 来源与可见数据
 

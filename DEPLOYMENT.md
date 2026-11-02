@@ -1,5 +1,12 @@
 # 部署与填写说明
 
+## 当前发布：2026-11-02服务器原生采集
+
+current为`/opt/iaa-radar/releases/20261102-server-capture`，JAR SHA256 `d73694f7488ec4cbe89b0aae51ec21b2168b59550bb1391b16419dbfc4f1455e`，无需新迁移（仍V15）。生产systemd独立采集与报告桥已enabled/active，计划北京时间08:30/23:00。个人Windows常驻进程与启动项已关闭；服务器新浏览器会话由用户手动登录，已直接取得796条并逐行核验，维护循环再次采集通过。当前报告12，历史9/10不变。
+
+登录维护、会话提醒、服务单元、后台错误与精确未验收项见[docs/14-SERVER-CAPTURE-OPERATIONS.md](docs/14-SERVER-CAPTURE-OPERATIONS.md)。源码公开，SSH配置和浏览器profile均不提交。以下market-flow发布记录为迁移到服务器之前的阶段记录。
+
+
 ## 当前发布：2026-11-02市场流程
 
 生产current指向`/opt/iaa-radar/releases/20261102-market-flow-r3`，JAR SHA256 `786ab07abc4c6125df23ac86d08db3833459200de079227c1b55921c43e93b73`，Flyway V15。免登录；保留Apple每日/每周Java调度，无服务器浏览器会话。Windows采集和同步进程已安装为用户登录启动项；实测后台发现真实材料重放、SSH送达、Java重解析、JDBC入库、报告10复用。

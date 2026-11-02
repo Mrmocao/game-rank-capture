@@ -84,7 +84,7 @@ public class MarketCaptureService {
         return rows;
     }
     public Map<String,Object> sync(){
-        Map<String,Object> out=new LinkedHashMap<>();for(String name:List.of("heartbeat","latest")){Path p=receipts.resolve(name+".json");try{if(Files.isRegularFile(p)&&Files.size(p)<32768)out.put(name,mapper.readTree(Files.readString(p)));}catch(Exception e){out.put("readError","同步记录暂不可读");}}
+        Map<String,Object> out=new LinkedHashMap<>();for(String name:List.of("heartbeat","latest","source-session")){Path p=receipts.resolve(name+".json");try{if(Files.isRegularFile(p)&&Files.size(p)<32768)out.put(name,mapper.readTree(Files.readString(p)));}catch(Exception e){out.put("readError","同步记录暂不可读");}}
         return out;
     }
     public Map<String,Object> selections(){var rows=jdbc.queryForList("SELECT id,owner,status,note,created_at,source_snapshot FROM source_candidate_selection WHERE tenant_id=? ORDER BY created_at DESC,id DESC LIMIT 200",tenant);rows.forEach(r->r.put("source_snapshot",read(r.get("source_snapshot"))));return Map.of("items",rows);}
