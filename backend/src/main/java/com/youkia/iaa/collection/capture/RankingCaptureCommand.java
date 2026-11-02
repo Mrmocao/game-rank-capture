@@ -132,7 +132,6 @@ public final class RankingCaptureCommand {
         var result = runner.run(tenant, requests);
         Files.createDirectories(root);
         Path report = root.resolve("batch-" + result.get("batchId") + ".json");
-        Files.writeString(report, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(result), StandardOpenOption.CREATE_NEW);
         System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(result));
         System.out.println("BATCH_REPORT=" + report.toAbsolutePath());
         if (((Number) result.get("failedCount")).intValue() > 0) hasFailure=true;

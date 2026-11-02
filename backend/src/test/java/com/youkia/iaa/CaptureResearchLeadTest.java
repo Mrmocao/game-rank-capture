@@ -111,4 +111,23 @@ class CaptureResearchLeadTest {
         assertFalse(reports.report(9L).containsKey("researchLeads"));
         assertTrue(mockingDetails(jdbc).getInvocations().stream().allMatch(i->i.getArguments()[0].toString().contains("weekly_report")||i.getArguments()[0].toString().contains("report_item")),"read must never recompute from live captures");
     }
+    @Test void douyinExplicitDescriptionsQualifyWithoutInventingMetricOrIaa()throws Exception{
+        List<Map<String,Object>> rows=new ArrayList<>();
+        for(int i=0;i<7;i++){
+            var r=row(i+1,"popularity","DOUYIN","SYNTHETIC描述候选","发行方",day.minusDays(6-i),19-i,"未知");
+            r.put("source_fields","{\"tags\":[],\"descriptionRaw\":\"画风简约的挪车消除小游戏，DAU百万为来源自述\"}");rows.add(r);
+        }
+        var selected=items(service.evaluate(rows,day,cutoff,5)).getFirst();
+        assertEquals("消除",selected.get("family"));assertEquals("UNKNOWN",selected.get("monetization"));assertEquals(false,selected.get("formalEligible"));
+        assertTrue(selected.get("gameplayEvidence").toString().contains("SOURCE_DESCRIPTION"));
+        for(var r:rows)r.put("source_fields","{\"tags\":[],\"descriptionRaw\":\"DAU百万\"}");
+        assertTrue(items(service.evaluate(rows,day,cutoff,5)).isEmpty());
+    }
+    @Test void lateArrivalOfOlderMaterialCannotReplaceNewerCapture(){
+        var older=row(1,"popularity","WECHAT","SYNTHETIC旧材料","发行方",day,1,"消除");
+        older.put("captured_at",cutoff.minusHours(4));older.put("available_at",cutoff.minusMinutes(1));
+        var newer=row(2,"popularity","WECHAT","SYNTHETIC新材料","发行方",day,2,"消除");
+        var result=service.evaluate(List.of(older,newer),day,cutoff,5);
+        assertEquals("SYNTHETIC新材料",audit(result).getFirst().get("name"));assertEquals(1,audit(result).size());
+    }
 }

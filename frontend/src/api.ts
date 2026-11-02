@@ -29,7 +29,16 @@ export const getCollectionSources = (params:Record<string,string|undefined>={}) 
 export const getCollectionSource = (id:string) => json(`/api/v1/collection/sources/${encodeURIComponent(id)}`)
 export const getCollectionRuns = (params:Record<string,string|undefined>={}) => {const q=new URLSearchParams();Object.entries(params).forEach(([k,v])=>v&&q.set(k,v));return json(`/api/v1/collection/runs?${q}`)}
 export const getPortalFields = () => json('/api/v1/collection/portal-fields')
-export const getCoverage = (date:string) => json(`/api/v1/meta/coverage?date=${encodeURIComponent(date)}`)
+export const getMarketCoverage = (date:string) => json(`/api/v1/market/coverage?date=${encodeURIComponent(date)}`)
+export const getMarketRankings = (chartId:string,date:string) => json(`/api/v1/market/rankings?chartId=${encodeURIComponent(chartId)}&date=${encodeURIComponent(date)}`)
+export const getCoverage = async(date:string) => {
+ const market=await getMarketCoverage(date)
+ const legacy=await json(`/api/v1/meta/coverage?date=${encodeURIComponent(date||market.date)}`)
+ const external=(market.charts||[]).filter((c:any)=>c.platform!=='IOS'||c.actual_count>0||!legacy.charts.some((l:any)=>l.platform==='IOS'&&l.region===c.region&&l.actual_count>0))
+ const old=legacy.charts.filter((l:any)=>!external.some((c:any)=>c.platform===l.platform&&c.region===l.region))
+ const charts=[...external,...old].sort((a:any,b:any)=>['WECHAT','DOUYIN','IOS','GOOGLE_PLAY'].indexOf(a.platform)-['WECHAT','DOUYIN','IOS','GOOGLE_PLAY'].indexOf(b.platform))
+ return {...legacy,charts,date:date||market.date,latestAvailableDate:market.latestAvailableDate||market.date,market,coverageState:charts.every((c:any)=>c.data_state==='COMPLETE')?'COMPLETE':charts.some((c:any)=>c.actual_count>0)?'PARTIAL':'NONE'}
+}
 export const generateReport = (periodStart:string,periodEnd:string) => json(`/api/v1/admin/reports/generate?periodStart=${periodStart}&periodEnd=${periodEnd}`, {method:'POST',headers:{'Idempotency-Key':requestId()}})
 export const getCurrentRule = () => json('/api/v1/admin/rules/current')
 export const publishRule = (rulesJson:string) => json('/api/v1/admin/rules/publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rulesJson})})

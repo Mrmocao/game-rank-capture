@@ -45,6 +45,14 @@ class RankingCaptureTest {
     }
     @SuppressWarnings("unchecked") Map<String, Object> first(Map<String, Object> result) { return ((List<Map<String, Object>>)result.get("attempts")).getFirst(); }
     long count(String table) { return jdbc.queryForObject("SELECT COUNT(*) FROM " + table, Long.class); }
+    @Test void everyRunnerEntryPointWritesAtomicSuccessAndFailureDeliveryManifests()throws Exception{
+        for(var runner:List.of(runner(json("SYNTHETIC", "2026-11-02")),runner("bad source response"))){
+            var result=runner.run("a",List.of(request));Path file=directory.resolve("batch-"+result.get("batchId")+".json");
+            assertTrue(Files.isRegularFile(file));var saved=mapper.readTree(Files.readString(file));
+            assertEquals(result.get("batchId"),saved.path("batchId").asText());assertEquals(result.get("status"),saved.path("status").asText());
+            assertFalse(Files.exists(file.resolveSibling(file.getFileName().toString().replace(".json",".pending"))));
+        }
+    }
     @Test void replayReusesObservationButKeepsBothRunsAndTenantIsolation() {
         var runner = runner(json("Fixture", "2026-11-02"));
         var one = first(runner.run("a", List.of(request))); var two = first(runner.run("a", List.of(request)));

@@ -1,0 +1,9 @@
+{
+  "host": "YOUR_SERVER_IP",
+  "port": 22,
+  "username": "YOUR_DEPLOYMENT_USER",
+  "keyFile": "C:/path/to/your/ssh-private-key",
+  "hostKeySha256": "VERIFIED_SERVER_HOST_KEY_SHA256_HEX",
+  "remoteRoot": "/opt/iaa-radar",
+  "materialRoot": "D:/project/game-rank-capture/data/external-captures"
+}

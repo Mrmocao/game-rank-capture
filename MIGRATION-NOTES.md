@@ -85,3 +85,8 @@ DDL参考 `contracts/schema.sql` 已与V9～V11对齐；实际安装由Flyway负
 V13新增external_capture_run、external_ranking_observation、external_ranking_entry；V14新增抓取工作台目标、计划、修复工单及租约记录。均经Flyway/JDBC应用，表和列有中文注释。升级前JDBC备份45表，核对旧weekly_report/report_item/ranking_snapshot/ranking_entry共1,261行保持一致。不修改已应用迁移。
 
 生产材料目录配置CAPTURE_MATERIAL_DIR=/opt/iaa-radar/shared/external-captures；服务器无引力登录会话，CAPTURE_WORKER_ENABLED=false。工作区口令继续留空。研究目标另发布新修订为5，新报告冻结实际生效参数。最近7日材料分日重放、重复运行复用观察；具体命令及回滚方式见docs/12-WEEKLY-CAPTURE-DELIVERY.md。
+
+
+## V15 来源候选多人研究记录（2026-11-02）
+
+追加source_candidate_selection，全部表列中文注释；复合外键定位external_ranking_entry的原观察和名次，组织+request_key唯一，source_snapshot冻结填报时依据。已通过Flyway/JDBC应用于配置库3306及生产13306；contracts/schema.sql已同步。无需MySQL CLI或Docker。生产迁移前备份51表10,086行，旧报告/榜单1,263行逐行比较不变。应用回滚保留V15，不降级或改旧迁移。

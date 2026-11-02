@@ -1,5 +1,12 @@
 # 部署与填写说明
 
+## 当前发布：2026-11-02市场流程
+
+生产current指向`/opt/iaa-radar/releases/20261102-market-flow-r3`，JAR SHA256 `786ab07abc4c6125df23ac86d08db3833459200de079227c1b55921c43e93b73`，Flyway V15。免登录；保留Apple每日/每周Java调度，无服务器浏览器会话。Windows采集和同步进程已安装为用户登录启动项；实测后台发现真实材料重放、SSH送达、Java重解析、JDBC入库、报告10复用。
+
+配置、来源入口、监控回执和重试见[docs/13-MARKET-FLOW.md](docs/13-MARKET-FLOW.md)。V15前备份51表10,086行，冻结记录1,263行比对不变。上一发布保留，应用切回旧目录后保留追加迁移。以下2026-10-30内容为历史验收，不代表当前源覆盖。
+
+
 Java 21、Spring Boot、JDBC、MySQL 8、Nginx；Docker 与 MySQL CLI 均不是依赖。迁移由应用启动时通过 Flyway/JDBC 执行。当前代码只维护最新设计，旧发布目录仅供事故回滚，旧周报作为历史事实保留。
 
 ## 当前部署

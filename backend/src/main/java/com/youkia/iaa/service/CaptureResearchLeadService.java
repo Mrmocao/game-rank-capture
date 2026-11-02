@@ -9,7 +9,7 @@ import java.util.*;
 
 /** Research leads from immutable source observations. Never assigns product identities or IAA eligibility. */
 public final class CaptureResearchLeadService {
-    public static final String VERSION = "capture-research-leads-1.1.0";
+    public static final String VERSION = "capture-research-leads-1.2.0";
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
     public CaptureResearchLeadService(JdbcTemplate jdbc, ObjectMapper mapper) { this.jdbc=jdbc; this.mapper=mapper; }
@@ -51,7 +51,7 @@ public final class CaptureResearchLeadService {
             var history=entry.getValue();history.sort(Comparator.comparing(r->date(r.get("business_date"))));
             var last=history.getLast();String chart=str(last,"chart_key");
             if(!Set.of("popularity","top-free","most_played").contains(chart))continue;
-            String family=family(last);boolean casual=!family.isBlank();
+            var gameplay=SourceGameplay.read(fields(last));String family=gameplay.get("family").toString();boolean casual=!family.equals("未知");
             boolean current=day.equals(date(last.get("business_date")));
             String candidateKey=entity(last);boolean tentative=str(last,"external_id").isBlank();
             // Preserve other-chart risk evidence across this whole window; disappearance today does not clear it.
@@ -71,10 +71,11 @@ public final class CaptureResearchLeadService {
             boolean headHeat=lastRank<=20;
             List<String> gaps=new ArrayList<>();if(tentative)gaps.add("缺少平台稳定ID，名称与发行方匹配仅是来源内待核线索");
             gaps.add("目标版本广告与排除内购证据未核验，纯IAA资格未知");gaps.add("缺少同版本实机、可比玩家评价与团队工期估算");
+            if("SOURCE_DESCRIPTION".equals(gameplay.get("basis")))gaps.add("玩法依据为来源描述明确词句，未经实机验证；描述中的DAU/收入等数字未经独立核验");
             if(observed.size()<7)gaps.add("7日窗口只有"+observed.size()+"个有记录日，缺日不回填");
             if(paidSignal)gaps.add("本窗口同来源畅销榜出现匹配记录，需优先核查付费/混合变现；榜单本身不是内购事实");
             if(promotional)gaps.add("本窗口同来源发行人热度榜出现该线索，投放信号不等于玩家需求或盈利");
-            String exclusion=!current?"截止日无观察，不用旧榜冒充当前热度":!casual?"缺少明确的轻度玩法标签，暂不进入本周短名单":paidSignal?"存在同来源畅销信号，先核查付费模式再评估IAA机会":!sufficientHistory?"连续观察不足：至少5/7日且最近3日连续有记录；留在观察池，不以首末排名凑数":!headHeat&&!growth?"未达到研究信号门槛：当前同榜Top20，或上升至少10名且进入Top50；保留观察":"";
+            String exclusion=!current?"截止日无观察，不用旧榜冒充当前热度":!casual?"缺少明确的轻度玩法标签或描述依据，暂不进入本周短名单":paidSignal?"存在同来源畅销信号，先核查付费模式再评估IAA机会":!sufficientHistory?"连续观察不足：至少5/7日且最近3日连续有记录；留在观察池，不以首末排名凑数":!headHeat&&!growth?"未达到研究信号门槛：当前同榜Top20，或上升至少10名且进入Top50；保留观察":"";
             Map<String,Object> item=new LinkedHashMap<>();
             item.put("leadKey",MarketWeeklySkill.hash(entry.getKey()));item.put("entityKey",candidateKey);item.put("classification","RESEARCH_LEAD");
             item.put("name",last.get("name"));item.put("developer",last.get("developer"));item.put("platform",last.get("platform"));item.put("region",str(last,"region").toUpperCase(Locale.ROOT));
@@ -86,6 +87,7 @@ public final class CaptureResearchLeadService {
             item.put("signalType",growth?"RANK_GROWTH":headHeat?"HEAD_HEAT":"OBSERVE_ONLY");
             item.put("signalLabel",growth?"榜单增势研究":headHeat?"头部热度 / 基准观察":"继续观察");
             item.put("thumbnailUrl",fields(last).path("thumbnailUrl").asText(""));
+            item.put("gameplayEvidence",gameplay);item.put("sourceDescription",fields(last).path("descriptionRaw").asText(""));
             item.put("whyNow",str(last,"board_name")+"截止日第"+lastRank+"名；7日窗实际观察"+observed.size()+"天"+(delta==null?"，只有一次观察，不能判断增长":(tentative?"；同名同发行方的来源记录":"；同来源ID记录")+"由第"+startRank+"到第"+lastRank+"名，"+(delta>0?"上升"+delta:delta<0?"下降"+(-delta):"持平")+"名")+"。来源名次变化不等于用户量增长。");
             StringBuilder caution=new StringBuilder();
             if(history.size()>1){var previous=history.get(history.size()-2);int prev=(int)number(previous.get("rank_position"));
@@ -125,12 +127,12 @@ public final class CaptureResearchLeadService {
         for(var item:audit)if(!Boolean.TRUE.equals(item.get("selected"))&&str(item,"exclusionReason").isBlank())item.put("exclusionReason","本周合计最多5项，留作后续研究线索");
         Map<String,Object> result=new LinkedHashMap<>();result.put("algorithmVersion",VERSION);result.put("windowStart",day.minusDays(6).toString());result.put("windowEnd",day.toString());result.put("limit",limit);
         result.put("thresholds",Map.of("minimumObservedDays",5,"recentContinuousDays",3,"headHeatTopN",20,"growthMinimumRankGain",10,"growthCurrentTopN",50,"familyCap",2));
-        result.put("policy","正式精选与研究线索合计最多5项，不足不补齐。研究线索仅使用同来源需求榜，明确轻度标签、至少5/7日且最近3日连续有记录；当前同榜Top20为头部热度，或首尾上升至少10名且当前Top50为榜单增势。最新回落与其他需求榜转弱须披露。同名同发行方的上升记录优先，再按观察天数和当前名次；各来源榜队列轮转，玩法标签最多2项。阈值是保守研究默认值，不是统计显著性。畅销榜和发行人热度不加需求分；同来源畅销信号先补证。无平台ID不合并产品，空发行方不拼跨日趋势。名次变化不是实际用户增长，所有参数是研究优先次序而非成功概率。");
+        result.put("policy","正式精选与研究线索合计最多5项，不足不补齐。研究线索仅使用同来源需求榜，以来源标签或描述中的明确玩法词句为依据（保留原文，待实机核验）、至少5/7日且最近3日连续有记录；当前同榜Top20为头部热度，或首尾上升至少10名且当前Top50为榜单增势。最新回落与其他需求榜转弱须披露。同名同发行方的上升记录优先，再按观察天数和当前名次；各来源榜队列轮转，玩法标签最多2项。阈值是保守研究默认值，不是统计显著性。畅销榜和发行人热度不加需求分；同来源畅销信号先补证。无平台ID不合并产品，空发行方不拼跨日趋势。名次变化不是实际用户增长，所有参数是研究优先次序而非成功概率。");
         result.put("items",selected);result.put("candidateAudit",audit);result.put("snapshotCount",latest.size());
         result.put("diagnostic",selected.isEmpty()?"当前资料未产生符合线索条件的短名单；正式IAA门槛保持，需补身份、实机与变现证据":"提供"+selected.size()+"项待核研究线索，均不是纯IAA正式推荐；按证据缺口完成核验后才能决定选用");
         return result;
     }
-    private boolean newer(Map<String,Object> a,Map<String,Object> b){int c=time(a.get("available_at")).compareTo(time(b.get("available_at")));return c>0||c==0&&number(a.get("observation_id"))>number(b.get("observation_id"));}
+    private boolean newer(Map<String,Object> a,Map<String,Object> b){int c=time(a.get("captured_at")).compareTo(time(b.get("captured_at")));if(c==0)c=time(a.get("available_at")).compareTo(time(b.get("available_at")));return c>0||c==0&&number(a.get("observation_id"))>number(b.get("observation_id"));}
     private static String str(Map<String,Object> r,String k){return Objects.toString(r.get(k),"");}
     private static long number(Object o){return o instanceof Number n?n.longValue():Long.parseLong(o.toString());}
     private static LocalDate date(Object o){return o==null?null:LocalDate.parse(o.toString());}
@@ -139,6 +141,5 @@ public final class CaptureResearchLeadService {
     private static String identity(Map<String,Object> r){return !str(r,"external_id").isBlank()?"id:"+str(r,"external_id"):"label:"+str(r,"name")+":"+str(r,"developer")+(str(r,"developer").isBlank()?":observation:"+r.get("observation_id"):"");}
     private static String entity(Map<String,Object> r){return str(r,"source_key")+":"+str(r,"platform")+":"+str(r,"region")+":"+identity(r);}
     private JsonNode fields(Map<String,Object> r){try{Object v=r.get("source_fields");return v instanceof JsonNode n?n:v instanceof byte[] bytes?mapper.readTree(bytes):mapper.readTree(Objects.toString(v,"{}"));}catch(Exception e){throw new IllegalStateException("来源字段无法解析",e);}}
-    private String family(Map<String,Object> r){var tags=fields(r).path("tags");if(!tags.isArray())return "";String joined=tags.toString();if(!joined.contains("休闲"))return "";for(String s:List.of("消除","益智","塔防","跑酷","解谜","模拟经营"))if(joined.contains(s))return s;return "";}
     private Map<String,Object> evidence(Map<String,Object> r){Map<String,Object> e=new LinkedHashMap<>();for(String key:List.of("observation_id","source_url","raw_sha256","evidence_locator","business_date","captured_at","available_at","parser_version","completeness","requested_top_n","contiguous_top_n"))e.put(key,r.get(key));return e;}
 }

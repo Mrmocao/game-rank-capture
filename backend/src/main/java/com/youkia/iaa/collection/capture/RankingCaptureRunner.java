@@ -73,9 +73,17 @@ public final class RankingCaptureRunner {
         }
         long failed = outcomes.stream().filter(item -> "FAILED".equals(item.get("status"))).count();
         long partial = outcomes.stream().filter(item -> "PARTIAL".equals(item.get("status"))).count();
-        return Map.of("batchId", batch, "status", failed == outcomes.size() ? "FAILED" : failed > 0 || partial > 0 ? "PARTIAL" : "SUCCEEDED",
+        Map<String,Object> result=Map.of("batchId", batch, "status", failed == outcomes.size() ? "FAILED" : failed > 0 || partial > 0 ? "PARTIAL" : "SUCCEEDED",
                 "attempts", outcomes, "failedCount", failed, "partialCount", partial,
                 "notice", "微信/抖音为第三方公开榜；PARTIAL表示请求范围不完整；freshness与覆盖独立。未自动关联产品库。");
+        // Every entry point (timer, UI and CLI) publishes an atomic delivery manifest.
+        // The companion only watches completed batch-*.json files, never half-written evidence.
+        try {
+            Files.createDirectories(root);Path pending=root.resolve("batch-"+batch+".pending");
+            Files.writeString(pending,mapper.writerWithDefaultPrettyPrinter().writeValueAsString(result),StandardOpenOption.CREATE_NEW);
+            Files.move(pending,root.resolve("batch-"+batch+".json"),StandardCopyOption.ATOMIC_MOVE);
+        } catch(java.io.IOException e){throw new CaptureException("DELIVERY_MANIFEST_FAILED","来源运行已留存，但交付清单写入失败，需要恢复后重跑");}
+        return result;
     }
     public static String errorCode(Exception error) {
         if (error instanceof CaptureException e) return e.code();
