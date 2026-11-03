@@ -9,6 +9,7 @@ public class MarketCaptureController {
     public MarketCaptureController(MarketCaptureService service){this.service=service;}
     private LocalDate day(LocalDate value){if(value!=null)return value;var latest=service.latest();return latest==null?LocalDate.now(ZoneId.of("Asia/Shanghai")):latest;}
     @GetMapping("/coverage") public ApiResponse<?> coverage(@RequestParam(required=false)LocalDate date){return ApiResponse.of(service.catalog(day(date)));}
+    @GetMapping("/remote-capture-plan") public ApiResponse<?> remotePlan(){return ApiResponse.of(service.remotePlan());}
     @GetMapping("/rankings") public ApiResponse<?> rankings(@RequestParam LocalDate date,@RequestParam String chartId){return ApiResponse.of(service.ranking(date,chartId));}
     @GetMapping("/candidates") public ApiResponse<?> candidates(@RequestParam LocalDate date,@RequestParam(required=false)String platform,@RequestParam(required=false)String q){return ApiResponse.of(service.candidates(date,platform,q));}
     @GetMapping("/selections") public ApiResponse<?> selections(){return ApiResponse.of(service.selections());}

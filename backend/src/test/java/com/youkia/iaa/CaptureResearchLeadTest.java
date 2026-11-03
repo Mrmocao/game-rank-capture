@@ -59,6 +59,24 @@ class CaptureResearchLeadTest {
         var result=service.evaluate(List.of(old,newer),day,cutoff,5);assertTrue(items(result).isEmpty());assertEquals(1,audit(result).size());assertEquals("SYNTHETIC新榜行",audit(result).getFirst().get("name"));
         assertEquals(1,result.get("snapshotCount"));
     }
+    @Test void storePaidChartsAreRiskOnlyAndNewFreeIsNotProvenNewOpportunity(){
+        for(String chart:List.of("top-paid","top-grossing","top-new-paid")){
+            var free=row(1,"top-new-free","GOOGLE_PLAY","SYNTHETIC","发行方",day,1,"消除");
+            var paid=row(2,chart,"GOOGLE_PLAY","SYNTHETIC","发行方",day,2,"消除");
+            assertTrue(audit(service.evaluate(List.of(paid),day,cutoff,5)).isEmpty());
+            var result=service.evaluate(List.of(free,paid),day,cutoff,5);
+            assertEquals(1,audit(result).size());assertTrue(items(result).isEmpty());
+            assertEquals(true,audit(result).getFirst().get("hasBestsellerSignal"));
+            assertEquals("UNKNOWN",audit(result).getFirst().get("monetization"));
+        }
+    }
+    @Test void parserUpgradeDoesNotKeepOlderSameDayRowsAlive(){
+        var old=row(1,"top-free","IOS","SYNTHETIC旧","发行方",day,1,"消除");old.put("parser_version","v1");
+        var latest=row(2,"top-free","IOS","SYNTHETIC新","发行方",day,3,"消除");latest.put("parser_version","v2");
+        latest.put("captured_at",cutoff.minusMinutes(1));latest.put("completeness","PARTIAL");
+        var result=service.evaluate(List.of(old,latest),day,cutoff,5);
+        assertEquals(1,result.get("snapshotCount"));assertEquals("SYNTHETIC新",audit(result).getFirst().get("name"));
+    }
     @Test void paidRiskEarlierInWindowSurvivesAndJdbcBinaryJsonIsSupported(){
         var popular=row(1,"popularity","WECHAT","SYNTHETIC风险","发行方",day,1,"消除");
         popular.put("source_fields",popular.get("source_fields").toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));

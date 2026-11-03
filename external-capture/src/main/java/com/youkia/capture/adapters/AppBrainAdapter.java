@@ -12,9 +12,9 @@ import java.util.*;
 public final class AppBrainAdapter implements SourceAdapter {
     @Override public String key() { return "appbrain"; }
     @Override public URI sourceUrl(CaptureRequest request) {
-        if (!key().equals(request.sourceKey()) || !"top-free".equals(request.chartKey()) || !Set.of("us", "gb", "de", "fr").contains(request.region()))
+        if (!key().equals(request.sourceKey()) || !StoreCharts.GOOGLE.contains(request.chartKey()) || !Set.of("us", "gb", "de", "fr").contains(request.region()))
             throw new CaptureException("INVALID_SCOPE", "AppBrain 只支持 us/gb/de/fr");
-        return URI.create("https://www.appbrain.com/stats/google-play-rankings/top_free/game/" + request.region());
+        return URI.create("https://www.appbrain.com/stats/google-play-rankings/"+request.chartKey().replace('-','_')+"/game/" + request.region());
     }
     @Override public Observation parse(CaptureRequest request, RawMaterial material) {
         try {
@@ -47,13 +47,15 @@ public final class AppBrainAdapter implements SourceAdapter {
                 fields.put("installsDisplay", cells.get(5).text());
                 fields.put("recentInstallsDisplay", cells.get(6).text());
                 fields.put("recentPeriodDays", 30); fields.put("recentInstallsEstimated", true);
-                fields.put("sourcePage", link.absUrl("href")); fields.put("rankBasis", "STORE_FREE_RANK");
+                fields.put("sourcePage", link.absUrl("href")); fields.put("rankBasis", StoreCharts.rankBasis(request.chartKey()));
+                fields.put("thumbnailUrl",tr.select(".ranking-icon-cell img").attr("src"));
+                fields.put("storeUrl","https://play.google.com/store/apps/details?id="+id);
                 rows.add(new Observation.Entry(rank, id, link.text(), tr.select(".ranking-app-cell-creator a").text(),
                         "#rankings-table .ranking-rank = " + rank, fields));
             }
             rows.sort(Comparator.comparingInt(Observation.Entry::rank));
-            return new Observation(key(), "appbrain-html-v1", "GOOGLE_PLAY", request.region(),
-                    "AppBrain Google Play游戏免费榜", date, date,
+            return new Observation(key(), "appbrain-html-v2", "GOOGLE_PLAY", request.region(),
+                    "AppBrain Google Play"+StoreCharts.label(request.chartKey()), date, date,
                     "沿用来源显示更新日；来源时区未声明，不做时区换算",
                     rows, List.of("第三方公开榜单，缺失名次保留；近30日安装量为来源估算原文。", "不构成 IAA 或收益结论。"));
         } catch (CaptureException e) { throw e; }

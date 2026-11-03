@@ -107,3 +107,7 @@ mvn -q -f backend/pom.xml -DskipTests package
 当前release `/opt/iaa-radar/releases/20261103-cross-platform-final`，后端JAR SHA256 `a1a277757fef2110692937a3c15d12296724c2eb6008e0c1005e73cdee25e583`；Flyway V16。继续通过JDBC连接服务器app.env指定的13306实例，不使用开发.env的3306实例替代；免登录，无Docker要求。
 
 最终备份 `/opt/iaa-radar/backups/before-cross-platform-final-20261103.sql`：54表14312行，1375条既有报告/榜单冻结行保持。Web、独立采集、报告桥已恢复active，沿用1280/1536/512MiB上限。报告20/修订4重试复用；16/18旧哈希不变。没有新增常驻进程，也未为本轮重复进行真实抓取。验收与来源缺口见docs/acceptance/2026-11-03-cross-platform.md。
+
+## 商店榜单与海外执行器
+
+V17先JDBC备份/迁移再发布Java及前端；海外不使用本机worker。受限接收账号、GitHub Secrets、计划启停、无个人电脑依赖及验证步骤见 [运行手册](docs/17-STORE-CHARTS.md)。每次发布须验证旧冻结行、三项systemd服务与实际来源回传。

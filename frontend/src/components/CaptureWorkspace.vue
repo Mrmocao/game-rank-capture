@@ -4,7 +4,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { profileRequest } from '../api'
 
 const base='/api/v1/admin/capture-workspace'
-const sourceSession=ref<any>(null),maintenanceOpen=ref(false)
+const overseas=ref<any>(null),sourceSession=ref<any>(null),maintenanceOpen=ref(false)
 const sessionNeedsLogin=computed(()=>sourceSession.value?.status==='LOGIN_REQUIRED')
 const sessionReviewDue=computed(()=>!!sourceSession.value?.reviewAfter&&Date.now()>=Date.parse(sourceSession.value.reviewAfter))
 const data=ref<any>(null),runs=ref<any[]>([]),jobs=ref<any[]>([]),tab=ref('targets'),busy=ref(false),error=ref(''),search=ref(''),failuresOnly=ref(false)
@@ -23,7 +23,7 @@ const entries=computed(()=>detail.value?.bundle_json?.observation?.entries||[])
 const visibleEntries=computed(()=>entries.value.slice((page.value-1)*20,page.value*20))
 const request=(path:string,method='GET',body?:unknown)=>profileRequest(base+path,{method,...(body!==undefined?{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})})
 async function guard(action:()=>Promise<void>){if(busy.value)return;busy.value=true;error.value='';try{await action()}catch(e:any){error.value=e.message;ElMessage.error(e.message)}finally{busy.value=false}}
-async function refresh(){const [overview,history,repairs,coverage]=await Promise.all([request(''),profileRequest('/api/v1/admin/ranking-capture/runs'),request('/repairs'),profileRequest('/api/v1/market/coverage')]);data.value=overview;runs.value=history;jobs.value=repairs;sourceSession.value=coverage.sync?.['source-session']}
+async function refresh(){const [overview,history,repairs,coverage]=await Promise.all([request(''),profileRequest('/api/v1/admin/ranking-capture/runs'),request('/repairs'),profileRequest('/api/v1/market/coverage')]);data.value=overview;runs.value=history;jobs.value=repairs;sourceSession.value=coverage.sync?.['source-session'];overseas.value=coverage.sync?.overseas}
 const reload=()=>guard(refresh)
 function edit(target?:any){editKey.value=target?.target_key||'';editingImplemented.value=!!target?.source_key;Object.assign(form,{name:target?.name||'',url:target?.source_url||'',fields:target?.field_scope||'',notes:target?.notes||'',toolKey:target?.tool_key||'http-html',enabled:!!target?.enabled,revision:target?.revision||0});editOpen.value=true}
 function register(candidate:any){edit();form.name=candidate.name;try{const u=new URL(candidate.url);form.url=u.origin+u.pathname}catch{form.url=''}form.fields=candidate.fields||'';form.notes=`目录 ${candidate.sourceId}；${candidate.collectionMethod}；${candidate.limitations}`;form.toolKey=String(candidate.collectionMethod).toLowerCase().includes('firecrawl')?'firecrawl':'http-html'}
@@ -42,7 +42,7 @@ onMounted(reload)
 
 <template>
 <section class="capture-page" aria-label="信息抓取工作台">
-  <div class="capture-heading"><div><div class="eyebrow">外部数据 · 独立采集</div><h1>信息抓取</h1><p>管理来源、采集工具和运行结果，让每一条信息都有出处。</p></div><div class="actions"><el-button :disabled="busy" @click="reload">刷新状态</el-button><el-button type="primary" :loading="busy" :disabled="!data?.summary.enabledTargets" @click="run()">抓取所选目标</el-button></div></div>
+  <div class="capture-heading"><div><div class="eyebrow">外部数据 · 独立采集</div><h1>信息抓取</h1><p>管理来源、采集工具和运行结果，让每一条信息都有出处。</p></div><div class="actions"><el-button :disabled="busy" @click="reload">刷新状态</el-button><el-button type="primary" :loading="busy" :disabled="!data?.summary.enabledTargets" @click="run()">抓取服务器目标</el-button></div></div>
   <el-alert v-if="error" :title="error" type="error" show-icon :closable="false" class="notice"/>
   <div v-if="!data" class="empty">{{busy?'正在读取采集配置与真实记录…':'暂无数据，请检查连接后刷新。'}}</div>
   <template v-else>
@@ -50,6 +50,7 @@ onMounted(reload)
     <div class="schedule-strip"><div><b>{{data.schedule.cron_expression.includes(';')?'每天 08:30、23:00':'每天 08:30'}} <span>北京时间</span></b><p>下次执行：{{time(data.schedule.next_due_at)}} · 执行器心跳：{{time(data.schedule.worker_seen_at)}}</p><p v-if="data.schedule.last_result_json">最近计划：{{status(data.schedule.last_result_json.status)}} · {{time(data.schedule.last_finished_at)}}</p></div><el-button :disabled="busy" @click="editSchedule">管理定时计划</el-button></div>
     <div class="schedule-strip source-session"><div><b>引力引擎 · 服务器登录维护</b><p>{{sessionNeedsLogin?'登录已失效：需要人工重新验证':sessionReviewDue?'建议续登：距上次登录验证已满6天':sourceSession?.status==='VERIFIED'?'已通过完整榜单采集验证':'等待服务器登录验证'}}</p><p>最近登录验证：{{time(sourceSession?.lastLoginVerifiedAt)}} · 建议下次检查：{{time(sourceSession?.reviewAfter)}}</p><p class="muted">源站会话约7天；实际可能提前失效。第6天提示检查，失败保留原数据。采集在服务器运行，无需个人电脑常开。</p></div><el-button :type="sessionNeedsLogin?'danger':sessionReviewDue?'warning':'primary'" @click="maintenanceOpen=true">续登说明</el-button></div>
     <el-dialog v-model="maintenanceOpen" title="服务器登录维护" width="min(680px,94vw)"><p>1. 在运维电脑打开项目目录，运行下方维护工具。工具会临时打开服务器浏览器；仅在登录期间使用本机。</p><pre style="white-space:pre-wrap;overflow-wrap:anywhere">powershell -ExecutionPolicy Bypass -File scripts/renew-server-capture-login.ps1</pre><p>2. 在远程窗口完成引力引擎短信或扫码登录，建议选择“7天免登录”。账号和验证码只在源站输入。</p><p>3. 返回维护工具按回车，它会保存会话、关闭临时窗口、执行真实榜单验证并恢复定时任务。成功后刷新本页查看验证时间。</p><p>维护工具需要已有服务器SSH配置。登录入口只通过临时安全隧道访问，未在公网开放远程桌面。维护完成后可关闭电脑。</p><p>如果取消或遗忘关闭，35分钟后服务端会清理登录窗口并恢复采集计划；未登录成功的来源保持失败，不生成假数据。</p></el-dialog>
+    <div class="schedule-strip"><div><b>Google Play · 独立云端采集</b><p>每天北京时间 08:40、23:10（云端排队可能延迟）；按已启用地区采集免费、付费、畅销、新免费、新付费榜。</p><p>最近交付：{{overseas?status(overseas.status):'等待首次交付'}} · {{time(overseas?.receivedAt)}} · {{overseas?.importedEntries??0}}条</p><p>停止某地区可在目标配置中关闭；云端失败保留历史，不把旧数据当今天。</p></div><a href="https://github.com/Mrmocao/game-rank-capture/actions/workflows/overseas-capture.yml" target="_blank" rel="noopener noreferrer">查看云端任务与失败日志 ↗</a></div>
     <el-alert :title="data.notice" type="info" :closable="false" class="notice"/>
     <el-tabs v-model="tab" class="capture-tabs">
       <el-tab-pane label="抓取目标" name="targets">
@@ -58,7 +59,7 @@ onMounted(reload)
           <el-table-column label="网站与来源" min-width="230"><template #default="{row}"><b>{{row.name}}</b><a :href="row.source_url" target="_blank" rel="noopener noreferrer" class="source-link">{{row.source_url}}</a><div class="tags"><el-tag size="small" :type="row.implemented?'success':'info'">{{row.implemented?'适配器已实现':'待接入'}}</el-tag><span>{{row.authority}}</span></div></template></el-table-column>
           <el-table-column label="获取内容与方法" min-width="250"><template #default="{row}"><p>{{row.field_scope}}</p><el-tag size="small">{{toolName(row.tool_key)}}</el-tag><p class="muted">{{row.chartCount}}个榜单 · {{row.enabled?'纳入定时范围':'未纳入定时范围'}}{{row.browserRequired?' · 复用服务器登录':''}}</p></template></el-table-column>
           <el-table-column label="最近一次各榜运行" min-width="230"><template #default="{row}"><div v-for="r in row.latestRuns" :key="r.id" class="chart-status"><el-button link type="primary" :disabled="!r.observation_id||r.status==='FAILED'" @click="view(r.observation_id)">{{r.chart_key}}</el-button><span>{{status(r.status)}} {{r.actual_count??0}}/100</span><small>{{r.business_date||'日期未知'}} · {{status(r.freshness)}}</small></div><span v-if="!row.latestRuns.length" class="muted">尚无执行记录，未验证在线可用性</span></template></el-table-column>
-          <el-table-column label="管理" width="135"><template #default="{row}"><el-button link type="primary" :disabled="busy" @click="edit(row)">配置</el-button><el-button link type="primary" :disabled="busy||!row.executionReady" @click="run(row)">立即抓取</el-button></template></el-table-column>
+          <el-table-column label="管理" width="135"><template #default="{row}"><el-button link type="primary" :disabled="busy" @click="edit(row)">配置</el-button><a v-if="row.remoteWorkflowUrl" :href="row.remoteWorkflowUrl" target="_blank" rel="noopener noreferrer">云端运行 ↗</a><el-button v-else link type="primary" :disabled="busy||!row.executionReady" @click="run(row)">立即抓取</el-button></template></el-table-column>
         </el-table>
       </el-tab-pane>
       <el-tab-pane label="抓取工具" name="tools">

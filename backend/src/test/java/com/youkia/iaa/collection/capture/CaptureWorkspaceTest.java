@@ -24,16 +24,16 @@ class CaptureWorkspaceTest {
     JdbcTemplate jdbc;CaptureWorkspaceStore store;CaptureWorkspaceService workspace;RankingCaptureStore ranking;
     @BeforeEach void setup() throws Exception {
         var ds=new DriverManagerDataSource("jdbc:h2:mem:"+UUID.randomUUID()+";MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE","sa","");jdbc=new JdbcTemplate(ds);
-        for(String file:List.of("V13__external_ranking_capture.sql","V14__capture_workspace.sql"))try(var in=getClass().getResourceAsStream("/db/migration/"+file);var c=ds.getConnection()){
-            String sql=new String(Objects.requireNonNull(in).readAllBytes(),StandardCharsets.UTF_8).replace(" COLLATE utf8mb4_bin","");
+        for(String file:List.of("V13__external_ranking_capture.sql","V14__capture_workspace.sql","V17__overseas_store_charts.sql"))try(var in=getClass().getResourceAsStream("/db/migration/"+file);var c=ds.getConnection()){
+            String sql=new String(Objects.requireNonNull(in).readAllBytes(),StandardCharsets.UTF_8).replace(" COLLATE utf8mb4_bin","").replace("UTC_TIMESTAMP(3)","CURRENT_TIMESTAMP(3)");
             ScriptUtils.executeSqlScript(c,new ByteArrayResource(sql.getBytes(StandardCharsets.UTF_8)));
         }
         store=new CaptureWorkspaceStore(jdbc,mapper,clock);store.initialize("a");workspace=mock(CaptureWorkspaceService.class);
         when(workspace.run(anyString(),isNull())).thenReturn(Map.of("status","SUCCEEDED","batchId","fixture"));
         ranking=new RankingCaptureStore(jdbc,new TransactionTemplate(new DataSourceTransactionManager(ds)),mapper,clock);
     }
-    @Test void seedsAreIdempotentAndOnlyEightChartsEnabled() {
-        store.initialize("a");assertEquals(7,store.targets("a").size());assertEquals(8,store.enabledRequests("a").size());
+    @Test void seedsAreIdempotentAndOnlyTenServerChartsEnabled() {
+        store.initialize("a");assertEquals(7,store.targets("a").size());assertEquals(10,store.enabledRequests("a").size());
         assertEquals(false,store.schedule("a").get("enabled"));assertEquals(false,store.schedule("a").get("workerOnline"));assertTrue(store.targets("other").isEmpty());
     }
     @Test void candidateCannotExecuteOrBeEnabledAndFixedSourceBindingCannotDrift() {
@@ -42,6 +42,15 @@ class CaptureWorkspaceTest {
         assertThrows(CaptureException.class,()->store.update("a",(String)row.get("target_key"),new CaptureWorkspaceStore.TargetEdit(edit.name(),edit.url(),edit.fields(),edit.notes(),edit.toolKey(),true,0)));
         assertThrows(CaptureException.class,()->store.update("a","apple-cn",edit));
         assertThrows(IllegalArgumentException.class,()->store.target("other",(String)row.get("target_key")));
+    }
+    @Test void enabledRemoteTargetsNeverRunOnServerWorker() {
+        var target=store.targets("a").stream().filter(t->"appbrain".equals(t.get("source_key"))).findFirst().orElseThrow();
+        jdbc.update("UPDATE capture_target_config SET enabled=TRUE WHERE tenant_id='a' AND target_key=?",target.get("target_key"));
+        assertEquals("REMOTE",target.get("execution_mode"));
+        assertEquals(5,store.requests(target).size());
+        assertEquals(10,store.enabledRequests("a").size());
+        var service=new com.youkia.iaa.service.MarketCaptureService(jdbc,mapper,"a","unused");
+        assertEquals(List.of(target.get("region")),service.remotePlan().get("regions"));
     }
     @Test void editUsesOptimisticLockAndRejectsCredentialUrls() {
         var old=store.target("a","apple-cn");var edit=new CaptureWorkspaceStore.TargetEdit("Updated",(String)old.get("source_url"),"ranks","","http-json",false,0);

@@ -118,11 +118,11 @@ class RankingCaptureTest {
         AtomicInteger calls = new AtomicInteger();
         var runner = new RankingCaptureRunner(store, mapper, directory, clock, url -> {
             calls.incrementAndGet(); if (url.getHost().equals("rank.gravity-engine.com")) throw new CaptureException("SOURCE_HTTP_403", "Denied");
-            return new RawMaterial(url, clock.instant(), "synthetic-test", json("Fixture", "2026-11-02").getBytes(StandardCharsets.UTF_8));
+            return new RawMaterial(url, clock.instant(), "synthetic-test", json("Fixture", "2026-11-02").replace("topfreeapplications",url.getPath().split("/")[3]).getBytes(StandardCharsets.UTF_8));
         });
         var result = runner.run("a", CaptureSources.daily(100));
-        assertEquals(7L, result.get("failedCount")); assertEquals(1, count("external_ranking_observation"));
-        assertEquals(8, count("external_capture_run")); assertEquals(3, calls.get());
+        assertEquals(7L, result.get("failedCount")); assertEquals(3, count("external_ranking_observation"));
+        assertEquals(10, count("external_capture_run")); assertEquals(5, calls.get());
     }
     @Test void restEndpointRunsAndReturnsQueryableEvidenceWithoutBusinessTables() throws Exception {
         var controller = new com.youkia.iaa.api.RankingCaptureController(runner(json("Fixture", "2026-11-02")), store, "a");

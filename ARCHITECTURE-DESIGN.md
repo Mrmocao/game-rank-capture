@@ -6,6 +6,16 @@
 
 本文是当前工程唯一的实现基线。后续新增页面、接口、采集来源、AI任务、数据库字段和周报规则，先更新本文的相应章节，再修改代码与迁移。当前工程不维护可切换的产品多版本；历史周报是业务事实快照，必须保留，但新代码统一按本文最新设计实现。
 
+## 2026-11-03 商店榜单与海外执行器（最新增量）
+
+来源研究规则2.2.0、Skill2.5.0、Flyway V17。新增StoreCharts集中限定iOS3榜/Google5榜；CaptureSources.available包含30范围，daily只含服务器10榜。capture_target_config.execution_mode区分SERVER/REMOTE；同一地区的5个Google榜随目标统一启停，远程目标不进入本机调度。
+
+公网服务器海外DNS与TLS连通性实测异常，Google来源由现有公开仓库的GitHub Actions临时Ubuntu执行器采集。它只获取最小启用计划（GET /api/v1/market/remote-capture-plan），运行独立Java核心，无JDBC/浏览器会话权限。每天北京时间08:40和23:10，排队可能延迟；不用付费runner或用户PC。原始材料不提交Git或上传公开artifact，使用固定主机指纹、仅可执行接收命令的SSH密钥传输。服务器接收器限制压缩/展开大小、成员、范围、日期和哈希，再由Java重解析并以JDBC入库，现有报告链生成新修订。
+
+接收器独立账号iaa-overseas，禁止PTY/转发/任意shell；只允许sudo精确执行root拥有的receive-overseas.py，无可变参数。上传60秒、整个处理650秒上限；Java回放256MiB。overseas.json只作为最近交付回执，不代表持续在线；失败详见GitHub任务。海外采集不复制登录Cookie或root密码；原始材料和数据库一起备份。
+
+付费、畅销、新付费只作同平台商业化风险；新免费可作需求观察，但仍需历史完整性/增长门槛，不能因首次采集就宣称新入榜。最新日快照按来源/市场/榜单选最新，不因解析器升级把旧行留下；趋势仍按解析器版本隔离。旧周报冻结不变，历史缺失不补齐。API/UI展示所有30个预期范围及其实际覆盖。详细契约、启停/轮换/恢复见docs/17-STORE-CHARTS.md。
+
 ## 2026-11-03 统一产品与跨平台研究（当前实现）
 
 来源研究规则2.1.0、Skill2.4.0、跨平台判断1.0.0、Flyway V16；正式资格2.2.0和核心2/1/1配额不变。新增 `SourceEntity` 统一来源身份键、`SourceIdentityService` 证据核验、`CrossPlatformAssessment` 跨平台分析。前端入口为产品研究 → 产品关联与核验；周报使用共享的多平台证据卡，旧报告缺少该字段时保持原样显示。

@@ -198,3 +198,13 @@
 | CXP08 | 真实跨平台自动补全 | 99个当日iOS来源条目通过既有官方ID关联；微信/抖音无已核实跨平台身份，不自动按同名合并。细玩法、IAA、首发仍属真实证据缺口 |
 
 详见 docs/16-CROSS-PLATFORM-IDENTITY.md 与 docs/acceptance/2026-11-03-cross-platform.md。没有新外部采购或凭据要求。
+
+## 2026-11-03 STORE-01～05
+
+|ID|要求|实现|验证|
+|---|---|---|---|
+|STORE-01|iOS不止免费榜|StoreCharts/AppleGamesAdapter，3榜|离线错榜拒绝，生产3榜实采待验收|
+|STORE-02|Google四国五榜|AppBrainAdapter/目录30范围|离线稀疏/跨国拒绝，云端实采待验收|
+|STORE-03|不依赖个人PC|Actions、受限SSH、Java重解析|接收器6测试、运行验收记录|
+|STORE-04|语义与历史|付费风险/新游待核、最新快照、冻结报告|CaptureResearchLeadTest|
+|STORE-05|配置与展示|REMOTE/V17、云端入口、失败回执|工作台调度隔离测试、前端实测待验收|

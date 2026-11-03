@@ -12,10 +12,10 @@ public final class AppleGamesAdapter implements SourceAdapter {
     public AppleGamesAdapter(ObjectMapper mapper) { this.mapper = mapper; }
     @Override public String key() { return "apple-games"; }
     @Override public URI sourceUrl(CaptureRequest request) {
-        if (!key().equals(request.sourceKey()) || !"top-free".equals(request.chartKey()) || !Set.of("cn", "us", "gb", "de", "fr").contains(request.region()))
+        if (!key().equals(request.sourceKey()) || !StoreCharts.APPLE.contains(request.chartKey()) || !Set.of("cn", "us", "gb", "de", "fr").contains(request.region()))
             throw new CaptureException("INVALID_SCOPE", "Apple 游戏榜只支持 cn/us/gb/de/fr");
         return URI.create("https://itunes.apple.com/" + request.region()
-                + "/rss/topfreeapplications/limit=" + request.requestedTopN() + "/genre=6014/json");
+                + "/rss/"+StoreCharts.appleFeed(request.chartKey())+"/limit=" + request.requestedTopN() + "/genre=6014/json");
     }
     @Override public Observation parse(CaptureRequest request, RawMaterial material) {
         try {
@@ -38,7 +38,9 @@ public final class AppleGamesAdapter implements SourceAdapter {
                 fields.put("storeUrl", entry.path("id").path("label").asText());
                 fields.put("summary", entry.path("summary").path("label").asText());
                 fields.put("releaseDateRaw", entry.path("im:releaseDate").path("label").asText());
-                fields.put("rankBasis", "STORE_FREE_RANK");
+                fields.put("rankBasis", StoreCharts.rankBasis(request.chartKey()));
+                fields.put("descriptionRaw", entry.path("summary").path("label").asText());
+                fields.put("priceRaw", entry.path("im:price"));
                 fields.put("originFamily", "apple"); fields.put("sourceAuthority", "OFFICIAL");
                 fields.put("identityState", "SOURCE_ID_PROVIDED");
                 var images = entry.path("im:image");
@@ -46,11 +48,11 @@ public final class AppleGamesAdapter implements SourceAdapter {
                 rows.add(new Observation.Entry(++rank, id, entry.path("im:name").path("label").asText(),
                         entry.path("im:artist").path("label").asText(), "feed.entry[" + (rank - 1) + "]", fields));
             }
-            return new Observation(key(), "apple-games-v1", "IOS", request.region(),
-                    "Apple公开游戏免费榜（RSS分类6014）", updated.toLocalDate(),
+            return new Observation(key(), "apple-games-v2", "IOS", request.region(),
+                    "Apple公开"+StoreCharts.label(request.chartKey())+"（RSS分类6014）", updated.toLocalDate(),
                     updated.atZoneSameInstant(ZoneId.of("Asia/Shanghai")).toLocalDate(),
                     "sourceDate 为来源偏移日期；businessDate 为来源更新时间转换 Asia/Shanghai",
-                    rows, List.of("免费排名不构成 IAA、下载量或收入证据。"));
+                    rows, List.of("各榜名次独立；免费不证明IAA，付费/畅销信号不能当玩家需求或具体内购事实。"));
         } catch (CaptureException e) { throw e; }
         catch (Exception e) { throw new CaptureException("INVALID_MATERIAL", "Apple 游戏 RSS 结构或更新时间无效"); }
     }

@@ -90,6 +90,27 @@ class CapturePipelineTest {
         assertEquals("200 K", bundle.observation().entries().getFirst().sourceFields().get("recentInstallsDisplay"));
         assertEquals(true, bundle.observation().entries().getFirst().sourceFields().get("recentInstallsEstimated"));
     }
+    @Test void allAppleChartTypesPreserveTheirScopeAndRejectRelabeling() throws Exception {
+        for(String chart:StoreCharts.APPLE){
+            var req=new CaptureRequest("apple-games","cn",100,null,chart);
+            String json=appleJson(appleRow("123","Fixture")).replace("topfreeapplications",StoreCharts.appleFeed(chart));
+            var b=accept(req,json);
+            assertEquals(1,b.coverage().actualCount());
+            assertEquals(LocalDate.of(2026,10,27),b.observation().businessDate());
+            if(!chart.equals("top-free"))assertThrows(CaptureException.class,()->accept(request,json));
+        }
+    }
+    @Test void googleTypesRetainGapsAndRejectWrongCountryOrChart() throws Exception {
+        for(String chart:StoreCharts.GOOGLE){
+            var req=new CaptureRequest("appbrain","us",3,null,chart);
+            String html=appbrainPage(appbrainRow(1,"com.fixture.a")+appbrainRow(3,"com.fixture.b")).replace("top_free",chart.replace('-','_'));
+            var b=accept(req,html);
+            assertEquals(List.of(2),b.coverage().missingRanks());
+            assertEquals(LocalDate.of(2026,10,27),b.observation().sourceDate());
+            assertThrows(CaptureException.class,()->accept(new CaptureRequest("appbrain","gb",3,null,chart),html));
+            if(!chart.equals("top-free"))assertThrows(CaptureException.class,()->accept(new CaptureRequest("appbrain","us",3,null),html));
+        }
+    }
     @Test void sourceStructureChangesAndDuplicateRanksStopOutput() {
         var req = new CaptureRequest("appbrain", "us", 100, null);
         assertThrows(CaptureException.class, () -> accept(req, "<html>Login required</html>"));

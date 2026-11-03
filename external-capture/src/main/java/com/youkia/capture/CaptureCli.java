@@ -20,7 +20,7 @@ public final class CaptureCli {
     private static void run(String[] args) throws Exception {
         if (args.length == 0 || Arrays.asList(args).contains("--help")) {
             System.out.println("--source all|apple-games|appbrain|gravity-wechat|gravity-douyin --region cn|us|gb|de|fr --top 100 --output DIR "
-                    + "[--chart top-free|popularity|bestseller|most_played|fresh_game|publisher_heat] "
+                    + "[--chart top-free|top-paid|top-grossing|top-new-free|top-new-paid|popularity|bestseller|most_played|fresh_game|publisher_heat] "
                     + "[--material FILE --captured-at ISO_OFFSET_TIME] [--expected-source-date YYYY-MM-DD]"); return;
         }
         Map<String, String> options = new HashMap<>();
@@ -38,7 +38,7 @@ public final class CaptureCli {
         List<SourceAdapter> adapters = CaptureSources.adapters(mapper);
         if (options.get("--source").equals("all")) {
             if (submitted || options.containsKey("--chart") || options.containsKey("--expected-source-date") || !options.get("--region").equals("cn"))
-                throw new CaptureException("INVALID_ARGUMENT", "all 模式仅支持实时中国区默认8榜");
+                throw new CaptureException("INVALID_ARGUMENT", "all 模式仅支持实时中国区默认10榜");
             var cache = new HashMap<java.net.URI, RawMaterial>(); var fetcher = new HttpMaterialFetcher(Clock.systemUTC());
             List<Map<String, Object>> outcomes = new ArrayList<>(); boolean failed = false;
             for (var item : CaptureSources.daily(Integer.parseInt(options.getOrDefault("--top", "100")))) {

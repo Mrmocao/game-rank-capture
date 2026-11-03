@@ -48,8 +48,8 @@ public final class HttpMaterialFetcher implements MaterialFetcher {
         throw new IllegalStateException("Unreachable");
     }
     static void validateUrl(URI url) {
-        boolean route = "itunes.apple.com".equals(url.getHost()) && url.getPath().matches("/(cn|us|gb|de|fr)/rss/topfreeapplications/limit=([1-9][0-9]?|100)/genre=6014/json")
-                || "www.appbrain.com".equals(url.getHost()) && url.getPath().matches("/stats/google-play-rankings/top_free/game/(us|gb|de|fr)")
+        boolean route = "itunes.apple.com".equals(url.getHost()) && url.getPath().matches("/(cn|us|gb|de|fr)/rss/(topfreeapplications|toppaidapplications|topgrossingapplications)/limit=([1-9][0-9]?|100)/genre=6014/json")
+                || "www.appbrain.com".equals(url.getHost()) && url.getPath().matches("/stats/google-play-rankings/(top_free|top_paid|top_grossing|top_new_free|top_new_paid)/game/(us|gb|de|fr)")
                 || "rank.gravity-engine.com".equals(url.getHost()) && url.getPath().matches("/(wechat|douyin)/day/");
         if (!"https".equals(url.getScheme()) || url.getUserInfo() != null || url.getPort() != -1
                 || url.getQuery() != null || url.getFragment() != null || !route)

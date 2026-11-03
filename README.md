@@ -1,5 +1,11 @@
 # 游探 / 锦鲤云 IAA 产品情报系统
 
+## 商店榜单扩展与海外云端采集（2026-11-03）
+
+当前代码接入 iOS 中国免费/付费/畅销3榜，Google Play 美英德法免费/付费/畅销/新免费/新付费共20榜，加上微信3榜与抖音4榜共30个范围。海外使用AppBrain第三方公开材料，保留日期、原始名次、包名、缩略图及估算字段；不把第三方当官方，不把付费/畅销当用户增长，也不把新游标签当已证实新机会。
+
+Google Play采用GitHub Actions独立临时执行器回传，国内继续服务器systemd；无需个人电脑常开。新增V17执行位置字段；部署/凭据维护见 [商店榜单与海外采集](docs/17-STORE-CHARTS.md)。上线实测结果以验收文件为准。
+
 ## 当前跨平台研究机制（2026-11-03）
 
 已增加 **统一产品关联 → 多平台证据卡 → 跨平台机会判断**。在“产品研究 → 产品关联与核验”提交带原文依据的关联/玩法结论，支持撤销、并发修订和历史；同名只提示待核。周报确认同产品后只占一席，分别展示各平台当日名次、逐日证据和缺失状态，区分成熟头部、扩散线索与走势分歧；不平均名次、不跨版本复制IAA或玩法结论。
@@ -57,7 +63,7 @@
 1. 安装 Java 21、Maven 3.9+、Node 20+、MySQL 8。**不需要 Docker 或 MySQL CLI**。
 2. 复制 `.env.example` 为 `.env`，填写已创建数据库的 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD`，通过 JDBC 连接。
 3. 填写 `APP_CONFIG_ENCRYPTION_KEY` 以保护 AI 密钥。当前生产按业务要求关闭登录，`PROFILE_ACCESS_TOKEN` 留空即可；如以后需要公网共享口令，再填写独立值。`PROFILE_TENANT_ID` 由服务端固定。
-4. 根目录执行 `mvn package`，再运行 `java -jar backend/target/iaa-radar-api-0.1.0-SNAPSHOT.jar`，Flyway 自动执行至 V16。现有库先备份；全新库不要先手工执行参考 DDL 再运行 Flyway。运行中不要重新打包其正在使用的JAR；常驻实例使用独立版本副本。
+4. 根目录执行 `mvn package`，再运行 `java -jar backend/target/iaa-radar-api-0.1.0-SNAPSHOT.jar`，Flyway 自动执行至 V17。现有库先备份；全新库不要先手工执行参考 DDL 再运行 Flyway。运行中不要重新打包其正在使用的JAR；常驻实例使用独立版本副本。
 5. 执行 `npm ci --prefix frontend`、`npm run dev --prefix frontend`，访问 `http://localhost:5173`，开发 API 默认 `http://localhost:8080/api/v1`。
 
 开发模拟数据仅在明确需要时使用 `dev` profile。生产不得启用 `dev`；已执行过的历史 V2 seed 迁移必须保留以满足 Flyway 校验，开发另使用可重复 seed。DEMO/SYNTHETIC 材料不是市场证据。

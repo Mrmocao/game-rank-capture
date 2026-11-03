@@ -25,7 +25,8 @@ public final class CaptureWorkspaceService {
             boolean implemented=source!=null, browser=implemented&&source.startsWith("gravity-");
             var latest=implemented?store.latestRuns(tenant,source,(String)t.get("region")):List.<Map<String,Object>>of();
             t.put("implemented",implemented); t.put("browserRequired",browser);
-            t.put("executionReady",implemented&&(!browser||browserConfigured));
+            t.put("executionReady",implemented&&(!browser||browserConfigured)&&!"REMOTE".equals(t.get("execution_mode")));
+            if("REMOTE".equals(t.get("execution_mode")))t.put("remoteWorkflowUrl","https://github.com/Mrmocao/game-rank-capture/actions/workflows/overseas-capture.yml");
             t.put("authority","apple-games".equals(source)?"官方":"第三方 / 待核验");
             t.put("latestRuns",latest);t.put("chartCount",implemented?store.requests(t).size():0);
             if(Boolean.TRUE.equals(t.get("enabled"))) {
@@ -42,6 +43,7 @@ public final class CaptureWorkspaceService {
     }
     public Map<String,Object> run(String tenant,String targetKey) {
         store.initialize(tenant);
+        if(targetKey!=null&&"REMOTE".equals(store.target(tenant,targetKey).get("execution_mode")))throw new CaptureException("REMOTE_EXECUTOR_REQUIRED","海外来源由云端任务执行，请打开云端运行入口；本机直连失败不回填数据");
         var requests=targetKey==null?store.enabledRequests(tenant):store.requests(store.target(tenant,targetKey));
         if(requests.isEmpty())throw new CaptureException("NO_ENABLED_TARGETS","没有已启用的采集目标");
         if(!browserConfigured&&requests.stream().anyMatch(r->r.sourceKey().startsWith("gravity-")))throw new CaptureException("BROWSER_NOT_CONFIGURED","当前执行器未配置专用浏览器会话");

@@ -39,6 +39,8 @@ public class VerifyRankingCapture {
                             throw new IllegalStateException("Expected each chart to have continuous Top100 and successful run");
                         long id = rs.getLong("id"); int count = 0;
                         var doc = rs.getString("source_key").startsWith("gravity-") ? Jsoup.parse(new String(raw, StandardCharsets.UTF_8)) : null;
+                        var appbrain = rs.getString("source_key").equals("appbrain") ? Jsoup.parse(new String(raw,StandardCharsets.UTF_8)) : null;
+                        var apple = rs.getString("source_key").equals("apple-games") ? mapper.readTree(raw).path("feed").path("entry") : null;
                         try (var detail = connection.prepareStatement("SELECT rank_position,name,external_id FROM external_ranking_entry WHERE observation_id=? ORDER BY rank_position")) {
                             detail.setLong(1, id);
                             try (var rows = detail.executeQuery()) {
@@ -47,6 +49,17 @@ public class VerifyRankingCapture {
                                     if (entry == null || entry.path("rank").asInt() != rows.getInt(1) || !entry.path("name").asText().equals(rows.getString(2)))
                                         throw new IllegalStateException("Database entry differs from bundle");
                                     if (requireTop100 && rows.getInt(1) != count) throw new IllegalStateException("Top100 has a gap");
+                                    if(appbrain!=null){
+                                        int rank=rows.getInt(1);
+                                        var matches=appbrain.select("#rankings-table tbody tr").stream().filter(t->t.select(".ranking-rank").text().equals(Integer.toString(rank))).toList();
+                                        if(matches.size()!=1)throw new IllegalStateException("AppBrain rank not unique in raw DOM");
+                                        var link=matches.getFirst().select(".ranking-app-cell > a");
+                                        if(!link.text().equals(rows.getString(2))||!link.attr("href").endsWith("/"+rows.getString(3)))throw new IllegalStateException("AppBrain raw entry differs");
+                                    }
+                                    if(apple!=null){
+                                        var original=apple.get(rows.getInt(1)-1);
+                                        if(original==null||!original.path("im:name").path("label").asText().equals(rows.getString(2))||!original.path("id").path("attributes").path("im:id").asText().equals(rows.getString(3)))throw new IllegalStateException("Apple raw entry differs");
+                                    }
                                     if (doc != null) {
                                         var evidence = doc.select(entry.path("evidenceLocator").asText());
                                         if (evidence.size() != 1 || !evidence.select(".rank-app-name").text().equals(rows.getString(2)))

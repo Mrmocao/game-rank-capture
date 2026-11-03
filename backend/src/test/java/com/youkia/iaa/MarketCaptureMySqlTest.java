@@ -24,7 +24,7 @@ class MarketCaptureMySqlTest {
  MarketCaptureService service(Context c){return new MarketCaptureService(c.jdbc,mapper,c.tenant,"../data/TEST-NO-RECEIPTS");}
  @Test void realProjectionSeparateBoardsMissingDateAndTenant()throws Exception{
   var c=context();var s=service(c);var day=s.latest();assertNotNull(day);
-  var coverage=s.catalog(day);assertEquals(8,((List<?>)coverage.get("charts")).size());
+  var coverage=s.catalog(day);assertEquals(30,((List<?>)coverage.get("charts")).size());
   for(String platform:List.of("WECHAT","DOUYIN")){
    var r=s.candidates(day,platform,null);var items=(List<Map<String,Object>>)r.get("items");assertFalse(items.isEmpty());
    assertTrue(items.stream().allMatch(i->platform.equals(i.get("platform"))&&"UNKNOWN".equals(i.get("monetization"))));

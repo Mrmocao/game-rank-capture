@@ -34,8 +34,8 @@ export const getMarketRankings = (chartId:string,date:string) => json(`/api/v1/m
 export const getCoverage = async(date:string) => {
  const market=await getMarketCoverage(date)
  const legacy=await json(`/api/v1/meta/coverage?date=${encodeURIComponent(date||market.date)}`)
- const external=(market.charts||[]).filter((c:any)=>c.platform!=='IOS'||c.actual_count>0||!legacy.charts.some((l:any)=>l.platform==='IOS'&&l.region===c.region&&l.actual_count>0))
- const old=legacy.charts.filter((l:any)=>!external.some((c:any)=>c.platform===l.platform&&c.region===l.region))
+ const external=market.charts||[]
+ const old=legacy.charts.filter((l:any)=>l.actual_count>0&&!external.some((c:any)=>c.platform===l.platform&&c.region===l.region&&c.chartKey==='top-free'&&c.actual_count>0))
  const charts=[...external,...old].sort((a:any,b:any)=>['WECHAT','DOUYIN','IOS','GOOGLE_PLAY'].indexOf(a.platform)-['WECHAT','DOUYIN','IOS','GOOGLE_PLAY'].indexOf(b.platform))
  return {...legacy,charts,date:date||market.date,latestAvailableDate:market.latestAvailableDate||market.date,market,coverageState:charts.every((c:any)=>c.data_state==='COMPLETE')?'COMPLETE':charts.some((c:any)=>c.actual_count>0)?'PARTIAL':'NONE'}
 }

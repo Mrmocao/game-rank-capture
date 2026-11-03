@@ -13,19 +13,19 @@ public final class CaptureWorkspaceStore {
     final JdbcTemplate jdbc; final ObjectMapper mapper; final Clock clock;
     public CaptureWorkspaceStore(JdbcTemplate jdbc, ObjectMapper mapper, Clock clock) { this.jdbc=jdbc;this.mapper=mapper;this.clock=clock; }
     public void initialize(String tenant) {
-        seed(tenant,"apple-cn","Apple · 中国游戏免费榜","apple-games","cn","http-json","官方免费榜1–100、Apple ID、名称、开发者、图标、来源更新时间",true);
+        seed(tenant,"apple-cn","Apple · 中国游戏免费/付费/畅销榜","apple-games","cn","http-json","官方游戏免费、付费、畅销3榜各Top100、Apple ID、名称、开发者、图标、来源更新时间",true);
         seed(tenant,"wechat-cn","引力引擎 · 微信小游戏","gravity-wechat","cn","browser-scroll","人气、畅销、畅玩3榜各100；名称、名次、发行方、标签、变化原文",true);
         seed(tenant,"douyin-cn","引力引擎 · 抖音小游戏","gravity-douyin","cn","browser-scroll","热门、畅销、新游、发行人热度4榜各100；名称、名次、发行方、标签",true);
-        for(String region:List.of("us","gb","de","fr")) seed(tenant,"appbrain-"+region,"AppBrain · "+region.toUpperCase(Locale.ROOT)+" 游戏免费榜","appbrain",region,"http-html","第三方Google Play免费榜、包名、名称及来源估算原文；当前网络可达性待验证",false);
+        for(String region:List.of("us","gb","de","fr")) seed(tenant,"appbrain-"+region,"AppBrain · "+region.toUpperCase(Locale.ROOT)+" 游戏五类榜单","appbrain",region,"http-html","第三方Google Play免费、付费、畅销、新免费、新付费5榜；公开缺行保留；云端采集回传",false);
         jdbc.update("INSERT IGNORE INTO capture_schedule_config(tenant_id,enabled,cron_expression,timezone,revision,updated_at) VALUES(?,FALSE,'0 30 8 * * *','Asia/Shanghai',0,?)",tenant,now());
     }
     private void seed(String tenant,String key,String name,String source,String region,String tool,String fields,boolean enabled) {
         CaptureRequest request = new CaptureRequest(source,region,100,null);
         String url = CaptureSources.adapters(mapper).stream().filter(a->a.key().equals(source)).findFirst().orElseThrow().sourceUrl(request).toString();
-        jdbc.update("INSERT IGNORE INTO capture_target_config(tenant_id,target_key,name,source_url,source_key,region,tool_key,field_scope,notes,enabled,revision,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,0,?,?)",
-            tenant,key,name,url,source,region,tool,fields,"",enabled,now(),now());
+        jdbc.update("INSERT IGNORE INTO capture_target_config(tenant_id,target_key,name,source_url,source_key,region,tool_key,field_scope,notes,enabled,execution_mode,revision,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,0,?,?)",
+            tenant,key,name,url,source,region,tool,fields,"",enabled,source.equals("appbrain")?"REMOTE":"SERVER",now(),now());
     }
-    public List<Map<String,Object>> targets(String tenant) { return jdbc.queryForList("SELECT target_key,name,source_url,source_key,region,tool_key,field_scope,notes,enabled,revision,updated_at FROM capture_target_config WHERE tenant_id=? ORDER BY created_at,target_key",tenant); }
+    public List<Map<String,Object>> targets(String tenant) { return jdbc.queryForList("SELECT target_key,name,source_url,source_key,region,tool_key,field_scope,notes,enabled,execution_mode,revision,updated_at FROM capture_target_config WHERE tenant_id=? ORDER BY created_at,target_key",tenant); }
     public Map<String,Object> target(String tenant,String key) { return targets(tenant).stream().filter(r->key.equals(r.get("target_key"))).findFirst().orElseThrow(()->new IllegalArgumentException("采集目标不存在")); }
     public record TargetEdit(String name,String url,String fields,String notes,String toolKey,boolean enabled,int revision) {}
     public Map<String,Object> update(String tenant,String key,TargetEdit edit) {
@@ -55,9 +55,9 @@ public final class CaptureWorkspaceStore {
         String source=(String)target.get("source_key"); String region=(String)target.get("region");
         if(source==null)throw new CaptureException("ADAPTER_NOT_IMPLEMENTED","仅登记的网站尚无可执行适配器");
         if(source.startsWith("gravity-"))return CaptureSources.daily(100).stream().filter(r->source.equals(r.sourceKey())).toList();
-        return List.of(new CaptureRequest(source,region,100,null));
+        return (source.equals("apple-games")?StoreCharts.APPLE:StoreCharts.GOOGLE).stream().map(chart->new CaptureRequest(source,region,100,null,chart)).toList();
     }
-    public List<CaptureRequest> enabledRequests(String tenant) { return targets(tenant).stream().filter(t->Boolean.TRUE.equals(t.get("enabled"))&&t.get("source_key")!=null).flatMap(t->requests(t).stream()).toList(); }
+    public List<CaptureRequest> enabledRequests(String tenant) { return targets(tenant).stream().filter(t->Boolean.TRUE.equals(t.get("enabled"))&&t.get("source_key")!=null&&!"REMOTE".equals(t.get("execution_mode"))).flatMap(t->requests(t).stream()).toList(); }
     public List<Map<String,Object>> latestRuns(String tenant,String source,String region) {
         return jdbc.queryForList("SELECT r.id,r.source_key,r.chart_key,r.region,r.status,r.error_code,r.freshness,r.started_at,r.finished_at,r.observation_id,o.actual_count,o.contiguous_top_n,o.business_date,o.source_authority FROM external_capture_run r LEFT JOIN external_ranking_observation o ON o.id=r.observation_id AND o.tenant_id=r.tenant_id WHERE r.tenant_id=? AND r.source_key=? AND r.region=? AND NOT EXISTS (SELECT 1 FROM external_capture_run newer WHERE newer.tenant_id=r.tenant_id AND newer.source_key=r.source_key AND newer.region=r.region AND newer.chart_key=r.chart_key AND (newer.started_at>r.started_at OR (newer.started_at=r.started_at AND newer.id>r.id))) ORDER BY r.chart_key",tenant,source,region);
     }

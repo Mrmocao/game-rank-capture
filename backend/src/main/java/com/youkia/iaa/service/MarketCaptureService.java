@@ -19,6 +19,7 @@ public class MarketCaptureService {
     public MarketCaptureService(JdbcTemplate jdbc,ObjectMapper mapper,@Value("${PROFILE_TENANT_ID:default}")String tenant,
             @Value("${CAPTURE_SYNC_RECEIPT_DIR:./data/deliveries}")String receipts){this.jdbc=jdbc;this.mapper=mapper;this.tenant=tenant;this.receipts=Path.of(receipts);}
     public LocalDate latest(){return jdbc.queryForObject("SELECT MAX(o.business_date) FROM external_ranking_observation o WHERE o.tenant_id=? AND o.business_date<=? AND EXISTS(SELECT 1 FROM external_capture_run r WHERE r.observation_id=o.id AND r.tenant_id=o.tenant_id AND r.status IN ('SUCCEEDED','PARTIAL'))",LocalDate.class,tenant,LocalDate.now(ZoneId.of("Asia/Shanghai")));}
+    public Map<String,Object> remotePlan(){return Map.of("regions",jdbc.queryForList("SELECT DISTINCT region FROM capture_target_config WHERE tenant_id=? AND source_key='appbrain' AND execution_mode='REMOTE' AND enabled=TRUE ORDER BY region",String.class,tenant),"charts",com.youkia.capture.StoreCharts.GOOGLE,"requestedTopN",100);}
     private List<Map<String,Object>> observations(LocalDate start,LocalDate end){
         return jdbc.queryForList("""
             SELECT o.id,o.source_key,o.chart_key,o.board_name,o.platform,o.region,o.business_date,o.source_date,
@@ -34,12 +35,12 @@ public class MarketCaptureService {
     public Map<String,Object> catalog(LocalDate day){
         Map<String,Map<String,Object>> latest=new LinkedHashMap<>();for(var row:observations(day,day))latest.putIfAbsent(scope(row),row);
         List<Map<String,Object>> charts=new ArrayList<>();
-        for(var request:CaptureSources.daily(100)){
+        for(var request:CaptureSources.available(100)){
             String key=request.sourceKey()+":"+request.chartKey()+":"+request.region();var o=latest.get(key);
             Map<String,Object> chart=new LinkedHashMap<>();chart.put("id","capture:"+key);chart.put("sourceKey",request.sourceKey());chart.put("chartKey",request.chartKey());chart.put("region",request.region().toUpperCase(Locale.ROOT));chart.put("external",true);
-            chart.put("platform",request.sourceKey().equals("gravity-wechat")?"WECHAT":request.sourceKey().equals("gravity-douyin")?"DOUYIN":"IOS");
-            String label=switch(request.chartKey()){case "popularity"->request.sourceKey().equals("gravity-wechat")?"人气榜":"热门榜";case "bestseller"->"畅销榜";case "most_played"->"畅玩榜";case "fresh_game"->"新游榜";case "publisher_heat"->"发行人热度榜";default->"游戏免费榜";};
-            chart.put("name",label);chart.put("chart_type",switch(request.chartKey()){case "top-free"->"FREE";case "bestseller"->"BESTSELLER";case "publisher_heat"->"PROMOTION";case "fresh_game"->"NEW";default->"POPULARITY";});
+            chart.put("platform",request.sourceKey().equals("gravity-wechat")?"WECHAT":request.sourceKey().equals("gravity-douyin")?"DOUYIN":request.sourceKey().equals("appbrain")?"GOOGLE_PLAY":"IOS");
+            String label=switch(request.chartKey()){case "popularity"->request.sourceKey().equals("gravity-wechat")?"人气榜":"热门榜";case "bestseller"->"畅销榜";case "most_played"->"畅玩榜";case "fresh_game"->"新游榜";case "publisher_heat"->"发行人热度榜";default->com.youkia.capture.StoreCharts.label(request.chartKey());};
+            chart.put("name",label);chart.put("chart_type",switch(request.chartKey()){case "top-free"->"FREE";case "bestseller","top-grossing"->"BESTSELLER";case "top-paid"->"PAID";case "top-new-free"->"NEW_FREE";case "top-new-paid"->"NEW_PAID";case "publisher_heat"->"PROMOTION";case "fresh_game"->"NEW";default->"POPULARITY";});
             chart.put("actual_count",o==null?0:o.get("actual_count"));chart.put("requested_top_n",100);chart.put("covered_top_n",o==null?0:o.get("contiguous_top_n"));
             String state=o==null?"MISSING_SNAPSHOT":"REQUESTED_RANGE_COMPLETE".equals(o.get("completeness"))?"COMPLETE":"PARTIAL";
             chart.put("data_state",state);chart.put("completeness",state);chart.put("observationId",o==null?null:o.get("id"));chart.put("sourceUrl",o==null?null:o.get("source_url"));chart.put("capturedAt",o==null?null:o.get("captured_at"));chart.put("availableAt",o==null?null:o.get("available_at"));charts.add(chart);
@@ -88,7 +89,7 @@ public class MarketCaptureService {
         return rows;
     }
     public Map<String,Object> sync(){
-        Map<String,Object> out=new LinkedHashMap<>();for(String name:List.of("heartbeat","latest","source-session")){Path p=receipts.resolve(name+".json");try{if(Files.isRegularFile(p)&&Files.size(p)<32768)out.put(name,mapper.readTree(Files.readString(p)));}catch(Exception e){out.put("readError","同步记录暂不可读");}}
+        Map<String,Object> out=new LinkedHashMap<>();for(String name:List.of("heartbeat","latest","source-session","overseas")){Path p=receipts.resolve(name+".json");try{if(Files.isRegularFile(p)&&Files.size(p)<32768)out.put(name,mapper.readTree(Files.readString(p)));}catch(Exception e){out.put("readError","同步记录暂不可读");}}
         return out;
     }
     public Map<String,Object> selections(){var rows=jdbc.queryForList("SELECT id,owner,status,note,created_at,source_snapshot FROM source_candidate_selection WHERE tenant_id=? ORDER BY created_at DESC,id DESC LIMIT 200",tenant);rows.forEach(r->r.put("source_snapshot",read(r.get("source_snapshot"))));return Map.of("items",rows);}

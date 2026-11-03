@@ -9,7 +9,7 @@ import java.util.*;
 
 /** Research leads from immutable source observations. Never assigns product identities or IAA eligibility. */
 public final class CaptureResearchLeadService {
-    public static final String VERSION = "capture-research-leads-2.1.0";
+    public static final String VERSION = "capture-research-leads-2.2.0";
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
     public CaptureResearchLeadService(JdbcTemplate jdbc, ObjectMapper mapper) { this.jdbc=jdbc; this.mapper=mapper; }
@@ -44,13 +44,13 @@ public final class CaptureResearchLeadService {
         for(var r:raw) {
             LocalDate date=date(r.get("business_date"));
             if(date==null||date.isAfter(day)||date.isBefore(day.minusDays(27))||time(r.get("available_at")).isAfter(cutoff)||time(r.get("captured_at")).isAfter(cutoff))continue;
-            long id=number(r.get("observation_id"));String key=scope(r)+":"+date;
+            long id=number(r.get("observation_id"));String key=snapshotScope(r)+":"+date;
             Long prev=latest.get(key);
             if(prev==null||newer(r,observations.get(prev)))latest.put(key,id);
             observations.putIfAbsent(id,r);
         }
         List<Map<String,Object>> rows=new ArrayList<>();
-        for(var r:raw)if(Objects.equals(latest.get(scope(r)+":"+r.get("business_date")),number(r.get("observation_id"))))rows.add(r);
+        for(var r:raw)if(Objects.equals(latest.get(snapshotScope(r)+":"+r.get("business_date")),number(r.get("observation_id"))))rows.add(r);
         Map<String,List<Map<String,Object>>> groups=new TreeMap<>();
         Map<String,List<Map<String,Object>>> entities=new HashMap<>();
         for(var r:rows)entities.computeIfAbsent(entity(r),k->new ArrayList<>()).add(r);
@@ -60,7 +60,7 @@ public final class CaptureResearchLeadService {
             var history=new ArrayList<>(entry.getValue().stream().filter(r->!date(r.get("business_date")).isBefore(day.minusDays(6))).toList());
             if(history.isEmpty())continue;history.sort(Comparator.comparing(r->date(r.get("business_date"))));
             var last=history.getLast();String chart=str(last,"chart_key");
-            if(!Set.of("popularity","top-free","most_played").contains(chart))continue;
+            if(!Set.of("popularity","top-free","top-new-free","most_played").contains(chart))continue;
             var gameplay=last.get("reviewed_gameplay") instanceof Map<?,?> reviewed?reviewed:SourceGameplay.read(fields(last));String family=gameplay.get("family").toString();boolean casual=SourceIdentityService.FAMILIES.contains(family)&&!family.equals("其他/重度");
             boolean current=day.equals(date(last.get("business_date")));
             String candidateKey=entity(last);boolean tentative=str(last,"external_id").isBlank();
@@ -69,8 +69,8 @@ public final class CaptureResearchLeadService {
             List<Map<String,Object>> context=entities.getOrDefault(candidateKey,List.of()).stream()
                     .filter(r->!str(r,"chart_key").equals(chart)).sorted(Comparator.comparing((Map<String,Object> r)->str(r,"chart_key"))
                             .thenComparing(r->date(r.get("business_date"))).thenComparingLong(r->number(r.get("observation_id")))).toList();
-            boolean paidSignal=context.stream().anyMatch(r->"bestseller".equals(r.get("chart_key")));
-            boolean freshGame=context.stream().anyMatch(r->"fresh_game".equals(r.get("chart_key")));
+            boolean paidSignal=context.stream().anyMatch(r->Set.of("bestseller","top-paid","top-grossing","top-new-paid").contains(r.get("chart_key")));
+            boolean freshGame=context.stream().anyMatch(r->Set.of("fresh_game","top-new-free","top-new-paid").contains(r.get("chart_key")));
             boolean promotional=context.stream().anyMatch(r->"publisher_heat".equals(r.get("chart_key")));
             Set<LocalDate> observed=new TreeSet<>();history.forEach(r->observed.add(date(r.get("business_date"))));
             var first=history.getFirst();int startRank=(int)number(first.get("rank_position")),lastRank=(int)number(last.get("rank_position"));
@@ -84,9 +84,9 @@ public final class CaptureResearchLeadService {
             gaps.add("目标版本广告与排除内购证据未核验，纯IAA资格未知");gaps.add("缺少同版本实机、可比玩家评价与团队工期估算");
             if("SOURCE_DESCRIPTION".equals(gameplay.get("basis")))gaps.add("玩法依据为来源描述明确词句，未经实机验证；描述中的DAU/收入等数字未经独立核验");
             if(observed.size()<7)gaps.add("7日窗口只有"+observed.size()+"个有记录日，缺日不回填");
-            if(paidSignal)gaps.add("28日回看窗口同来源畅销榜出现匹配记录，需优先核查付费/混合变现；榜单本身不是内购事实");
+            if(paidSignal)gaps.add("28日回看窗口同来源付费/畅销榜出现匹配记录，需优先核查付费/混合变现；榜单本身不是内购事实");
             if(promotional)gaps.add("28日回看窗口同来源发行人热度榜出现该线索，投放信号不等于玩家需求或盈利");
-            String exclusion=!current?"截止日无观察，不用旧榜冒充当前热度":!casual?"缺少明确的轻度玩法标签或描述依据，暂不进入本周短名单":paidSignal?"存在同来源畅销信号，先核查付费模式再评估IAA机会":!sufficientHistory?"连续观察不足：至少5/7日且最近3日连续有记录；留在观察池，不以首末排名凑数":!headHeat&&!growth?"未达到研究信号门槛：当前同榜Top20，或上升至少10名且进入Top50；保留观察":"";
+            String exclusion=!current?"截止日无观察，不用旧榜冒充当前热度":!casual?"缺少明确的轻度玩法标签或描述依据，暂不进入本周短名单":paidSignal?"存在同来源付费/畅销信号，先核查付费模式再评估IAA机会":!sufficientHistory?"连续观察不足：至少5/7日且最近3日连续有记录；留在观察池，不以首末排名凑数":!headHeat&&!growth?"未达到研究信号门槛：当前同榜Top20，或上升至少10名且进入Top50；保留观察":"";
             Map<String,Object> item=new LinkedHashMap<>();
             for(var field:Map.of("unified_product_id","unifiedProductId","unified_product_name","unifiedProductName","association_basis","associationBasis","identity_review","identityReview").entrySet())if(last.containsKey(field.getKey()))item.put(field.getValue(),last.get(field.getKey()));
             item.put("scopeKey",scope(last));item.put("leadKey",MarketWeeklySkill.hash(entry.getKey()));item.put("entityKey",candidateKey);item.put("classification","RESEARCH_LEAD");
@@ -107,7 +107,7 @@ public final class CaptureResearchLeadService {
             if(history.size()>1){var previous=history.get(history.size()-2);int prev=(int)number(previous.get("rank_position"));
                 if(lastRank>prev)caution.append("最新一次由#").append(prev).append("回落到#").append(lastRank).append("；不能描述为持续单边上涨。");}
             Map<String,List<Map<String,Object>>> otherDemand=new TreeMap<>();
-            for(var r:context)if(Set.of("popularity","top-free","most_played").contains(str(r,"chart_key")))otherDemand.computeIfAbsent(str(r,"chart_key"),k->new ArrayList<>()).add(r);
+            for(var r:context)if(Set.of("popularity","top-free","top-new-free","most_played").contains(str(r,"chart_key")))otherDemand.computeIfAbsent(str(r,"chart_key"),k->new ArrayList<>()).add(r);
             for(var other:otherDemand.values())if(other.size()>1){var a=other.getFirst();var b=other.getLast();
                 if(day.equals(date(b.get("business_date")))&&number(b.get("rank_position"))>number(a.get("rank_position")))caution.append("同来源").append(str(b,"board_name")).append("回看窗口由#").append(a.get("rank_position")).append("到#").append(b.get("rank_position")).append("，走势转弱；不同榜单不合成总分。");}
             if(!growth&&headHeat)caution.append("此项作为头部热度基准，不宣称新增增长突破。");
@@ -142,6 +142,7 @@ public final class CaptureResearchLeadService {
     private static long number(Object o){return o instanceof Number n?n.longValue():Long.parseLong(o.toString());}
     private static LocalDate date(Object o){return o==null?null:LocalDate.parse(o.toString());}
     private static LocalDateTime time(Object o){if(o instanceof Timestamp t)return t.toLocalDateTime();if(o instanceof LocalDateTime t)return t;return LocalDateTime.parse(o.toString().replace(' ','T'));}
+    private static String snapshotScope(Map<String,Object> r){return str(r,"source_key")+":"+str(r,"platform")+":"+str(r,"region")+":"+str(r,"chart_key");}
     private static String scope(Map<String,Object> r){return str(r,"source_key")+":"+str(r,"platform")+":"+str(r,"region")+":"+str(r,"chart_key")+":"+str(r,"parser_version");}
     private static String identity(Map<String,Object> r){return !str(r,"external_id").isBlank()?"id:"+str(r,"external_id"):"label:"+str(r,"name")+":"+str(r,"developer")+(str(r,"developer").isBlank()?":observation:"+r.get("observation_id"):"");}
     private static String entity(Map<String,Object> r){return str(r,"source_key")+":"+str(r,"platform")+":"+str(r,"region")+":"+identity(r);}
