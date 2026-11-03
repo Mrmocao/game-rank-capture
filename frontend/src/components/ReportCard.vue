@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import GameIcon from './GameIcon.vue'
+import CrossPlatformEvidence from './CrossPlatformEvidence.vue'
 const props=defineProps<{row:any}>();const emit=defineEmits(['detail','select'])
 const f=computed(()=>{try{return typeof props.row.frozen_facts==='string'?JSON.parse(props.row.frozen_facts):props.row.frozen_facts||{}}catch{return {}}})
 const v=computed(()=>f.value.v22)
@@ -20,6 +21,7 @@ const fmt=(n:unknown)=>typeof n==='number'?n.toFixed(1):'—'
   <details class="insight-detail"><summary>逐维计算、补证与来源窗口</summary><p v-for="(r,key) in v.dimensions" :key="key"><b>{{dimensions[String(key)]}}</b> · {{r.status}} · {{r.boundMethod}}</p><p v-for="t in v.evidenceTasks" :key="t.key">{{t.label}}：{{t.impact==null?'前提优先':'最多缩小 '+fmt(t.impact)+' 分'}}。{{t.reason}}</p><div class="history-points"><span v-for="h in f.history" :key="h.date" :title="h.state">{{h.date.slice(5)}}<b>{{h.rank==null?'—':'#'+h.rank}}</b></span></div></details>
  </template>
  <template v-else><div class="card-reason">{{row.content}}</div><p class="muted">历史报告保留当时事实与算法结果，不按新方案重算。</p></template>
+ <CrossPlatformEvidence :value="f.crossPlatform"/>
  <p class="card-source">截止 {{f.businessDate}} · {{f.chartName}}</p>
  <div class="card-actions"><button class="link" @click="emit('detail',row.product_id)">查看产品与依据 →</button><a v-if="f.sourceUrl&&/^https?:\/\//.test(f.sourceUrl)" :href="f.sourceUrl" target="_blank" rel="noopener noreferrer">原始榜单</a><el-button size="small" @click="emit('select',row.product_id)">选用</el-button></div>
 </article></template>

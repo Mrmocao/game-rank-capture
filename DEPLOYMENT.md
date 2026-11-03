@@ -100,3 +100,10 @@ mvn -q -f backend/pom.xml -DskipTests package
 ## 2026-11-03 发布前阻塞（已解除）
 
 首轮尝试因服务器内存耗尽导致SSH/API超时，未切换版本。用户重启并提供8GB环境后，按本文顶部流程重新备份、部署、实采及核验完成；不沿用未确认完成的备份结果。
+
+
+## 2026-11-03 跨平台机制发布（当前）
+
+当前release `/opt/iaa-radar/releases/20261103-cross-platform-final`，后端JAR SHA256 `a1a277757fef2110692937a3c15d12296724c2eb6008e0c1005e73cdee25e583`；Flyway V16。继续通过JDBC连接服务器app.env指定的13306实例，不使用开发.env的3306实例替代；免登录，无Docker要求。
+
+最终备份 `/opt/iaa-radar/backups/before-cross-platform-final-20261103.sql`：54表14312行，1375条既有报告/榜单冻结行保持。Web、独立采集、报告桥已恢复active，沿用1280/1536/512MiB上限。报告20/修订4重试复用；16/18旧哈希不变。没有新增常驻进程，也未为本轮重复进行真实抓取。验收与来源缺口见docs/acceptance/2026-11-03-cross-platform.md。

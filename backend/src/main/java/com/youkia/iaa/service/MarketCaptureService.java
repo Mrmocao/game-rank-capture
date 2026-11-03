@@ -67,6 +67,8 @@ public class MarketCaptureService {
         Map<String,Map<String,Object>> chosen=new LinkedHashMap<>();for(var o:observations(day.minusDays(6),day))chosen.putIfAbsent(scope(o)+":"+o.get("business_date"),o);
         if(chosen.isEmpty())return List.of();Map<Long,Map<String,Object>> byId=new HashMap<>();chosen.values().forEach(o->byId.put(((Number)o.get("id")).longValue(),o));
         String marks=String.join(",",Collections.nCopies(byId.size(),"?"));var entries=jdbc.queryForList("SELECT observation_id,rank_position,external_id,name,developer,evidence_locator,source_fields FROM external_ranking_entry WHERE observation_id IN ("+marks+")",byId.keySet().toArray());
+        for(var e:entries){var o=byId.get(((Number)e.get("observation_id")).longValue());for(String k:List.of("source_key","platform","region"))e.put(k,o.get(k));}
+        new SourceIdentityService(jdbc,mapper,tenant).enrich(entries,day,LocalDateTime.now(ZoneOffset.UTC));
         List<Map<String,Object>> rows=new ArrayList<>();Map<String,Map<String,Map<String,Object>>> history=new HashMap<>();
         for(var e:entries){var o=byId.get(((Number)e.get("observation_id")).longValue());var fields=read(e.get("source_fields"));Map<String,Object> r=new LinkedHashMap<>();
             String identity=!text(e,"external_id").isBlank()?"id:"+e.get("external_id"):e.get("name")+":"+text(e,"developer")+(text(e,"developer").isBlank()?":"+o.get("id"):"");
@@ -75,6 +77,8 @@ public class MarketCaptureService {
             r.put("platform",o.get("platform"));r.put("region",text(o,"region").toUpperCase(Locale.ROOT));r.put("sourceKey",o.get("source_key"));r.put("boardName",o.get("board_name"));r.put("chartKey",o.get("chart_key"));r.put("sourceUrl",o.get("source_url"));r.put("businessDate",o.get("business_date").toString());
             r.put("capturedAt",o.get("captured_at"));r.put("availableAt",o.get("available_at"));r.put("rawSha256",o.get("raw_sha256"));r.put("evidenceLocator",e.get("evidence_locator"));r.put("authority",o.get("source_authority"));r.put("completeness","REQUESTED_RANGE_COMPLETE".equals(o.get("completeness"))?"COMPLETE":"PARTIAL");
             r.put("thumbnail_url",IconCache.display(fields.path("thumbnailUrl").asText("")));r.put("tags",fields.path("tags").isArray()?mapper.convertValue(fields.path("tags"),List.class):List.of());r.put("description",fields.path("descriptionRaw").asText(""));r.put("gameplay",SourceGameplay.read(fields));
+            r.put("associationKey",SourceEntity.sha(e));
+            for(var field:Map.of("unified_product_id","unifiedProductId","unified_product_name","unifiedProductName","association_basis","associationBasis","identity_review","identityReview","reviewed_gameplay","reviewedGameplay").entrySet())if(e.containsKey(field.getKey()))r.put(field.getValue(),e.get(field.getKey()));
             rows.add(r);history.computeIfAbsent(r.get("candidateKey")+":"+r.get("chartId"),k->new HashMap<>()).put(text(r,"businessDate"),r);
         }
         for(var row:rows)if(day.toString().equals(text(row,"businessDate"))){var series=history.get(row.get("candidateKey")+":"+row.get("chartId"));List<Map<String,Object>> points=new ArrayList<>();

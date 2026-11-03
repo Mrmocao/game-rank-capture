@@ -9,7 +9,7 @@ import java.util.*;
 
 /** Research leads from immutable source observations. Never assigns product identities or IAA eligibility. */
 public final class CaptureResearchLeadService {
-    public static final String VERSION = "capture-research-leads-2.0.0";
+    public static final String VERSION = "capture-research-leads-2.1.0";
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
     public CaptureResearchLeadService(JdbcTemplate jdbc, ObjectMapper mapper) { this.jdbc=jdbc; this.mapper=mapper; }
@@ -28,6 +28,7 @@ public final class CaptureResearchLeadService {
               AND EXISTS(SELECT 1 FROM external_capture_run r WHERE r.tenant_id=o.tenant_id AND r.observation_id=o.id AND r.status IN ('SUCCEEDED','PARTIAL'))
 
             """,tenant,day.minusDays(27),day,knowledgeCutoff,knowledgeCutoff);
+        new SourceIdentityService(jdbc,mapper,tenant).enrich(rows,day,knowledgeCutoff);
         return evaluate(rows, day, knowledgeCutoff, remainingSlots,formalCount,formalLabels);
     }
 
@@ -60,7 +61,7 @@ public final class CaptureResearchLeadService {
             if(history.isEmpty())continue;history.sort(Comparator.comparing(r->date(r.get("business_date"))));
             var last=history.getLast();String chart=str(last,"chart_key");
             if(!Set.of("popularity","top-free","most_played").contains(chart))continue;
-            var gameplay=SourceGameplay.read(fields(last));String family=gameplay.get("family").toString();boolean casual=!family.equals("未知");
+            var gameplay=last.get("reviewed_gameplay") instanceof Map<?,?> reviewed?reviewed:SourceGameplay.read(fields(last));String family=gameplay.get("family").toString();boolean casual=SourceIdentityService.FAMILIES.contains(family)&&!family.equals("其他/重度");
             boolean current=day.equals(date(last.get("business_date")));
             String candidateKey=entity(last);boolean tentative=str(last,"external_id").isBlank();
             // Preserve other-chart risk evidence across this whole window; disappearance today does not clear it.
@@ -79,7 +80,7 @@ public final class CaptureResearchLeadService {
             boolean rise=sufficientHistory&&delta!=null&&delta>0;
             boolean growth=sufficientHistory&&delta!=null&&delta>=10&&lastRank<=50;
             boolean headHeat=lastRank<=20;
-            List<String> gaps=new ArrayList<>();if(tentative)gaps.add("缺少平台稳定ID，名称与发行方匹配仅是来源内待核线索");
+            List<String> gaps=new ArrayList<>();if(tentative)gaps.add(last.get("unified_product_id")!=null?"跨平台产品已有身份关联，但来源未提供平台稳定ID；同来源跨日仍按名称与发行方匹配，需排查更名":"缺少平台稳定ID，名称与发行方匹配仅是来源内待核线索");
             gaps.add("目标版本广告与排除内购证据未核验，纯IAA资格未知");gaps.add("缺少同版本实机、可比玩家评价与团队工期估算");
             if("SOURCE_DESCRIPTION".equals(gameplay.get("basis")))gaps.add("玩法依据为来源描述明确词句，未经实机验证；描述中的DAU/收入等数字未经独立核验");
             if(observed.size()<7)gaps.add("7日窗口只有"+observed.size()+"个有记录日，缺日不回填");
@@ -87,11 +88,12 @@ public final class CaptureResearchLeadService {
             if(promotional)gaps.add("28日回看窗口同来源发行人热度榜出现该线索，投放信号不等于玩家需求或盈利");
             String exclusion=!current?"截止日无观察，不用旧榜冒充当前热度":!casual?"缺少明确的轻度玩法标签或描述依据，暂不进入本周短名单":paidSignal?"存在同来源畅销信号，先核查付费模式再评估IAA机会":!sufficientHistory?"连续观察不足：至少5/7日且最近3日连续有记录；留在观察池，不以首末排名凑数":!headHeat&&!growth?"未达到研究信号门槛：当前同榜Top20，或上升至少10名且进入Top50；保留观察":"";
             Map<String,Object> item=new LinkedHashMap<>();
+            for(var field:Map.of("unified_product_id","unifiedProductId","unified_product_name","unifiedProductName","association_basis","associationBasis","identity_review","identityReview").entrySet())if(last.containsKey(field.getKey()))item.put(field.getValue(),last.get(field.getKey()));
             item.put("scopeKey",scope(last));item.put("leadKey",MarketWeeklySkill.hash(entry.getKey()));item.put("entityKey",candidateKey);item.put("classification","RESEARCH_LEAD");
             item.put("name",last.get("name"));item.put("developer",last.get("developer"));item.put("platform",last.get("platform"));item.put("region",str(last,"region").toUpperCase(Locale.ROOT));
             item.put("sourceKey",last.get("source_key"));item.put("originFamily",last.get("origin_family"));item.put("authority",last.get("source_authority"));item.put("sourceUrl",last.get("source_url"));
             item.put("chartKey",chart);item.put("boardName",last.get("board_name"));item.put("family",family.isBlank()?"未知":family);item.put("sourceTags",fields(last).path("tags"));
-            item.put("identityStatus",tentative?"SOURCE_LABEL_MATCH_UNVERIFIED":"SOURCE_ID_OBSERVED");item.put("externalId",last.get("external_id"));item.put("monetization","UNKNOWN");item.put("formalEligible",false);
+            item.put("identityStatus",last.get("unified_product_id")!=null?"CONFIRMED_PRODUCT_ASSOCIATION":tentative?"SOURCE_LABEL_MATCH_UNVERIFIED":"SOURCE_ID_OBSERVED");item.put("externalId",last.get("external_id"));item.put("monetization","UNKNOWN");item.put("formalEligible",false);
             item.put("windowStart",day.minusDays(6).toString());item.put("windowEnd",day.toString());item.put("observationDays",observed.size());item.put("firstObservedDate",str(first,"business_date"));item.put("latestObservedDate",str(last,"business_date"));
             item.put("firstRank",startRank);item.put("latestRank",lastRank);item.put("rankChange",delta);item.put("risingLabelSequence",rise);item.put("hasBestsellerSignal",paidSignal);item.put("hasPromotionSignal",promotional);
             item.put("hasSourceNewGameSignal",freshGame);
@@ -128,6 +130,7 @@ public final class CaptureResearchLeadService {
         result.put("thresholds",Map.of("benchmark",Map.of("minimumObservedDays",5,"recentContinuousDays",3,"headHeatTopN",20,"growthMinimumRankGain",10,"growthCurrentTopN",50),
             "entry",Map.of("lookbackDays",28,"priorCompleteAbsenceDays",3,"topN",100,"maximumAgeDays",3,"minimumGain",10),
             "acceleration",Map.of("minimumAgeDays",4,"maximumAgeDays",14,"recentContinuousDays",3,"twoDayGain",15,"minimumAcceleration",5,"minimumComparables",5,"topFraction",0.2),"familyCap",2));
+        result.put("productEvidence",portfolio.get("productEvidence"));result.put("platformDiagnostics",CrossPlatformAssessment.diagnostics(audit));
         result.put("policy",OpportunityPortfolio.POLICY);result.put("portfolio",portfolio.get("allocation"));
         result.put("dataRequirements",OpportunityPortfolio.DATA_REQUIREMENTS);result.put("lookbackStart",day.minusDays(27).toString());
         result.put("items",selected);result.put("candidateAudit",audit);result.put("snapshotCount",latest.size());

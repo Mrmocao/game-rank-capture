@@ -7,7 +7,7 @@ import java.util.*;
 /** Evidence-gated opportunity allocation. Rank movement never establishes market or gameplay novelty. */
 public final class OpportunityPortfolio {
     private OpportunityPortfolio() {}
-    public static final String POLICY="核心4席：成熟基准2席（50%）、新入榜1席（25%）、单榜加速1席（25%）。第5席只增补合格早期机会；空缺不由成熟热门补位。正式精选占成熟基准席，不降低IAA资格。新入榜须此前连续3日同口径完整Top100未出现，入榜不超过3日、至少2日连续记录且实际上升≥10名。单榜加速须同样的入榜基线、入榜4—14日，最近3日连续、两日上升≥15名、最新日增速比前日多≥5名，且在至少5个可比样本的同榜两日增幅前20%。28日内回归不算新入榜；名称与发行方匹配仍待身份核验。不同榜不合分，优先早期席、同榜排序、跨榜稳定轮转、单玩法最多2项。排名上涨不是用户增长，首次入榜不是首次上线，更不证明新赛道。阈值为待回测研究默认值。";
+    public static final String POLICY="核心4席：成熟基准2席（50%）、新入榜1席（25%）、单榜加速1席（25%）。第5席只增补合格早期机会；空缺不由成熟热门补位。正式精选占成熟基准席，不降低IAA资格。新入榜须此前连续3日同口径完整Top100未出现，入榜不超过3日、至少2日连续记录且实际上升≥10名。单榜加速须同样的入榜基线、入榜4—14日，最近3日连续、两日上升≥15名、最新日增速比前日多≥5名，且在至少5个可比样本的同榜两日增幅前20%。28日内回归不算新入榜；名称与发行方匹配仍待身份核验。不同榜不合分，优先早期席、同榜排序、跨榜稳定轮转、单玩法最多2项。排名上涨不是用户增长，首次入榜不是首次上线，更不证明新赛道。阈值为待回测研究默认值。已确认统一产品跨平台只占一席，保留各榜独立名次；同名仅提示待核。跨平台扩散同组优先，走势分歧降序，多平台成熟头部只占基准席；不跨平台传播IAA/玩法结论。";
     public static final List<Map<String,String>> DATA_REQUIREMENTS=List.of(
         Map.of("priority","P0","data","连续28—60天同榜完整Top100（条件允许Top500）及业务日期、发布时间、采集时间、完整度","purpose","区分首次观察、真正新入榜、重返榜单和缺采；按日发现无需等到周末","availability","现有来源继续积累；历史回采受来源可访问范围约束"),
         Map.of("priority","P0","data","平台稳定appid、发行方、首发日期、版本更新时间及旧名称","purpose","排除改名/换皮/重发；首次入榜不等于新上线","availability","当前微信/抖音榜单缺稳定ID，须补官方详情或发行方证据"),
@@ -52,7 +52,7 @@ public final class OpportunityPortfolio {
             momentum.put("twoDayGain",gain1!=null&&gain0!=null?gain1+gain0:null);momentum.put("acceleration",gain1!=null&&gain0!=null?gain1-gain0:null);
             momentum.put("comparableCount",0);momentum.put("withinChartOrder",null);item.put("momentum",momentum);
             if(gain1!=null&&gain0!=null)comparisons.computeIfAbsent(scope,k->new ArrayList<>()).add(item);
-            boolean eligible=current&&!"未知".equals(s(item,"family"))&&!Boolean.TRUE.equals(item.get("hasBestsellerSignal"))&&!formalLabels.contains(s(item,"platform")+":"+s(item,"name"));
+            boolean eligible=current&&SourceIdentityService.FAMILIES.contains(s(item,"family"))&&!"其他/重度".equals(s(item,"family"))&&!Boolean.TRUE.equals(item.get("hasBestsellerSignal"))&&!formalLabels.contains(s(item,"platform")+":"+s(item,"name"));
             item.put("earlyEligible",eligible&&confirmed);
             if(eligible&&confirmed&&age>=1&&age<=3&&days.size()==age+1&&gain1!=null&&gain1>0&&n(days.get(first),"rank_position")-n(days.get(day),"rank_position")>=10){
                 item.put("portfolioGroup","NEW_ENTRY");item.put("exclusionReason","");
@@ -81,6 +81,8 @@ public final class OpportunityPortfolio {
                 item.put("nextAction","24—48小时内核实appid/首发日期，试玩核心循环，对照3款最接近竞品；核查是否活动/投放拉升及变现方式，再决定是否制作差异化原型。");
             }else if(group.equals("BENCHMARK"))item.put("signalLabel","成熟基准 · 不等于新机会");
         }
+        var productEvidence=CrossPlatformAssessment.apply(audit,day);
+        for(var item:audit)if(formalLabels.contains(CrossPlatformAssessment.key(item))){item.put("exclusionReason","已确认统一产品已在正式精选中，跨平台只占一席");item.put("portfolioGroup","OBSERVE");}
         List<Map<String,Object>> selected=new ArrayList<>();Set<String> used=new HashSet<>();Map<String,Integer> families=new HashMap<>();
         take(audit,"NEW_ENTRY",1,limit,selected,used,families);take(audit,"ACCELERATOR",1,limit,selected,used,families);
         take(audit,"BENCHMARK",Math.max(0,2-formalCount),limit,selected,used,families);
@@ -97,7 +99,7 @@ public final class OpportunityPortfolio {
             int target=g.equals("BENCHMARK")?2:1;
             allocation.add(Map.of("group",g,"label",label(g),"target",target,"selected",count,"shortfall",Math.max(0,target-count),"reason",count<target?"符合证据、去重与玩法上限的候选不足，留空；详见未选原因":"已按证据分配"));
         }
-        return Map.of("items",selected,"allocation",allocation);
+        return Map.of("items",selected,"allocation",allocation,"productEvidence",productEvidence);
     }
     @SuppressWarnings("unchecked") private static Map<String,Object> momentum(Map<String,Object> r){return (Map<String,Object>)r.get("momentum");}
     private static void take(List<Map<String,Object>> audit,String group,int quota,int limit,List<Map<String,Object>> selected,Set<String> used,Map<String,Integer> families){
@@ -106,9 +108,11 @@ public final class OpportunityPortfolio {
         Comparator<Map<String,Object>> order=Comparator.<Map<String,Object>>comparingInt(r->momentum(r).get("twoDayGain") instanceof Number n?-n.intValue():0).thenComparingInt(r->n(r,"latestRank")).thenComparing(r->s(r,"leadKey"));
         Comparator<Map<String,Object>> benchmarkOrder=Comparator.<Map<String,Object>,Boolean>comparing(r->Boolean.TRUE.equals(r.get("risingLabelSequence"))).reversed()
                 .thenComparing(Comparator.comparingInt((Map<String,Object> r)->n(r,"observationDays")).reversed()).thenComparingInt(r->n(r,"latestRank")).thenComparing(r->s(r,"leadKey"));
-        queues.values().forEach(q->q.sort(group.equals("BENCHMARK")?benchmarkOrder:order));int added=0;boolean progress=true;
-        while(added<quota&&selected.size()<limit&&progress){progress=false;for(var q:queues.values()){
-            while(!q.isEmpty()&&added<quota&&selected.size()<limit){var r=q.removeFirst();String entity=s(r,"entityKey"),family=s(r,"family");
+        Comparator<Map<String,Object>> priority=Comparator.comparingInt(CrossPlatformAssessment::priority);
+        queues.values().forEach(q->q.sort(priority.thenComparing(group.equals("BENCHMARK")?benchmarkOrder:order)));
+        var orderedQueues=new ArrayList<>(queues.values());orderedQueues.sort(Comparator.comparingInt(q->CrossPlatformAssessment.priority(q.getFirst())));int added=0;boolean progress=true;
+        while(added<quota&&selected.size()<limit&&progress){progress=false;for(var q:orderedQueues){
+            while(!q.isEmpty()&&added<quota&&selected.size()<limit){var r=q.removeFirst();String entity=CrossPlatformAssessment.key(r),family=s(r,"family");
                 if(used.contains(entity)||families.getOrDefault(family,0)>=2)continue;
                 used.add(entity);families.merge(family,1,Integer::sum);r.put("selected",true);r.put("allocatedSlot",group);r.put("portfolioLabel",label(group));r.put("displayOrder",selected.size()+1);selected.add(r);added++;progress=true;break;
             }

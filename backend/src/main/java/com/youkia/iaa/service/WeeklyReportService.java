@@ -55,7 +55,7 @@ public class WeeklyReportService {
         var health=jdbc.queryForList("SELECT source_key,status,result_json,started_at,finished_at FROM insight_collection_attempt WHERE started_at<=? ORDER BY id DESC LIMIT 30",cutoff);
         Map<String,Object> frozen=new LinkedHashMap<>();frozen.put("algorithmVersion","2.2.0");frozen.put("profile",profile);frozen.put("inputs",inputs);frozen.put("result",run);frozen.put("health",health);frozen.put("isSimulation",false);
         Set<String> formalLabels=new HashSet<>();
-        for(var row:(List<Map<String,Object>>)run.get("selected")){var c=origins.get(String.valueOf(row.get("id")));formalLabels.add(c.get("platform")+":"+c.get("product_name"));}
+        for(var row:(List<Map<String,Object>>)run.get("selected")){var c=origins.get(String.valueOf(row.get("id")));formalLabels.add(c.get("platform")+":"+c.get("product_name"));formalLabels.add("product:"+c.get("product_id"));}
         int formalCount=((List<?>)run.get("selected")).size();
         var leads=new CaptureResearchLeadService(jdbc,mapper).build(tenant,day,cutoff,5-formalCount,formalCount,formalLabels);
         frozen.put("captureResearchLeads",leads);frozen.put("effectiveParameters",effectiveParameters);
@@ -76,6 +76,7 @@ public class WeeklyReportService {
             facts.put("productName",c.get("product_name"));facts.put("platform",c.get("platform"));facts.put("region",c.get("region"));
             facts.put("chartName",c.get("chart_name"));facts.put("chartId",c.get("chart_id"));facts.put("rank",c.get("rank_position"));facts.put("businessDate",day.toString());
             facts.put("sourceUrl",c.get("source_url"));facts.put("thumbnailSourceUrl",c.get("thumbnail_source_url"));facts.put("v22",row);facts.put("history",c.get("history"));facts.put("monetization","PURE_IAA");
+            facts.put("crossPlatform",((Map<?,?>)leads.get("productEvidence")).get("product:"+c.get("product_id")));
             facts.put("portfolioGroup","BENCHMARK");facts.put("portfolioLabel","成熟基准 · 核心50%");
             facts.put("whyNow","成熟基准，不代表新赛道。在14日观察窗内实际在榜"+row.get("topDays")+"天。"+String.join("；",(List<String>)row.get("reasons")));facts.put("nextAction",row.get("action"));facts.put("gaps",row.get("unresolvedFields"));
             String content=row.get("name")+"："+row.get("route")+"。"+facts.get("whyNow")+"。"+row.get("action")+"。研究优先级范围不是成功概率。";
