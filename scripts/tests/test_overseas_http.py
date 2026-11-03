@@ -15,15 +15,15 @@ class HttpReceiverTests(unittest.TestCase):
             # Use saved opener because patching shared urllib.urlopen affects the client too.
             opener=urllib.request.build_opener()
             with self.assertRaises(urllib.error.HTTPError) as error:opener.open(self.url+'/overseas/plan')
-            self.assertEqual(401,error.exception.code);fetch.assert_not_called();run.assert_not_called()
+            self.assertEqual(401,error.exception.code);error.exception.close();fetch.assert_not_called();run.assert_not_called()
     def test_token_cannot_invoke_arbitrary_path(self):
         req=urllib.request.Request(self.url+'/admin/run',data=b'id',headers={'Authorization':'Bearer SYNTHETIC-test-token'})
         with patch.object(self.m.subprocess,'run') as run:
             with self.assertRaises(urllib.error.HTTPError) as error:urllib.request.urlopen(req)
-            self.assertEqual(404,error.exception.code);run.assert_not_called()
+            self.assertEqual(404,error.exception.code);error.exception.close();run.assert_not_called()
     def test_oversize_rejected_before_import(self):
         req=urllib.request.Request(self.url+'/overseas/deliver',data=b'x',headers={'Authorization':'Bearer SYNTHETIC-test-token','Content-Length':'24000001'})
         with patch.object(self.m.subprocess,'run') as run:
             with self.assertRaises(urllib.error.HTTPError) as error:urllib.request.urlopen(req)
-            self.assertEqual(413,error.exception.code);run.assert_not_called()
+            self.assertEqual(413,error.exception.code);error.exception.close();run.assert_not_called()
 if __name__=='__main__':unittest.main()

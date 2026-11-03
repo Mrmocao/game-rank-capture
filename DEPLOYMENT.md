@@ -110,4 +110,4 @@ mvn -q -f backend/pom.xml -DskipTests package
 
 ## 商店榜单与海外执行器
 
-V17先JDBC备份/迁移再发布Java及前端；海外不使用本机worker。受限接收账号、GitHub Secrets、计划启停、无个人电脑依赖及验证步骤见 [运行手册](docs/17-STORE-CHARTS.md)。每次发布须验证旧冻结行、三项systemd服务与实际来源回传。
+V17先JDBC备份/迁移再发布Java及前端；海外不使用本机worker。专用HTTPS受限接收、GitHub Secrets、计划启停、无个人电脑依赖及验证步骤见 [运行手册](docs/17-STORE-CHARTS.md)。每次发布须验证旧冻结行、三项systemd服务与实际来源回传。

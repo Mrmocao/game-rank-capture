@@ -1,4 +1,4 @@
-"""Forced SSH command: bounded AppBrain-only input. No caller-controlled commands or paths."""
+"""Server-local validator: bounded AppBrain-only input. No caller-controlled commands or paths."""
 import datetime, hashlib, importlib.util, json, os, pathlib, re, signal, sys, tempfile, urllib.request, zipfile
 
 MAX_ARCHIVE=24_000_000

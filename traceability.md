@@ -203,8 +203,8 @@
 
 |ID|要求|实现|验证|
 |---|---|---|---|
-|STORE-01|iOS不止免费榜|StoreCharts/AppleGamesAdapter，3榜|离线错榜拒绝，生产3榜实采待验收|
-|STORE-02|Google四国五榜|AppBrainAdapter/目录30范围|离线稀疏/跨国拒绝，云端实采待验收|
-|STORE-03|不依赖个人PC|Actions、受限SSH、Java重解析|接收器6测试、运行验收记录|
+|STORE-01|iOS不止免费榜|StoreCharts/AppleGamesAdapter，3榜|离线错榜拒绝，生产3榜300条逐行核验|
+|STORE-02|Google四国五榜|AppBrainAdapter/目录30范围|离线稀疏/跨国拒绝，云端20榜1538条逐行核验|
+|STORE-03|不依赖个人PC|Actions、专用HTTPS、Java重解析|接收器9测试、两次云端成功及幂等验证|
 |STORE-04|语义与历史|付费风险/新游待核、最新快照、冻结报告|CaptureResearchLeadTest|
-|STORE-05|配置与展示|REMOTE/V17、云端入口、失败回执|工作台调度隔离测试、前端实测待验收|
+|STORE-05|配置与展示|REMOTE/V17、云端入口、失败回执|调度隔离、生产桌面/移动端筛选和缺失日、日期竞争测试通过|

@@ -32,10 +32,9 @@ class DeliveryTests(unittest.TestCase):
             for k,v in members.items():z.writestr(k,v)
         with self.assertRaises(ValueError):receiver.validate(archive)
     def test_all_failures_have_no_materials(self):
-        with patch.object(collector,'fetch_material',side_effect=TimeoutError()),patch('sys.stdout',new=io.StringIO()):batch=collector.collect(pathlib.Path('unused'),self.root,['us'])
+        with patch.object(collector.subprocess,'run',side_effect=TimeoutError()),patch('sys.stdout',new=io.StringIO()):batch=collector.collect(pathlib.Path('unused'),self.root,['us'])
         self.assertEqual(5,batch['failedCount']);archive=self.root/'failed.zip';collector.package(batch,self.root,archive)
         self.assertEqual([],receiver.validate(archive)['materials'])
     def test_nano_timestamp_supported_without_date_shift(self):
         self.assertEqual(123456,receiver.parse_utc('2026-11-03T01:02:03.123456789Z').microsecond)
 if __name__=='__main__':unittest.main()
-

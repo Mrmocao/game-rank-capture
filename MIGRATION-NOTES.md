@@ -4,7 +4,7 @@
 
 ## V17 商店榜单与远程执行位置（2026-11-03）
 
-capture_target_config新增execution_mode并带中文注释。已有AppBrain目标改REMOTE、修订号递增；Apple说明扩为3榜。迁移不自动启用海外来源；先验证云端再通过配置API启用。保留旧观察、榜单和报告；新库只执行Flyway，不重复执行contracts/schema.sql。JDBC备份与迁移，无需CLI/Docker。回退应用时应禁用REMOTE目标与GitHub任务，V17结构保留，不删除历史迁移。
+capture_target_config新增execution_mode并带中文注释。已有AppBrain目标改REMOTE、修订号递增；Apple说明扩为3榜。迁移不自动启用海外来源；上线验收已通过配置API启用四国REMOTE目标。生产迁移前备份54表14312行，1375条冻结记录保持；.env配置库另备份54表8858行，365条冻结记录保持。两库均已V17。配置库启用ANSI_QUOTES，JDBC备份新增sql_mode保存、核验器兼容双引号DDL。保留旧观察、榜单和报告；新库只执行Flyway，不重复执行contracts/schema.sql。JDBC备份与迁移，无需CLI/Docker。回退应用时应禁用REMOTE目标与GitHub任务，V17结构保留，不删除历史迁移。
 
 ## V16 统一产品与来源玩法核验（2026-11-03）
 

@@ -1,0 +1,17 @@
+[Unit]
+Description=Restricted overseas evidence receiver
+After=network.target iaa-radar.service
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/python3 -I /opt/iaa-radar/shared/overseas-http-receiver.py
+Restart=on-failure
+RestartSec=10
+MemoryMax=512M
+TasksMax=96
+CPUQuota=75%
+PrivateTmp=true
+ProtectHome=true
+NoNewPrivileges=true
+[Install]
+WantedBy=multi-user.target
