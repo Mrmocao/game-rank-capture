@@ -4,6 +4,18 @@ import argparse, datetime, hashlib, json, os, pathlib, re, subprocess, tempfile,
 CHARTS = ('top-free', 'top-paid', 'top-grossing', 'top-new-free', 'top-new-paid')
 REGIONS = ('us', 'gb', 'de', 'fr')
 
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self,*args,**kwargs):raise RuntimeError('SOURCE_REDIRECT_REJECTED')
+
+def fetch_material(region,chart):
+    if region not in REGIONS or chart not in CHARTS:raise ValueError('SOURCE_SCOPE')
+    url='https://www.appbrain.com/stats/google-play-rankings/'+chart.replace('-','_')+'/game/'+region
+    request=urllib.request.Request(url,headers={'User-Agent':'YoukiaExternalCapture/1.1 public-source-research','Accept':'application/json,text/html'})
+    with urllib.request.build_opener(NoRedirect()).open(request,timeout=25) as response:
+        raw=response.read(4_194_305)
+        if len(raw)>4_194_304:raise RuntimeError('SOURCE_RESPONSE_TOO_LARGE')
+        return raw
+
 
 def enabled_regions(base):
     regions=json.loads(http_request('/overseas/plan'))['data']['regions']
@@ -19,8 +31,10 @@ def collect(jar, root, regions):
             try:
                 if time.monotonic() > deadline:
                     raise RuntimeError('BATCH_DEADLINE')
+                material=root/(region+'-'+chart+'.raw');material.write_bytes(fetch_material(region,chart))
+                captured=datetime.datetime.now(datetime.timezone.utc).isoformat()
                 result = subprocess.run(['java', '-Xmx128m', '-jar', str(jar), '--source', 'appbrain', '--region', region,
-                    '--chart', chart, '--top', '100', '--output', str(root)], capture_output=True, text=True, timeout=110)
+                    '--chart', chart, '--top', '100', '--output', str(root),'--material',str(material),'--captured-at',captured], capture_output=True, text=True, timeout=45)
                 if result.returncode:
                     code = re.search(r'^([A-Z][A-Z0-9_]+):', result.stderr, re.M)
                     raise RuntimeError(code.group(1) if code else 'JAVA_CAPTURE_FAILED')
