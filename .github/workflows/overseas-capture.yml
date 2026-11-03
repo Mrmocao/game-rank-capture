@@ -39,4 +39,18 @@ jobs:
           args=()
           if [ "$COLLECT_ONLY" = "true" ]; then args+=(--collect-only); fi
           python3 scripts/overseas-capture.py --jar external-capture/target/external-capture-0.1.0-SNAPSHOT-cli.jar "${args[@]}"
+      - name: Connectivity diagnostics on failure
+        if: failure()
+        run: |
+          python3 - <<'PY'
+          import socket,urllib.request
+          for host,port in [('14.103.231.1',22),('14.103.231.1',80),('14.103.231.1',443),('14.103.231.1',18080),('www.appbrain.com',443)]:
+            try:
+              with socket.create_connection((host,port),5):print(host,port,'TCP_OK')
+            except Exception as e:print(host,port,type(e).__name__)
+          try:
+            req=urllib.request.Request('https://www.appbrain.com/stats/google-play-rankings/top_free/game/us',headers={'User-Agent':'YoukiaExternalCapture/1.1 public-source-research'})
+            with urllib.request.urlopen(req,timeout=20) as r:print('APPBRAIN_HTTP',r.status,'BYTES',len(r.read()))
+          except Exception as e:print('APPBRAIN_HTTP',type(e).__name__)
+          PY
 
