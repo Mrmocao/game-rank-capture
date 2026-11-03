@@ -1,5 +1,16 @@
 # 部署与填写说明
 
+## 当前发布 · 2026-11-03
+
+current为`/opt/iaa-radar/releases/20261103-opportunity`；应用JAR SHA256 `9bcdb5c6d7cb28c3a130bd3f8a61fcbe230a83e07676cff4f3f9cd057fdbe31c`。源代码功能提交b42ab9d，运维脚本修订随本次交付同步。仍免登录、Flyway V15，无新增环境变量。Web/采集/报告桥均active和enabled；每天北京时间08:30/23:00。
+
+重启后重新用JDBC生成`/opt/iaa-radar/backups/before-opportunity-reboot-20261103.sql`，52表13492行；部署前后1372条旧冻结行内容不变。此前无完成回执的`before-opportunity-20261103.sql`不作为本次备份依据。新备份以`.partial`写入、完成后改正式文件名；篡改/不完整备份拒绝验证，192MiB堆通过真实正反校验。
+
+当前主机8GB；Web1280MiB、采集1536MiB、报告桥512MiB内存上限。Web覆盖配置使用`scripts/systemd/iaa-radar-memory.conf`放入`/etc/systemd/system/iaa-radar.service.d/memory.conf`；其它服务模板同步当前限制。更新后daemon-reload，再在维护窗口重启对应服务。备份和采集串行验证，未增加采集并发。
+
+真实批次466ea4af-cf6d-4f95-a863-e868252c55f6：8榜800条全部成功，数据库/原材料哈希/DOM定位一致；报告桥回执COMPLETE，生成报告18修订3，重试复用。公网桌面/手机、分组、证据、导出、旧报告16通过。完整记录见 [线上验收](docs/acceptance/2026-11-03-early-opportunities.md)。以下为历史发布记录。
+
+
 ## 当前发布：2026-11-02服务器原生采集
 
 current为`/opt/iaa-radar/releases/20261102-server-capture`，JAR SHA256 `d73694f7488ec4cbe89b0aae51ec21b2168b59550bb1391b16419dbfc4f1455e`，无需新迁移（仍V15）。生产systemd独立采集与报告桥已enabled/active，计划北京时间08:30/23:00。个人Windows常驻进程与启动项已关闭；服务器新浏览器会话由用户手动登录，已直接取得796条并逐行核验，维护循环再次采集通过。当前报告12，历史9/10不变。
@@ -86,6 +97,6 @@ mvn -q -f backend/pom.xml -DskipTests package
 
 核验备份已有冻结行：`java --class-path <mysql-connector-j.jar> scripts/JdbcVerifyPreserved.java <env-file> <backup.sql>`。只打印统计，不打印业务正文、密码或访问口令。
 
-## 2026-11-03 早期机会组合待发布
+## 2026-11-03 发布前阻塞（已解除）
 
-本地构建与离线回放完成；生产SSH握手与网站API超时，尚未上传/切换版本。当前不能声称线上已更新。数据库不新增迁移（V15）、环境变量不新增；免登录不变。JDBC备份已发起但没有完成回执，`before-opportunity-20261103.sql`须在恢复后核查，不能当作可用备份。恢复连接后的发版、真实修订与旧报告保护检查见 [本轮验收](docs/acceptance/2026-11-03-early-opportunities.md)。
+首轮尝试因服务器内存耗尽导致SSH/API超时，未切换版本。用户重启并提供8GB环境后，按本文顶部流程重新备份、部署、实采及核验完成；不沿用未确认完成的备份结果。

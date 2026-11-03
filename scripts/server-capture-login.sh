@@ -32,7 +32,7 @@ s.update(verificationRequested=True,status='VERIFYING')
 tmp=p.with_suffix('.pending');tmp.write_text(json.dumps(s,ensure_ascii=False),encoding='utf-8');os.chmod(str(tmp),0o644);os.replace(str(tmp),str(p))
 PY
     echo 'SESSION_SAVED: verifying real charts on the server.'
-    if systemd-run --wait --collect --unit=iaa-radar-capture-login-check --uid=iaa-radar --property=EnvironmentFile=/etc/iaa-radar/app.env --property=WorkingDirectory="$ROOT/shared" --property=MemoryMax=1G /usr/bin/java -Xmx192m -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 -Dloader.main=com.youkia.iaa.collection.capture.RankingCaptureCommand -cp "$ROOT/current/iaa-radar-api-0.1.0-SNAPSHOT.jar" org.springframework.boot.loader.launch.PropertiesLauncher --run --env-file "$ROOT/shared/capture-worker.env" > "$ROOT/shared/data/server-login-check.log" 2>&1; then
+    if systemd-run --wait --collect --unit=iaa-radar-capture-login-check --uid=iaa-radar --property=EnvironmentFile=/etc/iaa-radar/app.env --property=WorkingDirectory="$ROOT/shared" --property=MemoryMax=1536M /usr/bin/java -Xmx192m -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 -Dloader.main=com.youkia.iaa.collection.capture.RankingCaptureCommand -cp "$ROOT/current/iaa-radar-api-0.1.0-SNAPSHOT.jar" org.springframework.boot.loader.launch.PropertiesLauncher --run --env-file "$ROOT/shared/capture-worker.env" > "$ROOT/shared/data/server-login-check.log" 2>&1; then
       echo 'SOURCE_VERIFICATION_COMPLETED: refresh Information Capture after the report bridge processes the batch.'
     else
       echo 'SOURCE_VERIFICATION_FAILED: the real source run failed; retained history is unchanged.'

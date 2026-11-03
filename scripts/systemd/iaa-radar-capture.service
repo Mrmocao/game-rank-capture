@@ -12,7 +12,8 @@ EnvironmentFile=/etc/iaa-radar/app.env
 ExecStart=/usr/bin/java -Xmx192m -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 -Dloader.main=com.youkia.iaa.collection.capture.RankingCaptureCommand -cp /opt/iaa-radar/current/iaa-radar-api-0.1.0-SNAPSHOT.jar org.springframework.boot.loader.launch.PropertiesLauncher --worker --env-file /opt/iaa-radar/shared/capture-worker.env
 Restart=on-failure
 RestartSec=20
-MemoryMax=1G
+# Full authenticated charts exceeded 1 GiB during the 2026-11-03 server run.
+MemoryMax=1536M
 TasksMax=256
 TimeoutStopSec=30
 UMask=0077

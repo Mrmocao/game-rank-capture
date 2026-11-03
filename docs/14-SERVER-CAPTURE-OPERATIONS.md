@@ -5,7 +5,7 @@
 ## 已部署结构
 
 - Java21 + Playwright1.58.0 + Google Chrome156.0.8078.79。Chrome RPM从Google官方HTTPS地址下载，导入官方签名密钥后rpm --checksig通过；包SHA256为0399d98f1ee16eccb39fb14a3461b25b2d5ae093f96a9b585cfb54f0a6a67c1a。中文字体、Xvnc/noVNC仅用于人工登录窗口。
-- `iaa-radar-capture.service`：非root的iaa-radar用户运行Java采集worker，读取生产数据库中的计划，每分钟检查到期时间；当前每天北京时间08:30、23:00。串行浏览器、1GB内存上限、进程异常自动重启、开机启动。
+- `iaa-radar-capture.service`：非root的iaa-radar用户运行Java采集worker，读取生产数据库中的计划，每分钟检查到期时间；当前每天北京时间08:30、23:00。串行浏览器、1536MiB内存上限、进程异常自动重启、开机启动。
 - `iaa-radar-capture-reports.service`：服务器本机检查Java原子清单，成功资料已由Java通过JDBC写入；此桥不重复解析/入库，只生成或复用冻结周报，保存完成回执与登录状态。报告失败可重试。
 - `/opt/iaa-radar/shared/browser-sessions/gravity`：服务器独立浏览器会话，权限700。用户已在服务器浏览器手动登录，从未复制本机Chrome/Cookie。
 - `/opt/iaa-radar/shared/deliveries`：heartbeat.json、latest.json、source-session.json、各批回执和server-state.json。后端读取公开状态，不返回凭据。
@@ -60,7 +60,7 @@ journalctl -u iaa-radar-capture-reports --since today
 
 Java按日日志位于shared/data/worker-logs；Web“信息抓取”页显示生产计划心跳、下次执行、来源错误和修复记录。上新JAR前停止独立采集worker，切换不可变release，重启Web与worker；不在正在抓取的JAR上覆盖构建。备份数据库、原始材料、登录profile时按敏感配置保护，恢复到另一机器应重新登录验证。
 
-目前Chrome固定为已安装验收版本，更新浏览器或Playwright后需重新验证中文页面、登录、日期控件、连续Top100和证据定位。服务器约4GB内存；当前worker空闲约154MB，采集验证通过，未来扩大并发前需重新测量容量。
+目前Chrome固定为已安装验收版本，更新浏览器或Playwright后需重新验证中文页面、登录、日期控件、连续Top100和证据定位。2026-11-03用户重启后主机为8GB；真实采集进程组曾达到原1GiB上限，当前限制为1536MiB，完整8榜通过。Web另设1280MiB、报告桥512MiB上限；备份/冻结核验采用逐行读取与192MiB堆。未来扩大并发前需重新测量容量。
 
 ## 本轮实际验收
 
@@ -68,4 +68,11 @@ Java按日日志位于shared/data/worker-logs；Web“信息抓取”页显示�
 
 验证了两个服务enabled/active、计划08:30/23:00、进程重启次数0、固定本地端口限制、维护开关和恢复流程、35分钟清理定时器已登记、两次完整引力采集、浏览器真实状态及第6天/失效状态的合成UI测试（不改生产状态）、390px无页面溢出。6项服务器桥单元测试通过；前后端构建通过。Windows常驻采集/同步进程为0，启动项已删除。
 
-尚未实际等待7天过期、未执行服务器重启演练、未等待自然08:30/23:00长周期运行；因此不能承诺源站永久免登录或长期零故障。35分钟看门狗配置已核验，未专门耗时等待完整35分钟触发。缺少实际IAA/实机证据仍保持待核研究，不因采集部署完成而提升资格。
+已验证11月3日真实重启后的服务自启动、会话复用和8榜800条采集；尚未实际等待7天过期，未完成自然08:30/23:00长周期运行观察；因此不能承诺源站永久免登录或长期零故障。35分钟看门狗配置已核验，未专门耗时等待完整35分钟触发。缺少实际IAA/实机证据仍保持待核研究，不因采集部署完成而提升资格。
+
+
+## 2026-11-03 发布验收
+
+当前release为20261103-opportunity。服务器完整实采批次466ea4af-cf6d-4f95-a863-e868252c55f6，报告桥回执COMPLETE/报告18，三项服务enabled/active。原08:30计划批次的失败记录保留；本轮是独立恢复验证，不篡改last scheduled result，后续自然计划会记录新执行结果。当前下一计划为11月3日23:00北京时间。
+
+备份正式文件`before-opportunity-reboot-20261103.sql`：52表13492行，冻结行核验1372条。旧未确认备份不复用。JdbcBackup失败仅留`.partial`；恢复时须使用已核验正式文件。正向核验、缺尾标记拒绝、被改动冻结行拒绝均已真实执行；未进行恢复写库演练。

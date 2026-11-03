@@ -11,7 +11,8 @@ EnvironmentFile=/etc/iaa-radar/app.env
 ExecStart=/usr/bin/python3 /opt/iaa-radar/shared/server-capture-reports.py --root /opt/iaa-radar
 Restart=on-failure
 RestartSec=20
-MemoryMax=128M
+# Parsing frozen report JSON needs headroom; this is a limit, not a reservation.
+MemoryMax=512M
 UMask=0077
 
 [Install]
