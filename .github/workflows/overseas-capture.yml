@@ -33,8 +33,8 @@ jobs:
       - name: Capture and deliver evidence
         env:
           COLLECT_ONLY: ${{ inputs.collect_only }}
-          OVERSEAS_CAPTURE_SSH_KEY: ${{ secrets.OVERSEAS_CAPTURE_SSH_KEY }}
-          OVERSEAS_CAPTURE_KNOWN_HOSTS: ${{ secrets.OVERSEAS_CAPTURE_KNOWN_HOSTS }}
+          OVERSEAS_CAPTURE_TOKEN: ${{ secrets.OVERSEAS_CAPTURE_TOKEN }}
+          OVERSEAS_CAPTURE_CA_CERT: ${{ secrets.OVERSEAS_CAPTURE_CA_CERT }}
         run: |
           args=()
           if [ "$COLLECT_ONLY" = "true" ]; then args+=(--collect-only); fi

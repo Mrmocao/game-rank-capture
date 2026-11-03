@@ -1,14 +1,12 @@
 """Ephemeral cloud collector. No DB credentials, browser session or personal-PC dependency."""
-import argparse, datetime, hashlib, json, os, pathlib, re, subprocess, tempfile, time, urllib.request, uuid, zipfile
+import argparse, datetime, hashlib, json, os, pathlib, re, subprocess, tempfile, time, ssl, urllib.request, uuid, zipfile
 
 CHARTS = ('top-free', 'top-paid', 'top-grossing', 'top-new-free', 'top-new-paid')
 REGIONS = ('us', 'gb', 'de', 'fr')
 
 
 def enabled_regions(base):
-    with tempfile.TemporaryDirectory(prefix='iaa-plan-') as folder:
-        response=ssh_request(b'PLAN\n',pathlib.Path(folder),60)
-        regions=json.loads(response)['data']['regions']
+    regions=json.loads(http_request('/overseas/plan'))['data']['regions']
     return sorted(set(regions).intersection(REGIONS))
 
 
@@ -61,25 +59,19 @@ def package(batch, root, archive):
     return manifest
 
 
-def ssh_request(payload, root, timeout):
-    key = os.environ.get('OVERSEAS_CAPTURE_SSH_KEY', '')
-    known = os.environ.get('OVERSEAS_CAPTURE_KNOWN_HOSTS', '')
-    if not key or not known: raise RuntimeError('DELIVERY_KEY_NOT_CONFIGURED')
-    private = root / 'delivery-key'; private.write_text(key.strip()+'\n'); private.chmod(0o600)
-    hosts = root / 'known-hosts'; hosts.write_text(known.strip()+'\n'); hosts.chmod(0o600)
-    try:
-        result = subprocess.run(['ssh', '-i', str(private), '-o', 'IdentitiesOnly=yes', '-o', 'StrictHostKeyChecking=yes',
-                '-o', 'UserKnownHostsFile='+str(hosts), '-o', 'ConnectTimeout=15', '-o', 'ServerAliveInterval=15',
-                '-T', 'iaa-overseas@14.103.231.1'], input=payload, capture_output=True, timeout=timeout)
-        if result.returncode:
-            reason='SSH_CONNECTION_FAILED' if result.returncode==255 else 'RECEIVER_REJECTED'
-            raise RuntimeError(reason)
-        return result.stdout.decode('utf-8')
-    finally:
-        private.unlink(missing_ok=True)
+def http_request(path, payload=None):
+    token=os.environ.get('OVERSEAS_CAPTURE_TOKEN','')
+    certificate=os.environ.get('OVERSEAS_CAPTURE_CA_CERT','')
+    if not token or not certificate:raise RuntimeError('DELIVERY_AUTH_NOT_CONFIGURED')
+    context=ssl.create_default_context(cadata=certificate)
+    request=urllib.request.Request('https://14.103.231.1'+path,data=payload,
+        headers={'Authorization':'Bearer '+token,'Content-Type':'application/octet-stream'})
+    with urllib.request.urlopen(request,context=context,timeout=660 if payload else 30) as response:
+        return response.read(65536).decode('utf-8')
+
 
 def deliver(archive, root):
-    receipt=json.loads(ssh_request(archive.read_bytes(),root,600))
+    receipt=json.loads(http_request('/overseas/deliver',archive.read_bytes()))
     print(json.dumps({k: receipt.get(k) for k in ('batchId','status','importedCharts','importedEntries','reportId')}, ensure_ascii=True))
     return receipt
 

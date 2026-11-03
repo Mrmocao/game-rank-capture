@@ -16,6 +16,10 @@ public class JdbcBackup {
   try(var out=Files.newBufferedWriter(partial,StandardCharsets.UTF_8,StandardOpenOption.CREATE_NEW);var c=DriverManager.getConnection(env.get("DB_URL"),env.get("DB_USERNAME"),env.get("DB_PASSWORD"))){
    c.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);c.setReadOnly(true);c.setAutoCommit(false);
    out.write("SET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS=0;\n");
+   try(var st=c.createStatement();var rs=st.executeQuery("SELECT @@SESSION.sql_mode")){
+    rs.next();String mode=rs.getString(1);if(!mode.matches("[A-Z_,]*"))throw new IllegalStateException("Unexpected sql_mode");
+    out.write("SET SESSION sql_mode='"+mode+"';\n");
+   }
    List<String> tables=new ArrayList<>();try(var st=c.createStatement();var rs=st.executeQuery("SHOW FULL TABLES WHERE Table_type='BASE TABLE'")){while(rs.next())tables.add(rs.getString(1));}
    tableCount=tables.size();for(String table:tables){if(!table.matches("[A-Za-z0-9_]+"))throw new IllegalArgumentException("unexpected table name");
     try(var st=c.createStatement();var rs=st.executeQuery("SHOW CREATE TABLE `"+table+"`")){rs.next();out.write(rs.getString(2)+";\n");}

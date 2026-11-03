@@ -13,7 +13,7 @@ public class JdbcVerifyPreserved {
   Set<String> definitions=new HashSet<>();String last="";
   try(var reader=Files.newBufferedReader(Path.of(args[1]),StandardCharsets.UTF_8)){
    String line;while((line=reader.readLine())!=null){if(!line.isBlank())last=line;
-    for(String table:tables){if(line.startsWith("CREATE TABLE `"+table+"`"))definitions.add(table);
+    for(String table:tables){if(line.startsWith("CREATE TABLE `"+table+"`")||line.startsWith("CREATE TABLE \""+table+"\""))definitions.add(table);
      if(line.startsWith("INSERT INTO `"+table+"` VALUES("))expected.get(table).add(hash(line));}
    }
   }
