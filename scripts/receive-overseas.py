@@ -1,5 +1,5 @@
 """Forced SSH command: bounded AppBrain-only input. No caller-controlled commands or paths."""
-import datetime, hashlib, importlib.util, json, os, pathlib, re, signal, sys, tempfile, zipfile
+import datetime, hashlib, importlib.util, json, os, pathlib, re, signal, sys, tempfile, urllib.request, zipfile
 
 MAX_ARCHIVE=24_000_000
 MAX_EXPANDED=32_000_000
@@ -59,6 +59,10 @@ def main():
         raw=sys.stdin.buffer.read(MAX_ARCHIVE+1)
         signal.alarm(590)
         if len(raw)>MAX_ARCHIVE: raise ValueError('UPLOAD_LIMIT')
+        if raw==b'PLAN\n':
+            with urllib.request.urlopen('http://127.0.0.1:18081/api/v1/market/remote-capture-plan',timeout=15) as response:
+                print(json.dumps(json.load(response)))
+            return
         with tempfile.TemporaryDirectory(prefix='overseas-',dir=root/'shared') as temporary:
             archive=pathlib.Path(temporary)/'upload.zip';archive.write_bytes(raw);validate(archive)
             spec=importlib.util.spec_from_file_location('receiver',root/'shared/receive-capture.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)

@@ -6,8 +6,9 @@ REGIONS = ('us', 'gb', 'de', 'fr')
 
 
 def enabled_regions(base):
-    with urllib.request.urlopen(base.rstrip('/') + '/api/v1/market/remote-capture-plan', timeout=30) as response:
-        regions = json.load(response)['data']['regions']
+    with tempfile.TemporaryDirectory(prefix='iaa-plan-') as folder:
+        response=ssh_request(b'PLAN\n',pathlib.Path(folder),60)
+        regions=json.loads(response)['data']['regions']
     return sorted(set(regions).intersection(REGIONS))
 
 
@@ -60,23 +61,27 @@ def package(batch, root, archive):
     return manifest
 
 
-def deliver(archive, root):
+def ssh_request(payload, root, timeout):
     key = os.environ.get('OVERSEAS_CAPTURE_SSH_KEY', '')
     known = os.environ.get('OVERSEAS_CAPTURE_KNOWN_HOSTS', '')
     if not key or not known: raise RuntimeError('DELIVERY_KEY_NOT_CONFIGURED')
     private = root / 'delivery-key'; private.write_text(key.strip()+'\n'); private.chmod(0o600)
     hosts = root / 'known-hosts'; hosts.write_text(known.strip()+'\n'); hosts.chmod(0o600)
     try:
-        with archive.open('rb') as payload:
-            result = subprocess.run(['ssh', '-i', str(private), '-o', 'IdentitiesOnly=yes', '-o', 'StrictHostKeyChecking=yes',
+        result = subprocess.run(['ssh', '-i', str(private), '-o', 'IdentitiesOnly=yes', '-o', 'StrictHostKeyChecking=yes',
                 '-o', 'UserKnownHostsFile='+str(hosts), '-o', 'ConnectTimeout=15', '-o', 'ServerAliveInterval=15',
-                '-T', 'iaa-overseas@14.103.231.1'], stdin=payload, capture_output=True, timeout=600)
-        if result.returncode: raise RuntimeError('DELIVERY_NOT_ACKNOWLEDGED')
-        receipt = json.loads(result.stdout.decode('utf-8'))
-        print(json.dumps({k: receipt.get(k) for k in ('batchId','status','importedCharts','importedEntries','reportId')}, ensure_ascii=True))
-        return receipt
+                '-T', 'iaa-overseas@14.103.231.1'], input=payload, capture_output=True, timeout=timeout)
+        if result.returncode:
+            reason='SSH_CONNECTION_FAILED' if result.returncode==255 else 'RECEIVER_REJECTED'
+            raise RuntimeError(reason)
+        return result.stdout.decode('utf-8')
     finally:
         private.unlink(missing_ok=True)
+
+def deliver(archive, root):
+    receipt=json.loads(ssh_request(archive.read_bytes(),root,600))
+    print(json.dumps({k: receipt.get(k) for k in ('batchId','status','importedCharts','importedEntries','reportId')}, ensure_ascii=True))
+    return receipt
 
 
 def main():
