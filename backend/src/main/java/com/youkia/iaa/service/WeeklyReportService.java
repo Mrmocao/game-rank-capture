@@ -45,6 +45,7 @@ public class WeeklyReportService {
         research.prepareProfiles();
         for(var c:candidates){var input=research.enrich(c,day,cutoff);input.put("sourceFacts",c);inputs.add(input);origins.put(String.valueOf(input.get("id")),c);}
         var run=V22RecommendationEngine.run(inputs,parameters);
+        reserveEarlyOpportunitySlots(run);
         var rows=(List<Map<String,Object>>)run.get("rows");
         List<Map<String,Object>> audit=new ArrayList<>();
         for(var row:rows){var c=new LinkedHashMap<>(origins.get(String.valueOf(row.get("id"))));c.put("v22",row);c.put("decision",Boolean.TRUE.equals(row.get("selected"))?"SELECTED":row.get("route"));audit.add(c);}
@@ -53,7 +54,10 @@ public class WeeklyReportService {
         coverage.put("shortfallReason",run.get("diagnostic"));coverage.put("historyNotice","本期采用"+(availableAt==null?"当前已知材料对历史统计日的修订":"指定可用时间回放")+"；保存可用时间截止，迟到资料不会改写旧报告。");
         var health=jdbc.queryForList("SELECT source_key,status,result_json,started_at,finished_at FROM insight_collection_attempt WHERE started_at<=? ORDER BY id DESC LIMIT 30",cutoff);
         Map<String,Object> frozen=new LinkedHashMap<>();frozen.put("algorithmVersion","2.2.0");frozen.put("profile",profile);frozen.put("inputs",inputs);frozen.put("result",run);frozen.put("health",health);frozen.put("isSimulation",false);
-        var leads=new CaptureResearchLeadService(jdbc,mapper).build(tenant,day,cutoff,5-((List<?>)run.get("selected")).size());
+        Set<String> formalLabels=new HashSet<>();
+        for(var row:(List<Map<String,Object>>)run.get("selected")){var c=origins.get(String.valueOf(row.get("id")));formalLabels.add(c.get("platform")+":"+c.get("product_name"));}
+        int formalCount=((List<?>)run.get("selected")).size();
+        var leads=new CaptureResearchLeadService(jdbc,mapper).build(tenant,day,cutoff,5-formalCount,formalCount,formalLabels);
         frozen.put("captureResearchLeads",leads);frozen.put("effectiveParameters",effectiveParameters);
         // The running clock is intentionally not hashed. A no-change retry reuses the old cutoff and content.
         String digest=MarketWeeklySkill.hash(canonical(Map.of("start",start.toString(),"end",end.toString(),"rule",rule,"skill",skill.sha256,"frozen",frozen,"coverage",coverage)));
@@ -72,11 +76,21 @@ public class WeeklyReportService {
             facts.put("productName",c.get("product_name"));facts.put("platform",c.get("platform"));facts.put("region",c.get("region"));
             facts.put("chartName",c.get("chart_name"));facts.put("chartId",c.get("chart_id"));facts.put("rank",c.get("rank_position"));facts.put("businessDate",day.toString());
             facts.put("sourceUrl",c.get("source_url"));facts.put("thumbnailSourceUrl",c.get("thumbnail_source_url"));facts.put("v22",row);facts.put("history",c.get("history"));facts.put("monetization","PURE_IAA");
-            facts.put("whyNow","在14日观察窗内实际在榜"+row.get("topDays")+"天。"+String.join("；",(List<String>)row.get("reasons")));facts.put("nextAction",row.get("action"));facts.put("gaps",row.get("unresolvedFields"));
+            facts.put("portfolioGroup","BENCHMARK");facts.put("portfolioLabel","成熟基准 · 核心50%");
+            facts.put("whyNow","成熟基准，不代表新赛道。在14日观察窗内实际在榜"+row.get("topDays")+"天。"+String.join("；",(List<String>)row.get("reasons")));facts.put("nextAction",row.get("action"));facts.put("gaps",row.get("unresolvedFields"));
             String content=row.get("name")+"："+row.get("route")+"。"+facts.get("whyNow")+"。"+row.get("action")+"。研究优先级范围不是成功概率。";
             jdbc.update("INSERT INTO report_item(report_id,product_id,main_reference_version_id,section,display_order,frozen_facts,evidence_refs,content) VALUES(?,?,?,?,?,?,?,?)",id,c.get("product_id"),c.get("version_id"),"CN".equals(c.get("region"))?"DOMESTIC":"OVERSEAS",order++,json(facts),json(c.get("history")),content);
         }
         var out=report(id);out.put("reused",false);return out;
+    }
+    /** Keep formal qualification unchanged while reserving budget for early source research. */
+    @SuppressWarnings("unchecked")
+    public static void reserveEarlyOpportunitySlots(Map<String,Object> run){
+        var selected=new ArrayList<>((List<Map<String,Object>>)run.get("selected"));
+        for(int i=2;i<selected.size();i++){var row=selected.get(i);row.put("selected",false);row.put("slot",null);row.put("unselectedReason","成熟基准最多2席，其余席位保留早期机会；资格判断不变");}
+        var retained=new ArrayList<>(selected.subList(0,Math.min(2,selected.size())));
+        run.put("selected",retained);run.put("selectedIds",retained.stream().map(r->r.get("id")).toList());run.put("portfolioFormalCap",2);
+        run.put("diagnostic",run.get("diagnostic")+"；组合层成熟基准最多2席，新增机会单独验据，不用热门补齐。");
     }
     private List<Map<String,Object>> missingHistory(LocalDate day){List<Map<String,Object>> h=new ArrayList<>();for(int i=13;i>=0;i--){var p=new LinkedHashMap<String,Object>();p.put("date",day.minusDays(i).toString());p.put("rank",null);p.put("state","MISSING_SNAPSHOT");h.add(p);}return h;}
     public Map<String,Object> history(int page,int size){

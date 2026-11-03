@@ -1,15 +1,61 @@
 {
-  "version": "market-weekly-2.2.0",
-  "maxPicks": 8,
-  "targetRange": {"min": 5, "max": 10},
+  "version": "market-weekly-2.3.0",
+  "maxPicks": 5,
+  "targetRange": {
+    "min": 0,
+    "max": 5
+  },
   "familyCap": 2,
   "explorationSlots": 2,
-  "weights": {"D": 0.25, "M": 0.15, "P": 0.20, "F": 0.20, "A": 0.10, "O": 0.10},
+  "weights": {
+    "D": 0.25,
+    "M": 0.15,
+    "P": 0.2,
+    "F": 0.2,
+    "A": 0.1,
+    "O": 0.1
+  },
   "coverageReady": 0.75,
   "utilityWidthReady": 25,
   "prototypeBudgetDays": 20,
-  "growthScale": 0.30,
-  "keywords": ["消除", "益智", "解谜", "拼图", "收纳", "合成", "方块", "螺丝", "找茬", "数独", "纸牌", "puzzle", "match", "sort", "merge", "block", "screw", "tile", "mahjong", "solitaire"],
-  "complexityKeywords": ["开放世界", "大型多人", "mmorpg", "minecraft", "roblox", "我的世界"],
-  "limitations": "六维研究范围为启动方案，未通过真实时间外回测；不得解释为综合排名或盈利概率。运行参数以冻结的researchProfile为准"
+  "growthScale": 0.3,
+  "keywords": [
+    "消除",
+    "益智",
+    "解谜",
+    "拼图",
+    "收纳",
+    "合成",
+    "方块",
+    "螺丝",
+    "找茬",
+    "数独",
+    "纸牌",
+    "puzzle",
+    "match",
+    "sort",
+    "merge",
+    "block",
+    "screw",
+    "tile",
+    "mahjong",
+    "solitaire"
+  ],
+  "complexityKeywords": [
+    "开放世界",
+    "大型多人",
+    "mmorpg",
+    "minecraft",
+    "roblox",
+    "我的世界"
+  ],
+  "limitations": "六维研究范围为启动方案，未通过真实时间外回测；不得解释为综合排名或盈利概率。运行参数以冻结的researchProfile为准",
+  "portfolio": {
+    "benchmark": 2,
+    "newEntry": 1,
+    "accelerator": 1,
+    "earlyFlex": 1,
+    "emptyBackfill": false,
+    "sourceAlgorithm": "capture-research-leads-2.0.0"
+  }
 }

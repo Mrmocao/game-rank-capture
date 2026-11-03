@@ -71,7 +71,7 @@ class CaptureResearchLeadTest {
     @Test void shortlistUsesAvailableSlotsWithoutChangingFormalEligibilityAndIsDeterministic(){
         List<Map<String,Object>> rows=new ArrayList<>();String[] families={"益智","消除","塔防","跑酷","解谜","模拟经营"};
         for(int d=0;d<7;d++)for(int i=0;i<10;i++)rows.add(row(d+1,"popularity","WECHAT","SYNTHETIC游戏"+i,"发行方",day.minusDays(d),i+1,families[i%families.length]));
-        assertEquals(5,items(service.evaluate(rows,day,cutoff,100)).size());assertEquals(2,items(service.evaluate(rows,day,cutoff,2)).size());assertTrue(items(service.evaluate(rows,day,cutoff,0)).isEmpty());
+        assertEquals(2,items(service.evaluate(rows,day,cutoff,100)).size(),"mature hits cannot consume early opportunity slots");assertEquals(2,items(service.evaluate(rows,day,cutoff,2)).size());assertTrue(items(service.evaluate(rows,day,cutoff,0)).isEmpty());
         var first=items(service.evaluate(rows,day,cutoff,5)).stream().map(r->r.get("leadKey")).toList();Collections.reverse(rows);
         assertEquals(first,items(service.evaluate(rows,day,cutoff,5)).stream().map(r->r.get("leadKey")).toList());
     }
@@ -130,4 +130,61 @@ class CaptureResearchLeadTest {
         var result=service.evaluate(List.of(older,newer),day,cutoff,5);
         assertEquals("SYNTHETIC新材料",audit(result).getFirst().get("name"));assertEquals(1,audit(result).size());
     }
+    List<Map<String,Object>> opportunityRows(int age,int[] ranks){
+        List<Map<String,Object>> rows=new ArrayList<>();
+        for(int d=0;d<=age+3;d++){
+            long id=1000+d;
+            for(int i=0;i<5;i++)rows.add(row(id,"popularity","WECHAT","SYNTHETIC基线"+i,"基线发行方",day.minusDays(d),i+60,"塔防"));
+            if(d<=age)rows.add(row(id,"popularity","WECHAT","SYNTHETIC新增","新发行方",day.minusDays(d),ranks[age-d],"消除"));
+        }
+        return rows;
+    }
+    Map<String,Object> named(Map<String,Object> result,String name){return audit(result).stream().filter(r->name.equals(r.get("name"))).findFirst().orElseThrow();}
+    @Test void newEntryNeedsPriorCompleteAbsenceButNotFiveDaysOfDelay(){
+        var rows=opportunityRows(1,new int[]{75,58});var r=service.evaluate(rows,day,cutoff,5);var lead=named(r,"SYNTHETIC新增");
+        assertEquals(true,lead.get("selected"));assertEquals("NEW_ENTRY",lead.get("allocatedSlot"));assertEquals(2,lead.get("observationDays"));assertEquals("UNVERIFIED",lead.get("noveltyStatus"));
+        var entry=(Map<?,?>)lead.get("entryEvidence");assertEquals("OBSERVED_CHART_ENTRY",entry.get("status"));assertEquals(3,((List<?>)entry.get("priorCompleteAbsence")).size());
+        rows.stream().filter(x->x.get("business_date").equals(day.minusDays(2))).forEach(x->x.put("completeness","PARTIAL"));
+        var blocked=named(service.evaluate(rows,day,cutoff,5),"SYNTHETIC新增");assertEquals(false,blocked.get("selected"));assertEquals("NEWNESS_UNKNOWN",((Map<?,?>)blocked.get("entryEvidence")).get("status"));
+    }
+    @Test void firstCaptureAndRenamedUnknownPublisherCannotBecomeNewEntry(){
+        var rows=opportunityRows(1,new int[]{75,58});rows.removeIf(x->LocalDate.parse(x.get("business_date").toString()).isBefore(day.minusDays(1)));
+        assertFalse((boolean)named(service.evaluate(rows,day,cutoff,5),"SYNTHETIC新增").get("selected"));
+        rows=opportunityRows(1,new int[]{75,58});rows.stream().filter(x->x.get("name").equals("SYNTHETIC新增")).forEach(x->x.put("developer",null));
+        assertTrue(items(service.evaluate(rows,day,cutoff,5)).stream().noneMatch(x->x.get("name").equals("SYNTHETIC新增")));
+    }
+    @Test void accelerationUsesSameChartDenominatorAndRejectsReversalOrSmallCohort(){
+        var rows=opportunityRows(4,new int[]{95,92,90,85,65});var lead=named(service.evaluate(rows,day,cutoff,5),"SYNTHETIC新增");
+        assertEquals("ACCELERATOR",lead.get("allocatedSlot"));var m=(Map<?,?>)lead.get("momentum");assertEquals(25,m.get("twoDayGain"));assertEquals(15,m.get("acceleration"));assertEquals(6,m.get("comparableCount"));assertEquals(1,m.get("withinChartOrder"));
+        rows.removeIf(x->x.get("name").toString().startsWith("SYNTHETIC基线")&&!x.get("name").equals("SYNTHETIC基线0"));
+        assertNotEquals("ACCELERATOR",named(service.evaluate(rows,day,cutoff,5),"SYNTHETIC新增").get("portfolioGroup"));
+        rows=opportunityRows(4,new int[]{95,92,90,60,65});assertNotEquals("ACCELERATOR",named(service.evaluate(rows,day,cutoff,5),"SYNTHETIC新增").get("portfolioGroup"));
+    }
+    @Test void knownReturnAndLateBaselineNeverCountAsNew(){
+        var rows=opportunityRows(1,new int[]{75,58});rows.add(row(2000,"popularity","WECHAT","SYNTHETIC新增","新发行方",day.minusDays(12),66,"消除"));
+        var lead=named(service.evaluate(rows,day,cutoff,5),"SYNTHETIC新增");assertEquals("REENTRY",((Map<?,?>)lead.get("entryEvidence")).get("status"));assertNotEquals("NEW_ENTRY",lead.get("portfolioGroup"));
+        rows=opportunityRows(1,new int[]{75,58});rows.stream().filter(x->x.get("business_date").equals(day.minusDays(3))).forEach(x->x.put("available_at",cutoff.plusMinutes(1)));
+        assertNotEquals("NEW_ENTRY",named(service.evaluate(rows,day,cutoff,5),"SYNTHETIC新增").get("portfolioGroup"));
+    }
+    @Test void formalBudgetCannotCrowdOutEarlyResearchAndDuplicateIsExcluded(){
+        List<Map<String,Object>> selected=new ArrayList<>();for(int i=0;i<5;i++)selected.add(new LinkedHashMap<>(Map.of("id",i,"selected",true,"eligibleForValidation",true)));
+        var run=new LinkedHashMap<String,Object>();run.put("selected",selected);run.put("rows",selected);run.put("diagnostic","SYNTHETIC");WeeklyReportService.reserveEarlyOpportunitySlots(run);
+        assertEquals(2,((List<?>)run.get("selected")).size());assertEquals(List.of(0,1),run.get("selectedIds"));assertEquals(false,selected.get(4).get("selected"));assertEquals(true,selected.get(4).get("eligibleForValidation"));
+        var rows=opportunityRows(1,new int[]{75,58});var r=service.evaluate(rows,day,cutoff,3,2,Set.of("WECHAT:SYNTHETIC新增"));
+        assertTrue(items(r).isEmpty());assertTrue(named(r,"SYNTHETIC新增").get("exclusionReason").toString().contains("正式精选"));
+    }
+    @Test void fifthSlotOnlyAddsEarlyEvidenceAndSourceOrderingIsStable(){
+        var rows=opportunityRows(1,new int[]{75,58});
+        for(int i=0;i<3;i++)for(int d=0;d<=1;d++)rows.add(row(1000+d,"popularity","WECHAT","SYNTHETIC更多"+i,"发行方",day.minusDays(d),d==1?80:50+i,"益智"));
+        var result=service.evaluate(rows,day,cutoff,5);assertEquals(2,items(result).size());assertEquals(Set.of("NEW_ENTRY","EARLY_FLEX"),new HashSet<>(items(result).stream().map(r->r.get("allocatedSlot")).toList()));
+        var keys=items(result).stream().map(r->r.get("leadKey")).toList();Collections.shuffle(rows,new Random(7));assertEquals(keys,items(service.evaluate(rows,day,cutoff,5)).stream().map(r->r.get("leadKey")).toList());
+    }
+
+    @Test void otherParserOrOtherChartCannotSupplyMissingEntryBaseline(){
+        var rows=opportunityRows(1,new int[]{75,58});rows.stream().filter(x->x.get("business_date").equals(day.minusDays(3))).forEach(x->x.put("parser_version","SYNTHETIC-other-parser"));
+        assertNotEquals("NEW_ENTRY",named(service.evaluate(rows,day,cutoff,5),"SYNTHETIC新增").get("portfolioGroup"));
+        rows=opportunityRows(4,new int[]{95,92,90,85,65});rows.stream().filter(x->x.get("name").toString().startsWith("SYNTHETIC基线")).forEach(x->x.put("chart_key","most_played"));
+        assertNotEquals("ACCELERATOR",named(service.evaluate(rows,day,cutoff,5),"SYNTHETIC新增").get("portfolioGroup"));
+    }
+
 }

@@ -85,3 +85,7 @@ mvn -q -f backend/pom.xml -DskipTests package
 停止新服务，将current切回上一发布目录，恢复对应备份环境文件后启动；新增V9～V11表保留，不drop、不清空历史、不改Flyway校验和。回滚到旧应用后如需继续保护旧接口，应由反向代理保留访问限制。历史V2 seed迁移已发布，不能从构建中删除。仅当需要完整灾难恢复时才使用数据库和材料备份；应先在独立库演练，本轮未执行全量恢复演练。
 
 核验备份已有冻结行：`java --class-path <mysql-connector-j.jar> scripts/JdbcVerifyPreserved.java <env-file> <backup.sql>`。只打印统计，不打印业务正文、密码或访问口令。
+
+## 2026-11-03 早期机会组合待发布
+
+本地构建与离线回放完成；生产SSH握手与网站API超时，尚未上传/切换版本。当前不能声称线上已更新。数据库不新增迁移（V15）、环境变量不新增；免登录不变。JDBC备份已发起但没有完成回执，`before-opportunity-20261103.sql`须在恢复后核查，不能当作可用备份。恢复连接后的发版、真实修订与旧报告保护检查见 [本轮验收](docs/acceptance/2026-11-03-early-opportunities.md)。

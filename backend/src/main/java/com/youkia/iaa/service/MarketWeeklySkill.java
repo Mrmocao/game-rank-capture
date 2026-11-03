@@ -18,7 +18,7 @@ public final class MarketWeeklySkill {
             String raw=new ClassPathResource("skills/market-weekly/policy.json").getContentAsString(StandardCharsets.UTF_8);
             policy=mapper.readTree(raw);sha256=hash(instructions+"\n"+raw);
             int max = policy.path("maxPicks").asInt();
-            if(max < 5 || max > 10)throw new IllegalArgumentException("每期精选数量必须在5至10之间");
+            if(max != 5)throw new IllegalArgumentException("每期精选最多5项；不足不补齐");
         } catch(Exception e) {throw new IllegalStateException("精选Skill加载失败",e);}
     }
     public Map<String,Object> snapshot(){return Map.of("name","market-weekly","version",policy.path("version").asText(),"sha256",sha256,"instructions",instructions,"policy",policy,"execution","JAVA_DETERMINISTIC");}
