@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import GameIcon from './GameIcon.vue'
 import CrossPlatformEvidence from './CrossPlatformEvidence.vue'
 const props=defineProps<{ report:any; group:string; reportId:string }>()
+const auditOpen=ref(false),auditPage=ref(1)
+const unselected=computed(()=>(props.report.candidateAudit||[]).filter((r:any)=>!r.selected))
+watch(()=>props.reportId,()=>{auditPage.value=1})
 const labels:Record<string,string>={WECHAT:'微信',DOUYIN:'抖音',IOS:'iOS',GOOGLE_PLAY:'Google Play'}
 const items=computed(()=>(props.report.items||[]).filter((r:any)=>props.group==='ALL'||(props.group==='DOMESTIC'?r.region==='CN':r.region!=='CN')))
 const groups=computed(()=>props.report.portfolio?.length?[...props.report.portfolio].sort((a:any,b:any)=>['NEW_ENTRY','ACCELERATOR','EARLY_FLEX','BENCHMARK'].indexOf(a.group)-['NEW_ENTRY','ACCELERATOR','EARLY_FLEX','BENCHMARK'].indexOf(b.group)).map((g:any)=>({...g,items:items.value.filter((r:any)=>r.allocatedSlot===g.group)})):[{group:'LEGACY',label:'历史研究线索',items:items.value}])
@@ -40,7 +43,7 @@ function exportList(){
   </article>
   </template>
   <details v-if="report.dataRequirements?.length"><summary>如何进一步判断新玩法、新赛道 · 需要补充的数据</summary><ul><li v-for="d in report.dataRequirements" :key="d.data"><b>{{d.priority}} · {{d.data}}</b><p>{{d.purpose}}<br/>获取现状：{{d.availability}}</p></li></ul></details>
-  <details><summary>透明选取规则与未选原因</summary><p>{{report.policy}}</p><div class="table-wrap"><el-table :data="(report.candidateAudit||[]).filter((r:any)=>!r.selected)" max-height="360" size="small"><el-table-column prop="name" label="候选" min-width="180"/><el-table-column prop="boardName" label="来源榜单" width="140"/><el-table-column prop="entryEvidence.firstSeenIn28Days" label="28日内首次观察" width="140"/><el-table-column prop="opportunityAssessment" label="早期机会判断" min-width="280"/><el-table-column prop="exclusionReason" label="本期未选原因" min-width="320"/></el-table></div><small>规则版本 {{report.algorithmVersion}}；有效来源快照 {{report.snapshotCount}} 份。记录随本期报告冻结。</small></details>
+  <details @toggle="auditOpen=($event.target as HTMLDetailsElement).open"><summary>透明选取规则与未选原因 · {{unselected.length}} 条</summary><p>{{report.policy}}</p><div v-if="auditOpen" class="table-wrap"><el-table :data="unselected.slice((auditPage-1)*20,auditPage*20)" max-height="360" size="small"><el-table-column prop="name" label="候选" min-width="180"/><el-table-column prop="boardName" label="来源榜单" width="140"/><el-table-column prop="entryEvidence.firstSeenIn28Days" label="28日内首次观察" width="140"/><el-table-column prop="opportunityAssessment" label="早期机会判断" min-width="280"/><el-table-column prop="exclusionReason" label="本期未选原因" min-width="320"/></el-table><el-pagination v-model:current-page="auditPage" :page-size="20" :total="unselected.length" layout="prev,pager,next"/></div><small>规则版本 {{report.algorithmVersion}}；有效来源快照 {{report.snapshotCount}} 份。记录随本期报告冻结。</small></details>
  </section>
 </template>
 <style scoped>

@@ -103,3 +103,7 @@ V13新增external_capture_run、external_ranking_observation、external_ranking_
 ## 2026-11-02 服务器采集部署调整
 
 无新增DDL，Flyway仍V15且校验通过；仅生产配置库中的采集计划启用08:30/23:00，原Windows配置库计划关闭。服务器使用新profile就地登录，不迁移Cookie或复制本机.env。原报告9/10及冻结榜单保留；新采集生成报告11/12。独立systemd worker和服务器报告桥替代本地常驻，回滚应用前应协调对应服务，避免旧Windows启动项重新参与生产。具体运维见docs/14。
+
+## 2026-11-03 周报读取修复
+
+无数据库迁移，仍V17。发布前JDBC备份54表17778行，1378条冻结行保持不变。大报告会产生超过100MB的备份SQL单行，核验器已使用分块摘要，仍可在192MiB限制运行。默认全量报告API保持，新增pageView=true仅投影响应，不写库。

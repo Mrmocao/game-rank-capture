@@ -111,3 +111,7 @@ mvn -q -f backend/pom.xml -DskipTests package
 ## 商店榜单与海外执行器
 
 V17先JDBC备份/迁移再发布Java及前端；海外不使用本机worker。专用HTTPS受限接收、GitHub Secrets、计划启停、无个人电脑依赖及验证步骤见 [运行手册](docs/17-STORE-CHARTS.md)。每次发布须验证旧冻结行、三项systemd服务与实际来源回传。
+
+## 2026-11-03 周报读取性能
+
+release `20261103-report-feedback-final2`，JAR SHA256 `230d355460822c0d877f2df897ddef89248431c7e356f544f8a4b7d2d128f2c2`。发布Java和前端同时更新；无新增迁移/参数。nginx业务站点server块启用JSON gzip（见scripts/nginx/report-response-gzip.conf），执行nginx -t后reload。HTML入口仍引用带内容哈希资源，刷新加载新前端。备份核验使用当前scripts/JdbcVerifyPreserved.java，在192MiB下分块核对。
