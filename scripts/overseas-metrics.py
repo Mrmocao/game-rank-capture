@@ -1,5 +1,5 @@
 """Public Google Play details only. No database, paid API, login, or product writes."""
-import argparse, base64, datetime, json, os, re, ssl, time, urllib.request
+import argparse, base64, datetime, gzip, json, os, re, ssl, time, urllib.request
 
 MAX_BYTES = 4_000_000
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -12,8 +12,8 @@ def exchange(path, payload):
     if not token or not certificate: raise RuntimeError('DELIVERY_AUTH_NOT_CONFIGURED')
     context=ssl.create_default_context(cadata=certificate)
     request=urllib.request.Request('https://14.103.231.1/overseas/metric-'+path,
-        data=json.dumps(payload).encode(),headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'})
-    with urllib.request.urlopen(request,context=context,timeout=45) as response:
+        data=gzip.compress(json.dumps(payload).encode(),compresslevel=6),headers={'Authorization':'Bearer '+token,'Content-Type':'application/json','Content-Encoding':'gzip'})
+    with urllib.request.urlopen(request,context=context,timeout=90) as response:
         return json.loads(response.read(65536))['data']
 
 def fetch(job):

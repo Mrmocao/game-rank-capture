@@ -1,8 +1,16 @@
 """Loopback-only HTTP bridge behind a pinned TLS endpoint. No shell or database access for callers."""
-import hmac, http.server, json, os, pathlib, subprocess, urllib.request
+import hmac, http.server, json, os, pathlib, subprocess, urllib.request, zlib
 ROOT=pathlib.Path('/opt/iaa-radar')
 TOKEN=pathlib.Path('/etc/iaa-radar/overseas-token').read_text().strip()
 LIMIT=24_000_000
+def metric_payload(raw, encoding):
+    if encoding == 'gzip':
+        decoder=zlib.decompressobj(16+zlib.MAX_WBITS)
+        data=decoder.decompress(raw,5_400_001)
+        if len(data)>5_400_000 or not decoder.eof or decoder.unused_data:raise ValueError('METRIC_DECOMPRESSION_LIMIT')
+        return data
+    if encoding:raise ValueError('CONTENT_ENCODING_UNSUPPORTED')
+    return raw
 class Handler(http.server.BaseHTTPRequestHandler):
     def log_message(self,*args):pass
     def respond(self,code,data):
@@ -26,6 +34,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 if not 1<=size<=5_400_000:self.respond(413,b'{"error":"METRIC_UPLOAD_LIMIT"}');return
                 self.connection.settimeout(30);payload=self.rfile.read(size)
                 if len(payload)!=size:raise ValueError('TRUNCATED')
+                payload=metric_payload(payload,self.headers.get('Content-Encoding',''))
                 env=dict(line.split('=',1) for line in pathlib.Path('/etc/iaa-radar/app.env').read_text().splitlines() if '=' in line and not line.startswith('#'))
                 headers={'Content-Type':'application/json','X-Capture-Metrics-Token':env.get('CAPTURE_REMOTE_METRIC_TOKEN','')}
                 if env.get('PROFILE_ACCESS_TOKEN',''):headers['Authorization']='Bearer '+env['PROFILE_ACCESS_TOKEN']

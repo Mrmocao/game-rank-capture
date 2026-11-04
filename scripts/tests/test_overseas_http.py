@@ -31,4 +31,10 @@ class HttpReceiverTests(unittest.TestCase):
             req=urllib.request.Request(self.url+'/overseas/metric-result',data=b'x',headers=headers)
             with self.assertRaises(urllib.error.HTTPError) as error:urllib.request.urlopen(req)
             self.assertEqual(expected,error.exception.code);error.exception.close()
+    def test_metric_compression_is_bounded_and_rejects_truncation(self):
+        import gzip
+        raw=b'{"jobId":"fixture"}'
+        self.assertEqual(raw,self.m.metric_payload(gzip.compress(raw),'gzip'))
+        for data in [gzip.compress(b'x'*5_400_001),gzip.compress(raw)[:-2],gzip.compress(raw)+b'extra']:
+            with self.assertRaises(ValueError):self.m.metric_payload(data,'gzip')
 if __name__=='__main__':unittest.main()
