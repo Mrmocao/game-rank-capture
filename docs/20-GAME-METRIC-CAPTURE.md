@@ -20,7 +20,7 @@ V19新增配置、任务、不可变观察、供应商配置四表。独立进�
 
 Google Play由.github/workflows/overseas-metrics.yml每小时55分领取最多100项（Actions可能延迟）。支持手动dispatch limit 1–100。每项间隔5秒，总时限17.5分钟，余量留待下一轮。原AppBrain榜单08:40/23:10和服务器榜单08:30/23:00互不替代。
 
-外网桥接复用OVERSEAS_CAPTURE_TOKEN与固定CA证书，通过/overseas/metric-claim、metric-result转给loopback API；桥接到Java使用独立CAPTURE_REMOTE_METRIC_TOKEN。公网必须认证，原材料≤4MB，不能指定内网URL、运行命令或写任意业务数据。领取结果只含固定Google URL和180秒租约；提交校验租约、工作区、时间及包名，拒绝重放。页面展示海外最近领取时间，不将其称为常驻在线。
+外网桥接复用OVERSEAS_CAPTURE_TOKEN与固定CA证书，通过/overseas/metric-claim、metric-result转给loopback API；桥接到Java使用独立CAPTURE_REMOTE_METRIC_TOKEN。公网必须认证，gzip传输并限制解压到5.4MB JSON、原材料≤4MB；工作区过滤器仅对认证后的精确回传路由放宽256KB限制，不能指定内网URL、运行命令或写任意业务数据。领取结果只含固定Google URL和180秒租约；提交校验租约、工作区、时间及包名，拒绝重放。页面展示海外最近领取时间，不将其称为常驻在线。
 
 原材料及snapshot.json按UUID存于CAPTURE_MATERIAL_DIR/metrics/，数据库保存哈希、相对路径、解析版本和指标口径。来源历史保留最近30条供页面查看，数据库历史不删除。Key从不返回API，接口仅返回是否已配置。
 

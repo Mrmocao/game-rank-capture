@@ -123,3 +123,12 @@ release `20261103-report-feedback-final2`，JAR SHA256 `230d355460822c0d877f2df8
 Firecrawl运行于 `/opt/iaa-firecrawl`，API仅127.0.0.1:3002，4核16GB；五容器，固定官方镜像摘要、readiness探针、restart策略。服务端app.env新增CAPTURE_FIRECRAWL_INTERNAL_URL与独立CAPTURE_TOOL_ENCRYPTION_KEY，Web/Worker均已加载。工作台服务配置已启用，自建内部服务无需云端Key。生产游民星空目标已发布v1，真实PREVIEW与LIVE均成功50条，暂为手动执行。
 
 公网HTML/JS/CSS与构建摘要一致，桌面/手机交互验收通过。详情、证据与限制见[验收](docs/acceptance/2026-11-04-online-web.md)，在线操作见[工作台说明](docs/18-ONLINE-WEB-CAPTURE.md)。回滚先停Worker/报告桥，将current切回原release并恢复对应环境备份，重启服务；保留V18及采集证据，不删除表和持久卷。
+
+
+## 2026-11-04 免费商店指标（当前）
+
+当前release `/opt/iaa-radar/releases/20261104-game-metrics-r2`，JAR SHA256 `bb22f3ca2bc4b530ba2e61cf14b32466dacfaaebcdcd6b117acf18f34a8a3106`。V19扩展四张独立采集表；备份 `/opt/iaa-radar/backups/before-game-metrics-20261104.sql`（58表23180行），1483条已有冻结行核验保持。开发3306库另有本机备份，365条冻结行保持。
+
+新增常驻 `iaa-radar-metrics`，自动发现已启用，成功缓存24h、失败退避6h；原榜单08:30/23:00、AppBrain08:40/23:10保留。海外详情 `overseas-metrics.yml` 每小时55分、最多100项，支持手动批次。新增CAPTURE_REMOTE_METRIC_TOKEN只在服务器app.env保存，桥接沿用海外TLS和外层令牌，gzip与请求大小限制已真实验证。原文详情/来源历史及在线设置见[运行说明](docs/20-GAME-METRIC-CAPTURE.md)。
+
+回滚先停止metrics，再切回上一release；暂停海外metrics工作流，保留V19和材料。若回滚到V18应用，Flyway须通过显式target设置处理较新迁移，不删除V19历史。无需恢复整个数据库覆盖后续采集。正式生产和预览不得同时启用榜单调度。

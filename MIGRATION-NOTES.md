@@ -113,3 +113,6 @@ V13新增external_capture_run、external_ranking_observation、external_ranking_
 追加capture_web_provider、capture_web_rule、capture_web_rule_version、capture_web_run四表。只有采集配置、不可变规则和来源证据，不修改产品或历史报告。先备份再应用Flyway；回滚应用保留新增表及旧迁移校验和。供应商密钥以CAPTURE_TOOL_ENCRYPTION_KEY加密，内部服务入口只由CAPTURE_FIRECRAWL_INTERNAL_URL明确授权；两个参数同时供Web及独立Worker读取。
 
 V18已于2026-11-04 11:22应用生产13306专用库；切换前备份54表21605行，1482条既有冻结行核对保持，未执行历史重算。开发3306与生产13306分别迁移，未复制开发验收数据。
+
+
+2026-11-04 V19：独立商店指标配置/任务/观察/授权配置四表，只追加采集记录。生产13306与开发3306分别备份、迁移；1483/365条原冻结行核验不变。

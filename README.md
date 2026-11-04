@@ -117,3 +117,6 @@ JDBC/Flyway 已在配置数据库与生产数据库执行 V9～V12；两者是�
 ## 在线网页采集
 
 信息抓取页支持Firecrawl自建/云端与普通HTTPS网页，URL和CSS字段规则可保存、试抓、发布、回退，不必每次部署。流程与限制见 [在线网页采集](docs/18-ONLINE-WEB-CAPTURE.md)，自建服务见 [部署包](scripts/firecrawl/README.md)。
+
+
+免费商店下载与付费信息：信息抓取页新增独立指标补全、来源历史及授权平台配置，见[运行手册](docs/20-GAME-METRIC-CAPTURE.md)。
