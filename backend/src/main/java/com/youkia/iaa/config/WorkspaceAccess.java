@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class WorkspaceAccess extends OncePerRequestFilter {
     private final String token,tenant;private final ObjectMapper mapper;
+    @Value("${CAPTURE_REMOTE_METRIC_TOKEN:}") private String metricToken="";
     private final Map<String,Instant> sessions=new ConcurrentHashMap<>();
     private final Map<String,Attempt> attempts=new ConcurrentHashMap<>();
     private record Attempt(int count,Instant until){}
@@ -39,7 +40,10 @@ public class WorkspaceAccess extends OncePerRequestFilter {
             String requestedTenant=request.getHeader("X-Tenant-Id");
             if(requestedTenant!=null&&!requestedTenant.equals(tenant)){deny(response,403,"TENANT_FORBIDDEN","组织范围由服务器限定");return;}
             if(!authenticated(request)){deny(response,401,"WORKSPACE_LOGIN_REQUIRED","请先输入工作区访问口令");return;}
-            if(request.getContentLengthLong()>262144){deny(response,413,"MATERIAL_TOO_LARGE","材料请求不得超过256KB");return;}
+            boolean metricResult=request.getMethod().equals("POST")&&request.getRequestURI().equals("/api/v1/admin/capture-workspace/metrics/remote/result");
+            if(metricResult&&(metricToken.isBlank()||!equalsSecret(request.getHeader("X-Capture-Metrics-Token"),metricToken))){deny(response,401,"METRIC_TOKEN_REQUIRED","指标回传认证无效");return;}
+            long limit=metricResult?5_400_000:262144;
+            if(request.getContentLengthLong()>limit){deny(response,413,"MATERIAL_TOO_LARGE",metricResult?"指标原文请求超过限制":"材料请求不得超过256KB");return;}
         }
         chain.doFilter(request,response);
     }

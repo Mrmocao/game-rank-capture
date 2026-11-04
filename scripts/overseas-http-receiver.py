@@ -1,5 +1,5 @@
 """Loopback-only HTTP bridge behind a pinned TLS endpoint. No shell or database access for callers."""
-import hmac, http.server, json, os, pathlib, subprocess, urllib.request, zlib
+import hmac, http.server, json, os, pathlib, subprocess, urllib.request, urllib.error, zlib, sys
 ROOT=pathlib.Path('/opt/iaa-radar')
 TOKEN=pathlib.Path('/etc/iaa-radar/overseas-token').read_text().strip()
 LIMIT=24_000_000
@@ -42,7 +42,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 request=urllib.request.Request('http://127.0.0.1:18081/api/v1/admin/capture-workspace/metrics/remote/'+suffix,data=payload,headers=headers)
                 with urllib.request.urlopen(request,timeout=45) as response:data=response.read(65536)
                 self.respond(200,data)
-            except Exception:self.respond(503,b'{"error":"METRIC_DELIVERY_FAILED"}')
+            except Exception as error:
+                print('METRIC_BRIDGE_FAILED '+type(error).__name__+' '+str(getattr(error,'code','')),file=sys.stderr,flush=True)
+                self.respond(503,b'{"error":"METRIC_DELIVERY_FAILED"}')
             return
         if self.path!='/overseas/deliver':self.respond(404,b'{}');return
         try:
