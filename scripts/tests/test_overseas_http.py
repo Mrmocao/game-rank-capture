@@ -26,4 +26,9 @@ class HttpReceiverTests(unittest.TestCase):
         with patch.object(self.m.subprocess,'run') as run:
             with self.assertRaises(urllib.error.HTTPError) as error:urllib.request.urlopen(req)
             self.assertEqual(413,error.exception.code);error.exception.close();run.assert_not_called()
+    def test_metric_oversize_and_auth_rejected(self):
+        for headers,expected in [({},401),({'Authorization':'Bearer SYNTHETIC-test-token','Content-Length':'5400001'},413)]:
+            req=urllib.request.Request(self.url+'/overseas/metric-result',data=b'x',headers=headers)
+            with self.assertRaises(urllib.error.HTTPError) as error:urllib.request.urlopen(req)
+            self.assertEqual(expected,error.exception.code);error.exception.close()
 if __name__=='__main__':unittest.main()

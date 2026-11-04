@@ -106,3 +106,10 @@ READER：读产品、榜单、周报及选用记录；EDITOR：增加选用、�
 `GET /reports`历史分页增加research_lead_count；先对标量ID排序分页，再读取摘要，避免对多MB冻结JSON执行filesort。正式与线索合计最多5；新研究目标发布不得超过5，生成时effectiveParameters冻结实际生效配置。报告时间范围左闭右开，本周截至11月2日使用2026-11-02至2026-11-03；研究线索独立回看10月27日至11月2日。
 
 `GET /access`返回enabled=false、authenticated=true时直接进入工作区；网络错误是连接状态，不代表用户必须输入口令。
+
+## V18 在线网页采集
+
+服务配置、规则版本、真实试抓、发布/回退与网页证据接口位于 `/api/v1/admin/capture-workspace/web`，详细请求流程见 [在线采集API](18-ONLINE-WEB-CAPTURE.md)。通用网页结果独立于榜单观察。
+
+
+商店指标独立接口、权限、字段和口径见[20-GAME-METRIC-CAPTURE.md](20-GAME-METRIC-CAPTURE.md)。

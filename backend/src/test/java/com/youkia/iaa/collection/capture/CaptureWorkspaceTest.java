@@ -24,7 +24,7 @@ class CaptureWorkspaceTest {
     JdbcTemplate jdbc;CaptureWorkspaceStore store;CaptureWorkspaceService workspace;RankingCaptureStore ranking;
     @BeforeEach void setup() throws Exception {
         var ds=new DriverManagerDataSource("jdbc:h2:mem:"+UUID.randomUUID()+";MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE","sa","");jdbc=new JdbcTemplate(ds);
-        for(String file:List.of("V13__external_ranking_capture.sql","V14__capture_workspace.sql","V17__overseas_store_charts.sql"))try(var in=getClass().getResourceAsStream("/db/migration/"+file);var c=ds.getConnection()){
+        for(String file:List.of("V13__external_ranking_capture.sql","V14__capture_workspace.sql","V17__overseas_store_charts.sql","V18__online_web_capture.sql"))try(var in=getClass().getResourceAsStream("/db/migration/"+file);var c=ds.getConnection()){
             String sql=new String(Objects.requireNonNull(in).readAllBytes(),StandardCharsets.UTF_8).replace(" COLLATE utf8mb4_bin","").replace("UTC_TIMESTAMP(3)","CURRENT_TIMESTAMP(3)");
             ScriptUtils.executeSqlScript(c,new ByteArrayResource(sql.getBytes(StandardCharsets.UTF_8)));
         }
@@ -55,7 +55,7 @@ class CaptureWorkspaceTest {
     @Test void editUsesOptimisticLockAndRejectsCredentialUrls() {
         var old=store.target("a","apple-cn");var edit=new CaptureWorkspaceStore.TargetEdit("Updated",(String)old.get("source_url"),"ranks","","http-json",false,0);
         assertEquals(1,store.update("a","apple-cn",edit).get("revision"));assertThrows(CaptureException.class,()->store.update("a","apple-cn",edit));assertEquals(7,store.enabledRequests("a").size());
-        assertThrows(IllegalArgumentException.class,()->store.add("a",new CaptureWorkspaceStore.TargetEdit("bad","https://user:password@example.org","","","http-html",false,0)));
+        assertThrows(CaptureException.class,()->store.add("a",new CaptureWorkspaceStore.TargetEdit("bad","https://user:password@example.org","","","http-html",false,0)));
     }
     @Test void twiceMeansExactlyEightThirtyAndTwentyThreeBeijing() {
         assertEquals(clock.instant(),CaptureWorkspaceStore.instant(LocalDateTime.of(2026,11,2,0,30)));

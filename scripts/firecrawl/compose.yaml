@@ -1,0 +1,95 @@
+name: iaa-firecrawl
+
+# Pinned upstream OCI digests inspected 2026-11-04. API is reachable only on host loopback.
+x-service: &service
+  restart: unless-stopped
+  networks: [capture]
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: "3"}
+
+services:
+  api:
+    <<: *service
+    image: ghcr.nju.edu.cn/firecrawl/firecrawl@sha256:75ea8ebf5e2d828592289bb3b8d84e932cced9f28a9614701f00c54f39946018
+    command: node dist/src/harness.js --start-docker
+    ports: ["127.0.0.1:3002:3002"]
+    mem_limit: 3g
+    cpus: 1.5
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3002/v0/health/readiness',{signal:AbortSignal.timeout(5000)}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 8s
+      start_period: 120s
+      retries: 3
+    environment:
+      HOST: 0.0.0.0
+      PORT: "3002"
+      ENV: local
+      USE_DB_AUTHENTICATION: "false"
+      REDIS_URL: redis://redis:6379
+      REDIS_RATE_LIMIT_URL: redis://redis:6379
+      PLAYWRIGHT_MICROSERVICE_URL: http://playwright-service:3000/scrape
+      POSTGRES_HOST: nuq-postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a unique database password in .env}
+      NUQ_RABBITMQ_URL: amqp://rabbitmq:5672
+      NUM_WORKERS_PER_QUEUE: "1"
+      CRAWL_CONCURRENT_REQUESTS: "1"
+      MAX_CONCURRENT_JOBS: "1"
+      BROWSER_POOL_SIZE: "1"
+      HARNESS_STARTUP_TIMEOUT_MS: "120000"
+      LOGGING_LEVEL: warn
+      NODE_OPTIONS: --max-old-space-size=384
+    depends_on:
+      redis: {condition: service_healthy}
+      nuq-postgres: {condition: service_healthy}
+      rabbitmq: {condition: service_healthy}
+      playwright-service: {condition: service_started}
+  playwright-service:
+    <<: *service
+    image: ghcr.nju.edu.cn/firecrawl/playwright-service@sha256:637fb8c8399634b02c2179da72566ce11644435e5d93e895bdbde4b1f9b0882a
+    mem_limit: 1536m
+    cpus: 1
+    environment:
+      PORT: "3000"
+      MAX_CONCURRENT_PAGES: "1"
+      BLOCK_MEDIA: "true"
+      ALLOW_LOCAL_WEBHOOKS: "false"
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+  redis:
+    <<: *service
+    image: sha256:98c6ca8f397f86e469be752c3e7ed5eb8b17f2479840cb69a2e413037038e9f4
+    pull_policy: never
+    command: redis-server --appendonly yes --maxmemory 192mb --maxmemory-policy noeviction
+    mem_limit: 256m
+    volumes: [redis-data:/data]
+    healthcheck: {test: [CMD, redis-cli, ping], interval: 10s, timeout: 3s, retries: 10}
+  rabbitmq:
+    <<: *service
+    image: sha256:5f3394787e6c8e30dbe74334e06fca9426943d21dbf1e5abd38b234c5ec1a5cd
+    pull_policy: never
+    mem_limit: 384m
+    environment:
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "+S 1:1"
+    volumes: [rabbit-data:/var/lib/rabbitmq]
+    healthcheck: {test: [CMD, rabbitmq-diagnostics, -q, check_running], interval: 10s, timeout: 5s, retries: 12}
+  nuq-postgres:
+    <<: *service
+    image: ghcr.nju.edu.cn/firecrawl/nuq-postgres@sha256:d719b36160eac2fcbe16dc7e7360ddb9c82c40ea5da183d07bf4a755c6a0b2ae
+    mem_limit: 512m
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a unique database password in .env}
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    healthcheck: {test: [CMD-SHELL, "pg_isready -U postgres -d postgres"], interval: 10s, timeout: 5s, retries: 12}
+networks:
+  capture: {driver: bridge}
+volumes:
+  redis-data:
+  rabbit-data:
+  postgres-data:

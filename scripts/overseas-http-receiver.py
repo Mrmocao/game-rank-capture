@@ -20,6 +20,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
         except Exception:self.respond(503,b'{"error":"PLAN_UNAVAILABLE"}')
     def do_POST(self):
         if not self.authorized():return
+        if self.path in ('/overseas/metric-claim','/overseas/metric-result'):
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 1<=size<=5_400_000:self.respond(413,b'{"error":"METRIC_UPLOAD_LIMIT"}');return
+                self.connection.settimeout(30);payload=self.rfile.read(size)
+                if len(payload)!=size:raise ValueError('TRUNCATED')
+                env=dict(line.split('=',1) for line in pathlib.Path('/etc/iaa-radar/app.env').read_text().splitlines() if '=' in line and not line.startswith('#'))
+                headers={'Content-Type':'application/json','X-Capture-Metrics-Token':env.get('CAPTURE_REMOTE_METRIC_TOKEN','')}
+                if env.get('PROFILE_ACCESS_TOKEN',''):headers['Authorization']='Bearer '+env['PROFILE_ACCESS_TOKEN']
+                suffix='claim' if self.path.endswith('-claim') else 'result'
+                request=urllib.request.Request('http://127.0.0.1:18081/api/v1/admin/capture-workspace/metrics/remote/'+suffix,data=payload,headers=headers)
+                with urllib.request.urlopen(request,timeout=45) as response:data=response.read(65536)
+                self.respond(200,data)
+            except Exception:self.respond(503,b'{"error":"METRIC_DELIVERY_FAILED"}')
+            return
         if self.path!='/overseas/deliver':self.respond(404,b'{}');return
         try:
             size=int(self.headers.get('Content-Length','0'))

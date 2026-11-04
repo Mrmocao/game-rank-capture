@@ -22,19 +22,19 @@ public final class RankingCaptureCommand {
     private static void execute(String[] args) throws Exception {
         Set<String> flags = new HashSet<>(); Map<String, String> options = new HashMap<>();
         for (int i = 0; i < args.length; i++) {
-            if (Set.of("--migrate", "--run", "--inspect", "--session-status", "--tick", "--worker", "--schedule-status", "--help").contains(args[i])) flags.add(args[i]);
+            if (Set.of("--migrate", "--run", "--inspect", "--session-status", "--tick", "--worker", "--metrics-worker", "--metrics-tick", "--schedule-status", "--help").contains(args[i])) flags.add(args[i]);
             else if (Set.of("--env-file", "--output", "--replay-dir", "--schedule", "--date", "--from", "--to").contains(args[i]) && i + 1 < args.length) options.put(args[i], args[++i]);
             else throw new IllegalArgumentException("Unknown argument");
         }
         if (args.length == 0 || flags.contains("--help")) {
-            System.out.println("RankingCaptureCommand [--inspect] [--session-status] [--migrate] [--run] [--tick|--worker] [--schedule-status] [--schedule daily|twice|off] [--env-file .env] [--output data/external-captures] [--replay-dir BUNDLE_DIRECTORY]"); return;
+            System.out.println("RankingCaptureCommand [--inspect] [--session-status] [--migrate] [--run] [--tick|--worker] [--metrics-tick|--metrics-worker] [--schedule-status] [--schedule daily|twice|off] [--env-file .env] [--output data/external-captures] [--replay-dir BUNDLE_DIRECTORY]"); return;
         }
         Map<String, String> config = new HashMap<>(); Path envFile = Path.of(options.getOrDefault("--env-file", ".env"));
         if (Files.exists(envFile)) for (String line : Files.readAllLines(envFile)) {
             int split = line.indexOf('='); if (split > 0 && !line.stripLeading().startsWith("#")) config.put(line.substring(0, split).trim(), line.substring(split + 1).trim());
         }
         for (String key : List.of("DB_URL", "DB_USERNAME", "DB_PASSWORD", "PROFILE_TENANT_ID", "CAPTURE_MATERIAL_DIR",
-                "CAPTURE_BROWSER_PROFILE_DIR", "CAPTURE_BROWSER_CHANNEL", "CAPTURE_BROWSER_HEADLESS"))
+                "CAPTURE_BROWSER_PROFILE_DIR", "CAPTURE_BROWSER_CHANNEL", "CAPTURE_BROWSER_HEADLESS","CAPTURE_FIRECRAWL_INTERNAL_URL","CAPTURE_TOOL_ENCRYPTION_KEY"))
             if (System.getenv(key) != null) config.put(key, System.getenv(key));
         for (String key : List.of("DB_URL", "DB_USERNAME", "DB_PASSWORD")) if (!config.containsKey(key)) throw new IllegalArgumentException("Missing database configuration");
         var ds = new DriverManagerDataSource(config.get("DB_URL"), config.get("DB_USERNAME"), config.get("DB_PASSWORD"));
@@ -61,7 +61,7 @@ public final class RankingCaptureCommand {
             Flyway.configure().dataSource(ds).locations("classpath:db/migration").cleanDisabled(true).load().migrate();
             System.out.println("CAPTURE_SCHEMA_READY");
         }
-        if (!flags.contains("--run")&&!flags.contains("--tick")&&!flags.contains("--worker")&&!flags.contains("--schedule-status")&&!options.containsKey("--schedule")) return;
+        if (!flags.contains("--run")&&!flags.contains("--tick")&&!flags.contains("--worker")&&!flags.contains("--metrics-worker")&&!flags.contains("--metrics-tick")&&!flags.contains("--schedule-status")&&!options.containsKey("--schedule")) return;
         Clock clock = Clock.systemUTC();
         var store = new RankingCaptureStore(jdbc, new TransactionTemplate(new DataSourceTransactionManager(ds)), mapper, clock);
         Path root = Path.of(options.getOrDefault("--output", config.getOrDefault("CAPTURE_MATERIAL_DIR", "data/external-captures")));
@@ -91,11 +91,25 @@ public final class RankingCaptureCommand {
         var runner = new RankingCaptureRunner(store, mapper, root, clock, fetcher);
         String tenant=config.getOrDefault("PROFILE_TENANT_ID","default");
         var workspaceStore=new CaptureWorkspaceStore(jdbc,mapper,clock);
+        String trusted=config.getOrDefault("CAPTURE_FIRECRAWL_INTERNAL_URL","");
+        var web=new OnlineWebCaptureService(workspaceStore,new com.youkia.capture.web.WebTransport(mapper,clock,trusted),new com.youkia.iaa.service.SecretCipher(config.getOrDefault("CAPTURE_TOOL_ENCRYPTION_KEY","unused-no-credentials")),root,trusted).requireEncryptionKey(!config.getOrDefault("CAPTURE_TOOL_ENCRYPTION_KEY","").isBlank());
+        if(flags.contains("--metrics-worker")||flags.contains("--metrics-tick")) {
+            var metrics=GameMetricFactory.create(workspaceStore,web,root,trusted,config.getOrDefault("CAPTURE_TOOL_ENCRYPTION_KEY",""));
+            if(flags.contains("--metrics-tick")){System.out.println(mapper.writeValueAsString(metrics.tick(tenant)));return;}
+            Path logs=envFile.toAbsolutePath().getParent().resolve("data/worker-logs");Files.createDirectories(logs);
+            while(!Thread.currentThread().isInterrupted()) {
+                Map<String,Object> result;
+                try{result=metrics.tick(tenant);}catch(Exception e){result=Map.of("errorCode",RankingCaptureRunner.errorCode(e));}
+                if(!Boolean.FALSE.equals(result.get("executed")))Files.writeString(logs.resolve("metrics-"+java.time.LocalDate.now(java.time.ZoneId.of("Asia/Shanghai"))+".log"),mapper.writeValueAsString(Map.of("at",clock.instant(),"result",result))+System.lineSeparator(),StandardOpenOption.CREATE,StandardOpenOption.APPEND);
+                Thread.sleep(5000);
+            }
+            return;
+        }
         if(flags.contains("--worker")) {
             Path logs=envFile.toAbsolutePath().getParent().resolve("data/worker-logs");Files.createDirectories(logs);
             try(var channel=java.nio.channels.FileChannel.open(logs.resolve("worker.lock"),StandardOpenOption.CREATE,StandardOpenOption.WRITE);var lock=channel.tryLock()) {
                 if(lock==null)return;
-                var engine=new CaptureScheduleEngine(workspaceStore,new CaptureWorkspaceService(workspaceStore,runner,mapper,!browserProfile.isBlank()));
+                var engine=new CaptureScheduleEngine(workspaceStore,new CaptureWorkspaceService(workspaceStore,runner,mapper,!browserProfile.isBlank(),web));
                 while(!Thread.currentThread().isInterrupted()) {
                     Map<String,Object> result;
                     try{result=engine.tick(tenant);}catch(Exception e){result=Map.of("executed",false,"errorCode",RankingCaptureRunner.errorCode(e));}
@@ -112,7 +126,7 @@ public final class RankingCaptureCommand {
             workspaceStore.saveSchedule(tenant,new CaptureWorkspaceStore.ScheduleEdit(!frequency.equals("off"),frequency.equals("off")?"twice":frequency,((Number)current.get("revision")).intValue()));
         }
         if(flags.contains("--tick")) {
-            var result=new CaptureScheduleEngine(workspaceStore,new CaptureWorkspaceService(workspaceStore,runner,mapper,!browserProfile.isBlank())).tick(tenant);
+            var result=new CaptureScheduleEngine(workspaceStore,new CaptureWorkspaceService(workspaceStore,runner,mapper,!browserProfile.isBlank(),web)).tick(tenant);
             System.out.println(mapper.writeValueAsString(result));
         }
         if(flags.contains("--schedule-status")||options.containsKey("--schedule"))System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(workspaceStore.schedule(tenant)));

@@ -1,0 +1,27 @@
+name: Overseas game metrics
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: Maximum queued public game pages (1-100)
+        default: '100'
+        required: true
+  schedule:
+    - cron: '55 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: overseas-game-metrics
+  cancel-in-progress: false
+jobs:
+  metrics:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      - name: Collect only leased public Google Play details
+        env:
+          OVERSEAS_CAPTURE_TOKEN: ${{ secrets.OVERSEAS_CAPTURE_TOKEN }}
+          OVERSEAS_CAPTURE_CA_CERT: ${{ secrets.OVERSEAS_CAPTURE_CA_CERT }}
+          METRIC_LIMIT: ${{ inputs.limit || '100' }}
+        run: python3 scripts/overseas-metrics.py --limit "$METRIC_LIMIT"

@@ -10,8 +10,13 @@ public final class CaptureWorkspaceService {
     private final RankingCaptureRunner runner;
     private final boolean browserConfigured;
     private final Object candidates;
+    private final OnlineWebCaptureService web;
     public CaptureWorkspaceService(CaptureWorkspaceStore store, RankingCaptureRunner runner, ObjectMapper mapper, boolean browserConfigured) {
+        this(store,runner,mapper,browserConfigured,null);
+    }
+    public CaptureWorkspaceService(CaptureWorkspaceStore store, RankingCaptureRunner runner, ObjectMapper mapper, boolean browserConfigured,OnlineWebCaptureService web) {
         this.store=store; this.runner=runner; this.browserConfigured=browserConfigured;
+        this.web=web;
         try(var in=getClass().getResourceAsStream("/collection/source-register.json")) {
             candidates=mapper.readTree(Objects.requireNonNull(in)).get("sources");
         } catch(Exception e) {throw new IllegalStateException("来源目录无法读取",e);}
@@ -21,6 +26,7 @@ public final class CaptureWorkspaceService {
         var targets=store.targets(tenant);
         int planned=0,complete=0,rows=0,enabled=0;
         for(var t:targets) {
+            boolean online=web!=null&&OnlineWebCaptureService.dynamic(t);
             String source=(String)t.get("source_key");
             boolean implemented=source!=null, browser=implemented&&source.startsWith("gravity-");
             var latest=implemented?store.latestRuns(tenant,source,(String)t.get("region")):List.<Map<String,Object>>of();
@@ -29,6 +35,8 @@ public final class CaptureWorkspaceService {
             if("REMOTE".equals(t.get("execution_mode")))t.put("remoteWorkflowUrl","https://github.com/Mrmocao/game-rank-capture/actions/workflows/overseas-capture.yml");
             t.put("authority","apple-games".equals(source)?"官方":"第三方 / 待核验");
             t.put("latestRuns",latest);t.put("chartCount",implemented?store.requests(t).size():0);
+            t.put("onlineRule",online);
+            if(online){var state=web.state(tenant,(String)t.get("target_key"));t.put("ruleState",state);t.put("webRuns",web.runs(tenant,(String)t.get("target_key")).stream().limit(3).toList());t.put("executionReady",state.get("published_version")!=null);t.put("authority","网页来源 / 待核验");}
             if(Boolean.TRUE.equals(t.get("enabled"))) {
                 enabled++;planned+=(Integer)t.get("chartCount");
                 for(var r:latest) if("SUCCEEDED".equals(r.get("status"))&&((Number)r.getOrDefault("contiguous_top_n",0)).intValue()>=100) {
@@ -43,12 +51,16 @@ public final class CaptureWorkspaceService {
     }
     public Map<String,Object> run(String tenant,String targetKey) {
         store.initialize(tenant);
+        if(web!=null&&targetKey!=null&&OnlineWebCaptureService.dynamic(store.target(tenant,targetKey)))return web.execute(tenant,targetKey,null);
         if(targetKey!=null&&"REMOTE".equals(store.target(tenant,targetKey).get("execution_mode")))throw new CaptureException("REMOTE_EXECUTOR_REQUIRED","海外来源由云端任务执行，请打开云端运行入口；本机直连失败不回填数据");
         var requests=targetKey==null?store.enabledRequests(tenant):store.requests(store.target(tenant,targetKey));
-        if(requests.isEmpty())throw new CaptureException("NO_ENABLED_TARGETS","没有已启用的采集目标");
+        if(requests.isEmpty()&&web==null)throw new CaptureException("NO_ENABLED_TARGETS","没有已启用的采集目标");
         if(!browserConfigured&&requests.stream().anyMatch(r->r.sourceKey().startsWith("gravity-")))throw new CaptureException("BROWSER_NOT_CONFIGURED","当前执行器未配置专用浏览器会话");
-        var result=runner.run(tenant,requests);
+        var result=requests.isEmpty()?Map.<String,Object>of("status","SUCCEEDED","batchId",UUID.randomUUID().toString(),"attempts",List.of(),"failedCount",0,"partialCount",0):runner.run(tenant,requests);
         CaptureRepairService.recordFailures(store,tenant,result);
-        return result;
+        if(web==null||targetKey!=null)return result;
+        var webResults=web.runEnabled(tenant);var combined=new LinkedHashMap<>(result);combined.put("webAttempts",webResults);
+        if(webResults.stream().anyMatch(r->!"SUCCEEDED".equals(r.get("status")) ))combined.put("status","PARTIAL");
+        return combined;
     }
 }

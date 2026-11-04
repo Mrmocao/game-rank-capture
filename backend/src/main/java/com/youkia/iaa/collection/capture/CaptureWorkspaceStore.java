@@ -32,7 +32,21 @@ public final class CaptureWorkspaceStore {
         var prior=target(tenant,key); validateEdit(edit);
         if(prior.get("source_key")!=null && (!edit.url().equals(prior.get("source_url")) || !edit.toolKey().equals(prior.get("tool_key"))))
             throw new CaptureException("FIXED_SOURCE_SCOPE","已实现适配器的URL与工具绑定受来源范围约束，请通过独立工具代码修改并验证");
-        if(prior.get("source_key")==null && edit.enabled()) throw new CaptureException("ADAPTER_NOT_IMPLEMENTED","该网站仅登记，接入适配器后才能加入执行范围");
+        if(prior.get("source_key")==null && edit.enabled()) {
+            if(!Set.of("firecrawl","web-http").contains(edit.toolKey()))throw new CaptureException("ADAPTER_NOT_IMPLEMENTED","请先选择支持在线规则的工具并发布规则");
+            Integer published=jdbc.queryForObject("SELECT COUNT(*) FROM capture_web_rule WHERE tenant_id=? AND target_key=? AND published_version IS NOT NULL",Integer.class,tenant,key);
+            if(published==null||published==0)throw new CaptureException("RULE_NOT_PUBLISHED","请先试抓并发布规则，再纳入定时范围");
+            Integer count=jdbc.queryForObject("SELECT COUNT(*) FROM capture_target_config WHERE tenant_id=? AND source_key IS NULL AND enabled=TRUE AND target_key<>?",Integer.class,tenant,key);
+            if(count!=null&&count>=5)throw new CaptureException("WEB_TARGET_LIMIT","首版每批最多启用5个在线规则网站");
+        }
+        if(prior.get("source_key")==null&&!edit.toolKey().equals(prior.get("tool_key"))) {
+            Integer rules=jdbc.queryForObject("SELECT COUNT(*) FROM capture_web_rule WHERE tenant_id=? AND target_key=?",Integer.class,tenant,key);
+            if(rules!=null&&rules>0)throw new CaptureException("RULE_TOOL_FIXED","已有规则的网站需保持工具绑定；更换工具请登记新目标");
+        }
+        if(prior.get("source_key")==null&&!edit.url().equals(prior.get("source_url"))) {
+            Integer rules=jdbc.queryForObject("SELECT COUNT(*) FROM capture_web_rule WHERE tenant_id=? AND target_key=?",Integer.class,tenant,key);
+            if(rules!=null&&rules>0)throw new CaptureException("RULE_URL_MANAGED","请在在线规则中修改URL，试抓并发布后生效");
+        }
         int changed=jdbc.update("UPDATE capture_target_config SET name=?,source_url=?,field_scope=?,notes=?,tool_key=?,enabled=?,revision=revision+1,updated_at=? WHERE tenant_id=? AND target_key=? AND revision=?",
             edit.name().trim(),edit.url().trim(),edit.fields().trim(),edit.notes(),edit.toolKey(),edit.enabled(),now(),tenant,key,edit.revision());
         if(changed!=1) throw new CaptureException("CONFIG_CONFLICT","配置已被修改，请刷新后重试");
@@ -47,8 +61,7 @@ public final class CaptureWorkspaceStore {
     }
     private void validateEdit(TargetEdit e) {
         if(e==null||e.name()==null||e.name().isBlank()||e.name().length()>200||e.fields()==null||e.fields().length()>4000||e.notes()==null||e.notes().length()>4000||e.url()==null||e.url().length()>1000)throw new IllegalArgumentException("名称、字段说明、备注或URL无效");
-        URI u=URI.create(e.url().trim());
-        if(!"https".equals(u.getScheme())||u.getHost()==null||u.getUserInfo()!=null||u.getQuery()!=null||u.getFragment()!=null)throw new IllegalArgumentException("请登记不含查询参数或凭证的HTTPS网站入口");
+        com.youkia.capture.web.PublicWebUrl.syntax(e.url().trim());
         CaptureToolCatalog.get(e.toolKey());
     }
     public List<CaptureRequest> requests(Map<String,Object> target) {
@@ -71,7 +84,7 @@ public final class CaptureWorkspaceStore {
     public record ScheduleEdit(boolean enabled,String frequency,int revision) {}
     public Map<String,Object> saveSchedule(String tenant,ScheduleEdit edit) {
         String cron=switch(edit.frequency()){case "daily"->"0 30 8 * * *";case "twice"->"0 30 8 * * *;0 0 23 * * *";default->throw new IllegalArgumentException("仅支持每日08:30或每日08:30及23:00");};
-        if(edit.enabled()&&enabledRequests(tenant).isEmpty())throw new CaptureException("NO_ENABLED_TARGETS","请先选定至少一个已接入采集目标");
+        if(edit.enabled()&&enabledRequests(tenant).isEmpty()&&targets(tenant).stream().noneMatch(t->OnlineWebCaptureService.dynamic(t)&&Boolean.TRUE.equals(t.get("enabled"))))throw new CaptureException("NO_ENABLED_TARGETS","请先选定至少一个已接入采集目标");
         var next=CaptureScheduleEngine.next(cron,clock.instant());
         int n=jdbc.update("UPDATE capture_schedule_config SET enabled=?,cron_expression=?,revision=revision+1,next_due_at=?,updated_at=? WHERE tenant_id=? AND revision=?",
             edit.enabled(),cron,edit.enabled()?Timestamp.from(next):null,now(),tenant,edit.revision());

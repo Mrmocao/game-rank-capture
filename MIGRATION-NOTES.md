@@ -107,3 +107,9 @@ V13新增external_capture_run、external_ranking_observation、external_ranking_
 ## 2026-11-03 周报读取修复
 
 无数据库迁移，仍V17。发布前JDBC备份54表17778行，1378条冻结行保持不变。大报告会产生超过100MB的备份SQL单行，核验器已使用分块摘要，仍可在192MiB限制运行。默认全量报告API保持，新增pageView=true仅投影响应，不写库。
+
+## V18 在线网页采集（2026-11-04）
+
+追加capture_web_provider、capture_web_rule、capture_web_rule_version、capture_web_run四表。只有采集配置、不可变规则和来源证据，不修改产品或历史报告。先备份再应用Flyway；回滚应用保留新增表及旧迁移校验和。供应商密钥以CAPTURE_TOOL_ENCRYPTION_KEY加密，内部服务入口只由CAPTURE_FIRECRAWL_INTERNAL_URL明确授权；两个参数同时供Web及独立Worker读取。
+
+V18已于2026-11-04 11:22应用生产13306专用库；切换前备份54表21605行，1482条既有冻结行核对保持，未执行历史重算。开发3306与生产13306分别迁移，未复制开发验收数据。

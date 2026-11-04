@@ -932,3 +932,114 @@ CREATE TABLE source_entity_review_event (
 ALTER TABLE capture_target_config ADD COLUMN execution_mode VARCHAR(16) NOT NULL DEFAULT 'SERVER' COMMENT '执行位置：SERVER服务器本地，REMOTE独立云端采集后校验入库';
 UPDATE capture_target_config SET execution_mode='REMOTE',field_scope='第三方Google Play免费、付费、畅销、新免费、新付费5榜各请求Top100；公开缺行保留；云端定时采集回传',revision=revision+1,updated_at=UTC_TIMESTAMP(3) WHERE source_key='appbrain';
 UPDATE capture_target_config SET name='Apple · 中国游戏免费/付费/畅销榜',field_scope='官方游戏分类6014的免费、付费、畅销3榜各Top100；独立名次、Apple ID、开发者、图标、来源更新时间',revision=revision+1,updated_at=UTC_TIMESTAMP(3) WHERE source_key='apple-games';
+
+-- V18 Online web capture
+CREATE TABLE capture_web_provider (
+ tenant_id VARCHAR(64) PRIMARY KEY COMMENT '服务端工作区',
+ base_url VARCHAR(1000) NOT NULL COMMENT 'Firecrawl v2 API入口',
+ api_key_ciphertext TEXT NULL COMMENT 'AES-GCM加密密钥，不向页面返回',
+ enabled BOOLEAN NOT NULL DEFAULT FALSE COMMENT '服务是否启用',
+ revision INT NOT NULL DEFAULT 0 COMMENT '配置乐观锁与试抓版本',
+ updated_at DATETIME(3) NOT NULL COMMENT '更新时间UTC'
+) COMMENT='网页工具供应商配置；每次执行动态读取';
+
+CREATE TABLE capture_web_rule (
+ tenant_id VARCHAR(64) NOT NULL COMMENT '服务端工作区',
+ target_key VARCHAR(80) NOT NULL COMMENT '网页目标键',
+ draft_version INT NOT NULL DEFAULT 0 COMMENT '当前草稿版本',
+ published_version INT NULL COMMENT '当前发布版本；空为未发布',
+ revision INT NOT NULL DEFAULT 0 COMMENT '编辑/发布并发控制版本',
+ updated_at DATETIME(3) NOT NULL COMMENT '更新时间UTC',
+ PRIMARY KEY(tenant_id,target_key)
+) COMMENT='在线规则草稿和发布指针';
+
+CREATE TABLE capture_web_rule_version (
+ tenant_id VARCHAR(64) NOT NULL COMMENT '服务端工作区',
+ target_key VARCHAR(80) NOT NULL COMMENT '网页目标键',
+ version INT NOT NULL COMMENT '不可变版本号',
+ tool_key VARCHAR(64) NOT NULL COMMENT 'firecrawl或web-http',
+ rule_json JSON NOT NULL COMMENT '声明式URL、CSS、字段、数量、等待规则',
+ created_at DATETIME(3) NOT NULL COMMENT '创建时间UTC',
+ PRIMARY KEY(tenant_id,target_key,version)
+) COMMENT='不可变网页规则历史，不含可执行代码';
+
+CREATE TABLE capture_web_run (
+ id CHAR(36) PRIMARY KEY COMMENT '运行UUID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '服务端工作区',
+ target_key VARCHAR(80) NOT NULL COMMENT '网页目标键',
+ rule_version INT NOT NULL COMMENT '执行的不可变规则版本',
+ provider_revision INT NOT NULL COMMENT '供应商配置版本，普通HTTP为0',
+ tool_key VARCHAR(64) NOT NULL COMMENT '实际工具',
+ run_mode VARCHAR(16) NOT NULL COMMENT 'PREVIEW试抓或LIVE已发布采集',
+ status VARCHAR(24) NOT NULL COMMENT 'RUNNING/SUCCEEDED/PARTIAL/FAILED/INTERRUPTED',
+ error_code VARCHAR(80) NULL COMMENT '脱敏错误码',
+ active_scope CHAR(64) NULL COMMENT '同租户同目标互斥',
+ lease_until DATETIME(3) NULL COMMENT '运行租约UTC',
+ source_url VARCHAR(2000) NOT NULL COMMENT '请求来源URL',
+ raw_sha256 CHAR(64) NULL COMMENT '实际网页材料哈希',
+ raw_locator TEXT NULL COMMENT '相对材料根目录路径',
+ result_json JSON NULL COMMENT '来源字段、逐项证据与校验问题；不是业务产品数据',
+ started_at DATETIME(3) NOT NULL COMMENT '开始UTC',
+ finished_at DATETIME(3) NULL COMMENT '完成UTC',
+ UNIQUE KEY uq_capture_web_active(active_scope),
+ KEY idx_capture_web_history(tenant_id,target_key,started_at)
+) COMMENT='真实网页试抓与已发布运行；与榜单日志隔离';
+
+
+-- V19: independent public store metrics
+CREATE TABLE capture_metric_config (
+ tenant_id VARCHAR(64) PRIMARY KEY COMMENT '服务器工作区',
+ enabled BOOLEAN NOT NULL DEFAULT FALSE COMMENT '自动排队公开商店指标',
+ refresh_hours INT NOT NULL DEFAULT 24 COMMENT '成功缓存小时',
+ transport VARCHAR(24) NOT NULL DEFAULT 'web-http' COMMENT '详情获取工具web-http或firecrawl',
+ revision INT NOT NULL DEFAULT 0 COMMENT '配置版本',
+ planned_at DATETIME(3) NULL COMMENT '上次自动排队UTC',
+ worker_seen_at DATETIME(3) NULL COMMENT '独立指标执行器心跳UTC',
+ remote_seen_at DATETIME(3) NULL COMMENT '海外指标执行器最近领取UTC，不代表常驻在线',
+ updated_at DATETIME(3) NOT NULL COMMENT '配置更新时间UTC'
+) COMMENT='独立指标补全计划；不占用榜单计划';
+
+CREATE TABLE capture_metric_job (
+ id CHAR(64) PRIMARY KEY COMMENT '工作区平台ID地区来源哈希',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '服务器工作区',
+ platform VARCHAR(32) NOT NULL COMMENT 'IOS或GOOGLE_PLAY',
+ external_id VARCHAR(200) NOT NULL COMMENT 'Apple ID或包名；不按名字关联',
+ region VARCHAR(8) NOT NULL COMMENT '商店地区，非默认指标地区',
+ source_key VARCHAR(32) NOT NULL COMMENT 'apple-lookup/apple-detail/google-detail',
+ name VARCHAR(500) NOT NULL COMMENT '榜单来源名称',
+ ranking_observation_id BIGINT NOT NULL COMMENT '排队依据榜单观察',
+ status VARCHAR(24) NOT NULL COMMENT 'PENDING/RUNNING/SUCCEEDED/FAILED',
+ attempts INT NOT NULL DEFAULT 0 COMMENT '实际尝试次数',
+ due_at DATETIME(3) NOT NULL COMMENT '最早处理时间UTC',
+ lease_token CHAR(36) NULL COMMENT '执行租约令牌不返回页面',
+ lease_until DATETIME(3) NULL COMMENT '执行租约到期UTC',
+ last_success_id CHAR(36) NULL COMMENT '最近成功观察；失败不清除',
+ error_code VARCHAR(80) NULL COMMENT '脱敏错误码',
+ last_started_at DATETIME(3) NULL COMMENT '开始UTC',
+ last_finished_at DATETIME(3) NULL COMMENT '结束UTC',
+ updated_at DATETIME(3) NOT NULL COMMENT '任务更新时间UTC',
+ UNIQUE KEY uq_metric_identity(tenant_id,platform,external_id,region,source_key),
+ KEY idx_metric_due(tenant_id,status,due_at)
+) COMMENT='商店指标持久去重队列';
+
+CREATE TABLE capture_metric_observation (
+ id CHAR(36) PRIMARY KEY COMMENT '指标观察UUID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '服务器工作区',
+ job_id CHAR(64) NOT NULL COMMENT '来源任务',
+ captured_at DATETIME(3) NOT NULL COMMENT '实际获取UTC，不冒充来源统计日',
+ raw_sha256 CHAR(64) NOT NULL COMMENT '原始材料摘要',
+ raw_locator TEXT NOT NULL COMMENT '材料根目录下相对路径',
+ snapshot_json JSON NOT NULL COMMENT '指标原文、口径、单位、地域、证据与内购展示项目',
+ KEY idx_metric_history(tenant_id,job_id,captured_at)
+) COMMENT='只追加来源指标历史，不写产品和历史报告';
+
+CREATE TABLE capture_metric_provider (
+ tenant_id VARCHAR(64) NOT NULL COMMENT '服务器工作区',
+ provider_key VARCHAR(32) NOT NULL COMMENT 'appfigures/diandian/sensortower',
+ api_key_ciphertext TEXT NULL COMMENT '独立AES-GCM加密，不返回页面',
+ account_label VARCHAR(200) NOT NULL DEFAULT '' COMMENT '账号备注，不存登录密码',
+ licensed BOOLEAN NOT NULL DEFAULT FALSE COMMENT '用户声明具有API授权，仍需真实验证',
+ revision INT NOT NULL DEFAULT 0 COMMENT '编辑版本',
+ updated_at DATETIME(3) NOT NULL COMMENT '配置更新时间UTC',
+ PRIMARY KEY(tenant_id,provider_key)
+) COMMENT='估算数据商授权准备；未验证前不调用收费API';

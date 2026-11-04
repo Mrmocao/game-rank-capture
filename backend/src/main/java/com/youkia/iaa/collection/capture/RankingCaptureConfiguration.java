@@ -14,8 +14,14 @@ import java.time.Clock;
 @Configuration
 public class RankingCaptureConfiguration {
     @Bean CaptureWorkspaceStore captureWorkspaceStore(JdbcTemplate jdbc,ObjectMapper mapper){return new CaptureWorkspaceStore(jdbc,mapper,Clock.systemUTC());}
-    @Bean CaptureWorkspaceService captureWorkspaceService(CaptureWorkspaceStore store,RankingCaptureRunner runner,ObjectMapper mapper,@Value("${CAPTURE_BROWSER_PROFILE_DIR:}")String profile){return new CaptureWorkspaceService(store,runner,mapper,!profile.isBlank());}
+    @Bean OnlineWebCaptureService onlineWebCaptureService(CaptureWorkspaceStore store,ObjectMapper mapper,
+            @Value("${CAPTURE_MATERIAL_DIR:./data/external-captures}")String root,@Value("${CAPTURE_FIRECRAWL_INTERNAL_URL:}")String trusted,
+            @Value("${CAPTURE_TOOL_ENCRYPTION_KEY:}")String key){return new OnlineWebCaptureService(store,new com.youkia.capture.web.WebTransport(mapper,Clock.systemUTC(),trusted),new com.youkia.iaa.service.SecretCipher(key.isBlank()?"unused-no-credentials":key),Path.of(root),trusted).requireEncryptionKey(!key.isBlank());}
+    @Bean CaptureWorkspaceService captureWorkspaceService(CaptureWorkspaceStore store,RankingCaptureRunner runner,ObjectMapper mapper,OnlineWebCaptureService web,@Value("${CAPTURE_BROWSER_PROFILE_DIR:}")String profile){return new CaptureWorkspaceService(store,runner,mapper,!profile.isBlank(),web);}
     @Bean CaptureScheduleEngine captureScheduleEngine(CaptureWorkspaceStore store,CaptureWorkspaceService workspace){return new CaptureScheduleEngine(store,workspace);}
+    @Bean GameMetricService gameMetricService(CaptureWorkspaceStore store,OnlineWebCaptureService web,
+            @Value("${CAPTURE_MATERIAL_DIR:./data/external-captures}")String root,@Value("${CAPTURE_FIRECRAWL_INTERNAL_URL:}")String trusted,
+            @Value("${CAPTURE_TOOL_ENCRYPTION_KEY:}")String key){return GameMetricFactory.create(store,web,Path.of(root),trusted,key);}
     @Bean CaptureRepairAiClient captureRepairAiClient(ObjectMapper mapper){return new CaptureRepairAiClient(mapper);}
     @Bean CaptureRepairService captureRepairService(CaptureWorkspaceStore store,CaptureWorkspaceService workspace,CaptureRepairAiClient client,com.youkia.iaa.service.AiConfigService ai){return new CaptureRepairService(store,workspace,client,ai);}
     @Bean RankingCaptureStore rankingCaptureStore(JdbcTemplate jdbc, PlatformTransactionManager transactions, ObjectMapper mapper) {

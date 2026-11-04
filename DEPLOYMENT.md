@@ -115,3 +115,11 @@ V17先JDBC备份/迁移再发布Java及前端；海外不使用本机worker。�
 ## 2026-11-03 周报读取性能
 
 release `20261103-report-feedback-final2`，JAR SHA256 `230d355460822c0d877f2df897ddef89248431c7e356f544f8a4b7d2d128f2c2`。发布Java和前端同时更新；无新增迁移/参数。nginx业务站点server块启用JSON gzip（见scripts/nginx/report-response-gzip.conf），执行nginx -t后reload。HTML入口仍引用带内容哈希资源，刷新加载新前端。备份核验使用当前scripts/JdbcVerifyPreserved.java，在192MiB下分块核对。
+
+## 2026-11-04 Firecrawl与在线工作台（当前）
+
+用户确认后已切换 `/opt/iaa-radar/releases/20261104-online-web`，JAR SHA256 `f5550f426a991e55f56062418b413c1616502c3f244d899cf5a0dc8fc1e870ac`；Flyway V18。升级前备份 `/opt/iaa-radar/backups/before-online-web-switch-20261104-1122.sql`，54表21605行，1482条既有冻结行保持。原release 20261103-report-feedback-final2保留。Web/Worker/报告桥active，08:30及23:00原计划保持。
+
+Firecrawl运行于 `/opt/iaa-firecrawl`，API仅127.0.0.1:3002，4核16GB；五容器，固定官方镜像摘要、readiness探针、restart策略。服务端app.env新增CAPTURE_FIRECRAWL_INTERNAL_URL与独立CAPTURE_TOOL_ENCRYPTION_KEY，Web/Worker均已加载。工作台服务配置已启用，自建内部服务无需云端Key。生产游民星空目标已发布v1，真实PREVIEW与LIVE均成功50条，暂为手动执行。
+
+公网HTML/JS/CSS与构建摘要一致，桌面/手机交互验收通过。详情、证据与限制见[验收](docs/acceptance/2026-11-04-online-web.md)，在线操作见[工作台说明](docs/18-ONLINE-WEB-CAPTURE.md)。回滚先停Worker/报告桥，将current切回原release并恢复对应环境备份，重启服务；保留V18及采集证据，不删除表和持久卷。

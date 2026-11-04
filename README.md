@@ -113,3 +113,7 @@ JDBC/Flyway 已在配置数据库与生产数据库执行 V9～V12；两者是�
 精选经独立大模型子agent检查后增加连续观察和热度/增势门槛，最新回落及反面证据必须披露。评估记录在 [独立评估](docs/acceptance/2026-11-02-shortlist-independent-review.md)，证据不足仍保持待核研究线索。
 
 本次交付：[本周标准列表](docs/acceptance/2026-11-02-weekly-shortlist.md) · [完成矩阵与真实验收](docs/acceptance/2026-11-02-release-acceptance.md) · [线上报告9（免登录）](http://14.103.231.1:18080/#/reports?date=2026-11-02&reportId=9)。
+
+## 在线网页采集
+
+信息抓取页支持Firecrawl自建/云端与普通HTTPS网页，URL和CSS字段规则可保存、试抓、发布、回退，不必每次部署。流程与限制见 [在线网页采集](docs/18-ONLINE-WEB-CAPTURE.md)，自建服务见 [部署包](scripts/firecrawl/README.md)。
