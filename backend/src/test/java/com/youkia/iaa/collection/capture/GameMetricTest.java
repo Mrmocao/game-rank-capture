@@ -62,4 +62,19 @@ class GameMetricTest {
   var providers=service.saveProvider("a","appfigures",new GameMetricService.ProviderEdit("fixture","secret-test",false,true,0));assertFalse(providers.toString().contains("secret-test"));assertTrue(providers.stream().noneMatch(p->Boolean.TRUE.equals(p.get("enabled"))));assertFalse(jdbc.queryForObject("SELECT api_key_ciphertext FROM capture_metric_provider",String.class).contains("secret-test"));
   assertThrows(CaptureException.class,()->service.saveProvider("a","appfigures",new GameMetricService.ProviderEdit("","",false,false,0)));
  }
+ @Test void observationProjectionIsReadOnlyScopedAndKeepsHistoricalFields()throws Exception {
+  long id=seed("IOS","123456","free");jdbc.update("UPDATE external_ranking_entry SET source_fields=? WHERE observation_id=?","{\"priceRaw\":{\"label\":\"¥6.00\"}}",id);
+  service.enqueue("a",null);service.tick("a");service.tick("a");
+  jdbc.update("UPDATE capture_target_config SET enabled=FALSE WHERE source_key='apple-games'");
+  jdbc.update("UPDATE capture_metric_observation SET captured_at=?",java.sql.Timestamp.from(clock.instant().minusSeconds(90000)));
+  String before=jdbc.queryForObject("SELECT bundle_json FROM external_ranking_observation WHERE id=?",String.class,id);
+  var view=service.observationMetrics("a",id);assertEquals("LATEST_SUPPLEMENT",view.get("mode"));
+  var rows=(List<Map<String,Object>>)view.get("rows");assertEquals(1,rows.size());assertEquals("¥6.00",((JsonNode)rows.getFirst().get("existing")).path("priceRaw").path("label").asText());
+  var jobs=(List<Map<String,Object>>)rows.getFirst().get("jobs");assertEquals(2,jobs.size());assertTrue(jobs.stream().allMatch(j->Boolean.TRUE.equals(j.get("stale"))));assertFalse(view.toString().contains("lease_token"));
+  assertEquals(before,jdbc.queryForObject("SELECT bundle_json FROM external_ranking_observation WHERE id=?",String.class,id));assertEquals(2,jdbc.queryForObject("SELECT COUNT(*) FROM capture_metric_observation",Integer.class));
+  assertThrows(CaptureException.class,()->service.observationMetrics("b",id));assertThrows(CaptureException.class,()->service.observationMetrics("a",9999));
+  long mini=seed("WECHAT","123456","free");var miniRow=((List<Map<String,Object>>)service.observationMetrics("a",mini).get("rows")).getFirst();assertTrue(((List<?>)miniRow.get("jobs")).isEmpty());assertEquals(false,miniRow.get("supported"));
+  long google=seed("GOOGLE_PLAY","123456","free");assertTrue(((List<?>)((List<Map<String,Object>>)service.observationMetrics("a",google).get("rows")).getFirst().get("jobs")).isEmpty());
+  jdbc.update("UPDATE external_capture_run SET status='FAILED' WHERE observation_id=?",id);assertThrows(CaptureException.class,()->service.observationMetrics("a",id));
+ }
 }

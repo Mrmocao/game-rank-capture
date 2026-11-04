@@ -315,3 +315,8 @@ JdbcBackup用Connector/J逐行读取，避免一次缓冲整张历史JSON表；�
 
 
 指标补全实施补充：Google Play服务器网络实测不可用，因此通过已有海外TLS桥接扩展专用租约领取/原材料提交协议，不占用原榜单回传任务。服务器使用独立metrics worker处理iOS和缓存排队，海外GitHub Actions每小时补Google。V19保存remote_seen_at；凭据与租约均不返回普通管理页面。详见docs/20-GAME-METRIC-CAPTURE.md。
+
+
+## 2026-11-04 榜单观察的补充指标展示
+
+新增只读GET metrics/observations/{id}，校验工作区与有效来源观察，在一次批量查询中按platform/externalId/region读取该榜游戏的最新指标；不依赖产品/周报服务，不修改原bundle或历史选用。返回原榜字段与最新补充观察分别命名，包含来源、时间、过期和失败状态。历史榜单也明确标注最新补充数据不是当日快照。前端榜单观察及采集详情复用展示列和证据抽屉；异步批量请求失败单独提示，不阻断原榜单，不逐行请求。无新数据库迁移。

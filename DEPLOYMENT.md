@@ -132,3 +132,8 @@ Firecrawl运行于 `/opt/iaa-firecrawl`，API仅127.0.0.1:3002，4核16GB；五�
 新增常驻 `iaa-radar-metrics`，自动发现已启用，成功缓存24h、失败退避6h；原榜单08:30/23:00、AppBrain08:40/23:10保留。海外详情 `overseas-metrics.yml` 每小时55分、最多100项，支持手动批次。新增CAPTURE_REMOTE_METRIC_TOKEN只在服务器app.env保存，桥接沿用海外TLS和外层令牌，gzip与请求大小限制已真实验证。原文详情/来源历史及在线设置见[运行说明](docs/20-GAME-METRIC-CAPTURE.md)。
 
 回滚先停止metrics，再切回上一release；暂停海外metrics工作流，保留V19和材料。若回滚到V18应用，Flyway须通过显式target设置处理较新迁移，不删除V19历史。无需恢复整个数据库覆盖后续采集。正式生产和预览不得同时启用榜单调度。
+
+
+## 2026-11-04 榜单观察指标展示（当前）
+
+release `/opt/iaa-radar/releases/20261104-ranking-metrics`，JAR `f2efa9d53a8cc865cb510baebfd1407c280b034220b50479e348ed16f1487233`，保持V19无迁移。备份before-ranking-metrics-20261104.sql，1483条冻结行保持。只读新接口与共享前端展示通过生产验证，旧release game-metrics-r2保留。详情见[验收](docs/acceptance/2026-11-04-ranking-metrics.md)。

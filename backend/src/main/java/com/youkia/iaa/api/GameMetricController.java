@@ -13,6 +13,7 @@ public class GameMetricController {
     private final GameMetricService metrics;private final String tenant;
     public GameMetricController(GameMetricService metrics,@Value("${PROFILE_TENANT_ID:default}")String tenant){this.metrics=metrics;this.tenant=tenant;}
     @GetMapping public ApiResponse<?> overview(@RequestParam(required=false)String platform,@RequestParam(required=false)String region,@RequestParam(required=false)String search,@RequestParam(defaultValue="1")int page){return ApiResponse.of(metrics.overview(tenant,platform,region,search,page));}
+    @GetMapping("/observations/{id}") public ApiResponse<?> observation(@PathVariable long id){return ApiResponse.of(metrics.observationMetrics(tenant,id));}
     @PutMapping("/config") public ApiResponse<?> configure(@RequestBody GameMetricService.ConfigEdit edit){return ApiResponse.of(metrics.saveConfig(tenant,edit));}
     @PostMapping("/enqueue") public ApiResponse<?> enqueue(@RequestBody(required=false)GameMetricService.Enqueue request){return ApiResponse.of(metrics.enqueue(tenant,request));}
     @GetMapping("/jobs/{id}")public ApiResponse<?> history(@PathVariable String id){return ApiResponse.of(metrics.history(tenant,id));}

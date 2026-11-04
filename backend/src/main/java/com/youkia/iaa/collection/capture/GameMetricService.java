@@ -76,6 +76,37 @@ public final class GameMetricService {
         var counts=store.jdbc.queryForList("SELECT status,COUNT(*) count FROM capture_metric_job WHERE tenant_id=? GROUP BY status",tenant);
         return Map.of("config",cfg,"rows",rows,"total",filtered.size(),"page",actualPage,"pageSize",20,"rankedGames",all.size(),"jobCounts",counts,"providers",providers(tenant));
     }
+    /** Latest enrichment is a separate read model, never merged into historical ranking evidence. */
+    public Map<String,Object> observationMetrics(String tenant,long observationId) {
+        var observations=store.jdbc.queryForList("""
+            SELECT o.id,o.platform,o.region,o.business_date,o.captured_at,o.source_url,o.raw_sha256
+            FROM external_ranking_observation o WHERE o.tenant_id=? AND o.id=? AND EXISTS(
+            SELECT 1 FROM external_capture_run r WHERE r.tenant_id=o.tenant_id AND r.observation_id=o.id AND r.status IN ('SUCCEEDED','PARTIAL'))
+            """,tenant,observationId);
+        if(observations.isEmpty())throw new CaptureException("OBSERVATION_NOT_FOUND","来源观察不存在");
+        var observation=observations.getFirst();
+        var rows=store.jdbc.queryForList("SELECT rank_position,external_id,name,evidence_locator,source_fields FROM external_ranking_entry WHERE observation_id=? ORDER BY rank_position",observationId);
+        var jobs=store.jdbc.queryForList("""
+            SELECT j.id,j.external_id,j.source_key,j.status,j.error_code,j.last_finished_at,o.captured_at,o.snapshot_json,
+                   COALESCE(c.refresh_hours,24) refresh_hours
+            FROM capture_metric_job j LEFT JOIN capture_metric_observation o ON o.id=j.last_success_id AND o.tenant_id=j.tenant_id AND o.job_id=j.id
+            LEFT JOIN capture_metric_config c ON c.tenant_id=j.tenant_id
+            WHERE j.tenant_id=? AND j.platform=? AND j.region=? AND j.platform IN ('IOS','GOOGLE_PLAY')
+            AND EXISTS(SELECT 1 FROM external_ranking_entry e WHERE e.observation_id=? AND e.external_id=j.external_id)
+            ORDER BY j.source_key
+            """,tenant,observation.get("platform"),observation.get("region"),observationId);
+        var byId=new HashMap<String,List<Map<String,Object>>>();
+        for(var job:jobs){Object snapshot=job.remove("snapshot_json");if(snapshot!=null)job.put("snapshot",store.read(snapshot));
+            Instant captured=CaptureWorkspaceStore.instant(job.get("captured_at"));long hours=((Number)job.remove("refresh_hours")).longValue();
+            job.put("stale",captured==null||captured.isBefore(store.clock.instant().minusSeconds(hours*3600)));
+            byId.computeIfAbsent((String)job.get("external_id"),k->new ArrayList<>()).add(job);
+        }
+        for(var row:rows){row.put("existing",store.read(row.remove("source_fields")));row.put("jobs",byId.getOrDefault(row.get("external_id"),List.of()));
+            row.put("platform",observation.get("platform"));row.put("region",observation.get("region"));row.put("capturedAt",observation.get("captured_at"));row.put("sourceUrl",observation.get("source_url"));row.put("rawSha256",observation.get("raw_sha256"));
+            row.put("supported",Set.of("IOS","GOOGLE_PLAY").contains(observation.get("platform"))&&row.get("external_id")!=null);
+        }
+        return Map.of("observation",observation,"rows",rows,"mode","LATEST_SUPPLEMENT","readAt",store.clock.instant(),"notice","榜位及原榜字段属于所选观察；商店指标为最新补充，不代表历史榜单当天的值。售价不是收入，未知不填0。");
+    }
     public record Enqueue(String platform,String externalId,String region) {}
     public Map<String,Object> enqueue(String tenant,Enqueue request) {
         config(tenant);int added=0,skipped=0;var rows=ranked(tenant);
