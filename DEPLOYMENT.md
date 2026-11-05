@@ -137,3 +137,7 @@ Firecrawl运行于 `/opt/iaa-firecrawl`，API仅127.0.0.1:3002，4核16GB；五�
 ## 2026-11-04 榜单观察指标展示（当前）
 
 release `/opt/iaa-radar/releases/20261104-ranking-metrics`，JAR `f2efa9d53a8cc865cb510baebfd1407c280b034220b50479e348ed16f1487233`，保持V19无迁移。备份before-ranking-metrics-20261104.sql，1483条冻结行保持。只读新接口与共享前端展示通过生产验证，旧release game-metrics-r2保留。详情见[验收](docs/acceptance/2026-11-04-ranking-metrics.md)。
+
+## 2026-11-05 公开资料补充（当前）
+
+用户选择仅抓取无需登录的公开资料后，生产切换到 `/opt/iaa-radar/releases/20261105-public-profiles`，JAR SHA256 `9240e26ae1a39d032443284b7b44e0e0c4b5cb979cc6a53b5d18da276b13b65f`；应用 V20 新增独立 `capture_public_profile_observation` 表。切换前备份 `/opt/iaa-radar/backups/before-public-profiles-20261105.sql`，62表29778行，1587条冻结记录验证保持。榜单、报告桥和指标worker均恢复active，原08:30/23:00计划不变。公开资料入口只手动执行，不加入定时榜单任务；服务器直连七麦当前拿到未渲染页面，实际运行记录 `PUBLIC_PROFILE_FIELDS_MISSING`，没有写入伪成功数据。详情见[验收](docs/acceptance/2026-11-05-public-profiles.md)。
