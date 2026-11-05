@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "public-profile-sample/1",
+  "purpose": "从现有微信榜单选取名称，检索现有应用索引，逐个读取七麦公开应用详情；不新增榜单采集。",
+  "discovery": {
+    "seedObservationId": 165,
+    "seedPlatform": "WECHAT",
+    "seedBusinessDate": "2026-11-04",
+    "seedSource": "gravity-wechat",
+    "seedReadUrl": "http://14.103.231.1:18080/api/v1/admin/ranking-capture/observations/165",
+    "candidateIndex": "现有采集工作台的中国 iOS 应用索引；名称相似仅生成候选，不确认同一产品",
+    "qimaiNameSearch": "无尽冬日名称搜索页面可打开，但应用结果提示登录/注册后可查看更多数据",
+    "diandianNameSearch": "使用搜索入口时跳转登录页；已知应用详情也跳转登录页"
+  },
+  "transport": "cua-browser-visible-dom",
+  "evidenceScope": "公开详情 DOM 字段摘录，不是完整 HTML 或源站 API 响应",
+  "selectors": {
+    "nameRaw": ".p-title",
+    "subtitle": ".app-subtitle",
+    "developer": "#avss .pub",
+    "infoText": ".app-info"
+  },
+  "samples": [
+    {
+      "seed": {"rank": 1, "name": "向僵尸开炮", "developer": "海南盛昌网络科技有限公司", "externalId": null},
+      "candidatePlatform": "IOS",
+      "region": "cn",
+      "externalId": "6474293468",
+      "relationStatus": "UNVERIFIED_CROSS_PLATFORM_CANDIDATE",
+      "sourceUrl": "https://www.qimai.cn/app/baseinfo/appid/6474293468/country/cn",
+      "capturedAt": "2026-11-04T11:02:06.863Z",
+      "visibleEvidence": {
+        "nameRaw": "向僵尸开炮-尸潮来袭",
+        "subtitle": "超有梗休闲手游",
+        "developer": "Hainan Shengchang Network Technology Co., Ltd.",
+        "infoText": "APP ID\n复制\n6474293468\n分类\n策略/休闲\n价格\n免费\n内购\n10项\n记录\n67万个评分\n4.5\n策略/休闲(免费)\n第96名\n昨日下载量\n7,725\n最近更新\n2026-10-29\n最早发布\n2024-01-16"
+      },
+      "basicInfo": {"name": "向僵尸开炮-尸潮来袭", "categoryDisplay": "策略/休闲", "priceDisplay": "免费", "iapItemCountDisplay": "10项", "ratingDisplay": "4.5", "ratingCountDisplay": "67万个评分", "updatedDateDisplay": "2026-10-29", "firstReleaseDateDisplay": "2024-01-16"},
+      "downloadPreview": {"label": "昨日下载量", "rawDisplay": "7,725", "method": "THIRD_PARTY_ESTIMATE", "sourceDate": null, "sourceTimezone": null, "scope": "中国 iOS 应用详情；不得用于微信小游戏"}
+    },
+    {
+      "seed": {"rank": 3, "name": "疯狂水世界", "developer": "益世界网络科技有限公司", "externalId": null},
+      "candidatePlatform": "IOS",
+      "region": "cn",
+      "externalId": "6757172630",
+      "relationStatus": "UNVERIFIED_CROSS_PLATFORM_CANDIDATE",
+      "sourceUrl": "https://www.qimai.cn/app/baseinfo/appid/6757172630/country/cn",
+      "capturedAt": "2026-11-04T11:03:11.253Z",
+      "visibleEvidence": {
+        "nameRaw": "活动中 疯狂水世界",
+        "subtitle": "全新海上末日模拟经营手游",
+        "developer": "益世界网络科技(上海)有限公司",
+        "infoText": "APP ID\n复制\n6757172630\n分类\n模拟/角色扮演\n价格\n免费\n内购\n10项\n记录\n8621个评分\n4.5\n模拟/角色扮演(免费)\n第3名\n昨日下载量\n56,725\n最近更新\n2026-11-02\n最早发布\n2026-01-21"
+      },
+      "basicInfo": {"name": "疯狂水世界", "categoryDisplay": "模拟/角色扮演", "priceDisplay": "免费", "iapItemCountDisplay": "10项", "ratingDisplay": "4.5", "ratingCountDisplay": "8621个评分", "updatedDateDisplay": "2026-11-02", "firstReleaseDateDisplay": "2026-01-21"},
+      "normalizationNote": "名称中的活动中为页面活动徽标；游戏图标 alt 及导航均显示疯狂水世界。",
+      "downloadPreview": {"label": "昨日下载量", "rawDisplay": "56,725", "method": "THIRD_PARTY_ESTIMATE", "sourceDate": null, "sourceTimezone": null, "scope": "中国 iOS 应用详情；不得用于微信小游戏"}
+    },
+    {
+      "seed": {"rank": 4, "name": "无尽冬日", "developer": "点点互动（北京）科技有限公司", "externalId": null},
+      "candidatePlatform": "IOS",
+      "region": "cn",
+      "externalId": "6478492012",
+      "relationStatus": "UNVERIFIED_CROSS_PLATFORM_CANDIDATE",
+      "sourceUrl": "https://www.qimai.cn/app/baseinfo/appid/6478492012/country/cn",
+      "capturedAt": "2026-11-04T11:01:13.767Z",
+      "visibleEvidence": {
+        "nameRaw": "无尽冬日",
+        "subtitle": "一亿玩家在玩的冰雪游戏",
+        "developer": "Shanghai Qingdi Technology Company Limited",
+        "infoText": "APP ID\n复制\n6478492012\n分类\n模拟/策略\n价格\n免费\n内购\n10项\n记录\n62万个评分\n4.8\n模拟/策略(免费)\n第76名\n昨日下载量\n9,702\n最近更新\n2026-09-13\n最早发布\n2024-05-16"
+      },
+      "basicInfo": {"name": "无尽冬日", "categoryDisplay": "模拟/策略", "priceDisplay": "免费", "iapItemCountDisplay": "10项", "ratingDisplay": "4.8", "ratingCountDisplay": "62万个评分", "updatedDateDisplay": "2026-09-13", "firstReleaseDateDisplay": "2024-05-16"},
+      "downloadPreview": {"label": "昨日下载量", "rawDisplay": "9,702", "method": "THIRD_PARTY_ESTIMATE", "sourceDate": null, "sourceTimezone": null, "scope": "中国 iOS 应用详情；不得用于微信小游戏"}
+    }
+  ],
+  "limitations": [
+    "三条均为真实读取的免费公开预览；不是三条已核验微信小游戏档案。",
+    "开发商原文保留；不同名称、英文译名及关联公司均未自动合并。",
+    "副标题中的一亿玩家等宣传语仅作原文，不转换为下载量或活跃用户。",
+    "内购条目数不代表购买人数、收入或完整内购商品数。",
+    "评分数保留来源约数，不转换成精确计数。",
+    "昨日下载量仅保留第三方估算预览原文；页面未提供明确日期和时区，不回填历史日指标。",
+    "服务器 Firecrawl 实测该七麦详情跳转 /404，不能将本地浏览器成功等同于服务器自动抓取成功。",
+    "本轮未写生产游戏指标、产品身份或历史榜单，未启用新定时任务。"
+  ]
+}

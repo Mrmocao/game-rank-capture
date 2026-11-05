@@ -22,6 +22,10 @@ public class RankingCaptureConfiguration {
     @Bean GameMetricService gameMetricService(CaptureWorkspaceStore store,OnlineWebCaptureService web,
             @Value("${CAPTURE_MATERIAL_DIR:./data/external-captures}")String root,@Value("${CAPTURE_FIRECRAWL_INTERNAL_URL:}")String trusted,
             @Value("${CAPTURE_TOOL_ENCRYPTION_KEY:}")String key){return GameMetricFactory.create(store,web,Path.of(root),trusted,key);}
+    @Bean PublicProfileService publicProfileService(CaptureWorkspaceStore store,ObjectMapper mapper,
+            @Value("${CAPTURE_MATERIAL_DIR:./data/external-captures}")String root){
+        return new PublicProfileService(store,new com.youkia.capture.web.WebTransport(mapper,Clock.systemUTC(),""),mapper,Path.of(root),Clock.systemUTC());
+    }
     @Bean CaptureRepairAiClient captureRepairAiClient(ObjectMapper mapper){return new CaptureRepairAiClient(mapper);}
     @Bean CaptureRepairService captureRepairService(CaptureWorkspaceStore store,CaptureWorkspaceService workspace,CaptureRepairAiClient client,com.youkia.iaa.service.AiConfigService ai){return new CaptureRepairService(store,workspace,client,ai);}
     @Bean RankingCaptureStore rankingCaptureStore(JdbcTemplate jdbc, PlatformTransactionManager transactions, ObjectMapper mapper) {
