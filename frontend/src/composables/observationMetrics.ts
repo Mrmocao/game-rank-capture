@@ -3,7 +3,7 @@ import { profileRequest } from '../api'
 export function useObservationMetrics(id:()=>number|undefined) {
  const data=ref<any>(null),loading=ref(false),error=ref('');let version=0
  async function refresh(){const token=++version,observation=id();data.value=null;error.value='';loading.value=false;if(!observation)return;loading.value=true
-  try{const result=await profileRequest('/api/v1/admin/capture-workspace/metrics/observations/'+observation);if(token===version)data.value=result}
+  try{const [metricsResult,profileResult]=await Promise.allSettled([profileRequest('/api/v1/admin/capture-workspace/metrics/observations/'+observation),profileRequest('/api/v1/admin/capture-workspace/supplements/observations/'+observation)]);if(token===version){const result=metricsResult.status==='fulfilled'?metricsResult.value:{rows:(profileResult.status==='fulfilled'?profileResult.value.rows:[])};const supplement=profileResult.status==='fulfilled'?profileResult.value:null;for(const row of result.rows||[])row.profiles=supplement?.rows?.find((s:any)=>s.rank_position===row.rank_position)?.profiles||[];data.value=result;error.value=[metricsResult.status==='rejected'?'商店指标加载失败':'',profileResult.status==='rejected'?'点点扩展资料加载失败，请重试':''].filter(Boolean).join('；')}}
   catch(e:any){if(token===version)error.value=e.message||'补充指标加载失败'}finally{if(token===version)loading.value=false}}
  watch(id,refresh,{immediate:true});onUnmounted(()=>version++)
  const rows=computed(()=>Object.fromEntries((data.value?.rows||[]).map((r:any)=>[r.rank_position,r])))

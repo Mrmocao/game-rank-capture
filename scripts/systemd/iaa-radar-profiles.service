@@ -1,0 +1,20 @@
+[Unit]
+Description=Independent ranked-game profile enrichment
+After=network-online.target iaa-radar.service
+Wants=network-online.target
+[Service]
+Type=simple
+User=iaa-radar
+WorkingDirectory=/opt/iaa-radar/shared
+EnvironmentFile=/etc/iaa-radar/app.env
+ExecStart=/usr/bin/java -Xmx192m -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 -Dloader.main=com.youkia.iaa.collection.capture.RankingCaptureCommand -cp /opt/iaa-radar/current/iaa-radar-api-0.1.0-SNAPSHOT.jar org.springframework.boot.loader.launch.PropertiesLauncher --profiles-worker --env-file /opt/iaa-radar/shared/capture-worker.env
+Restart=on-failure
+RestartSec=30
+MemoryMax=1536M
+TasksMax=256
+CPUQuota=80%
+NoNewPrivileges=true
+PrivateTmp=true
+UMask=0077
+[Install]
+WantedBy=multi-user.target

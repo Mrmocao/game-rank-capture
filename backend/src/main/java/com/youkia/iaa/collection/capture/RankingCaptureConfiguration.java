@@ -26,6 +26,13 @@ public class RankingCaptureConfiguration {
             @Value("${CAPTURE_MATERIAL_DIR:./data/external-captures}")String root){
         return new PublicProfileService(store,new com.youkia.capture.web.WebTransport(mapper,Clock.systemUTC(),""),mapper,Path.of(root),Clock.systemUTC());
     }
+    @Bean ProfileSupplementService profileSupplementService(CaptureWorkspaceStore store,
+            @Value("${CAPTURE_MATERIAL_DIR:./data/external-captures}") String root,
+            @Value("${CAPTURE_DIANDIAN_PROFILE_DIR:}") String profile,
+            @Value("${CAPTURE_BROWSER_CHANNEL:chrome}") String channel) {
+        return new ProfileSupplementService(store,Path.of(root),profile.isBlank()?null:
+            new com.youkia.capture.browser.DiandianBrowserFetcher(Path.of(profile),channel,true,store.clock)::search);
+    }
     @Bean CaptureRepairAiClient captureRepairAiClient(ObjectMapper mapper){return new CaptureRepairAiClient(mapper);}
     @Bean CaptureRepairService captureRepairService(CaptureWorkspaceStore store,CaptureWorkspaceService workspace,CaptureRepairAiClient client,com.youkia.iaa.service.AiConfigService ai){return new CaptureRepairService(store,workspace,client,ai);}
     @Bean RankingCaptureStore rankingCaptureStore(JdbcTemplate jdbc, PlatformTransactionManager transactions, ObjectMapper mapper) {

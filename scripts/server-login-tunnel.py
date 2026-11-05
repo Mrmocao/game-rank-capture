@@ -8,7 +8,7 @@ class PinnedKey(paramiko.MissingHostKeyPolicy):
         if hashlib.sha256(key.asbytes()).hexdigest()!=self.expected:raise paramiko.SSHException('HOST_KEY_MISMATCH')
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--config',required=True);p.add_argument('--port',type=int,default=29881);args=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--config',required=True);p.add_argument('--port',type=int,default=29881);p.add_argument('--remote-port',type=int,choices=[6081,6082],default=6081);args=p.parse_args()
     c=json.loads(pathlib.Path(args.config).read_text(encoding='utf-8-sig'))
     with paramiko.SSHClient() as client:
         client.set_missing_host_key_policy(PinnedKey(c['hostKeySha256']))
@@ -16,7 +16,7 @@ def main():
         client.get_transport().set_keepalive(30)
         class Handler(socketserver.BaseRequestHandler):
             def handle(self):
-                channel=client.get_transport().open_channel('direct-tcpip',('127.0.0.1',6081),self.client_address)
+                channel=client.get_transport().open_channel('direct-tcpip',('127.0.0.1',args.remote_port),self.client_address)
                 try:
                     while True:
                         readable,_,_=select.select([self.request,channel],[],[],30)

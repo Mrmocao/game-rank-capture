@@ -22,19 +22,19 @@ public final class RankingCaptureCommand {
     private static void execute(String[] args) throws Exception {
         Set<String> flags = new HashSet<>(); Map<String, String> options = new HashMap<>();
         for (int i = 0; i < args.length; i++) {
-            if (Set.of("--migrate", "--run", "--inspect", "--session-status", "--tick", "--worker", "--metrics-worker", "--metrics-tick", "--schedule-status", "--help").contains(args[i])) flags.add(args[i]);
-            else if (Set.of("--env-file", "--output", "--replay-dir", "--schedule", "--date", "--from", "--to").contains(args[i]) && i + 1 < args.length) options.put(args[i], args[++i]);
+            if (Set.of("--migrate", "--run", "--inspect", "--session-status", "--tick", "--worker", "--metrics-worker", "--metrics-tick", "--profile-tick", "--profiles-worker", "--schedule-status", "--help").contains(args[i])) flags.add(args[i]);
+            else if (Set.of("--env-file", "--output", "--replay-dir", "--profile-import", "--schedule", "--date", "--from", "--to").contains(args[i]) && i + 1 < args.length) options.put(args[i], args[++i]);
             else throw new IllegalArgumentException("Unknown argument");
         }
         if (args.length == 0 || flags.contains("--help")) {
-            System.out.println("RankingCaptureCommand [--inspect] [--session-status] [--migrate] [--run] [--tick|--worker] [--metrics-tick|--metrics-worker] [--schedule-status] [--schedule daily|twice|off] [--env-file .env] [--output data/external-captures] [--replay-dir BUNDLE_DIRECTORY]"); return;
+            System.out.println("RankingCaptureCommand [--inspect] [--session-status] [--migrate] [--run] [--tick|--worker] [--metrics-tick|--metrics-worker] [--profile-tick|--profiles-worker] [--profile-import VISIBLE_JSON_DIRECTORY] [--schedule-status] [--schedule daily|twice|off] [--env-file .env] [--output data/external-captures] [--replay-dir BUNDLE_DIRECTORY]"); return;
         }
         Map<String, String> config = new HashMap<>(); Path envFile = Path.of(options.getOrDefault("--env-file", ".env"));
         if (Files.exists(envFile)) for (String line : Files.readAllLines(envFile)) {
             int split = line.indexOf('='); if (split > 0 && !line.stripLeading().startsWith("#")) config.put(line.substring(0, split).trim(), line.substring(split + 1).trim());
         }
         for (String key : List.of("DB_URL", "DB_USERNAME", "DB_PASSWORD", "PROFILE_TENANT_ID", "CAPTURE_MATERIAL_DIR",
-                "CAPTURE_BROWSER_PROFILE_DIR", "CAPTURE_BROWSER_CHANNEL", "CAPTURE_BROWSER_HEADLESS","CAPTURE_FIRECRAWL_INTERNAL_URL","CAPTURE_TOOL_ENCRYPTION_KEY"))
+                "CAPTURE_BROWSER_PROFILE_DIR", "CAPTURE_DIANDIAN_PROFILE_DIR", "CAPTURE_BROWSER_CHANNEL", "CAPTURE_BROWSER_HEADLESS","CAPTURE_FIRECRAWL_INTERNAL_URL","CAPTURE_TOOL_ENCRYPTION_KEY"))
             if (System.getenv(key) != null) config.put(key, System.getenv(key));
         for (String key : List.of("DB_URL", "DB_USERNAME", "DB_PASSWORD")) if (!config.containsKey(key)) throw new IllegalArgumentException("Missing database configuration");
         var ds = new DriverManagerDataSource(config.get("DB_URL"), config.get("DB_USERNAME"), config.get("DB_PASSWORD"));
@@ -61,7 +61,7 @@ public final class RankingCaptureCommand {
             Flyway.configure().dataSource(ds).locations("classpath:db/migration").cleanDisabled(true).load().migrate();
             System.out.println("CAPTURE_SCHEMA_READY");
         }
-        if (!flags.contains("--run")&&!flags.contains("--tick")&&!flags.contains("--worker")&&!flags.contains("--metrics-worker")&&!flags.contains("--metrics-tick")&&!flags.contains("--schedule-status")&&!options.containsKey("--schedule")) return;
+        if (!flags.contains("--run")&&!flags.contains("--tick")&&!flags.contains("--worker")&&!flags.contains("--metrics-worker")&&!flags.contains("--metrics-tick")&&!flags.contains("--profiles-worker")&&!flags.contains("--profile-tick")&&!options.containsKey("--profile-import")&&!flags.contains("--schedule-status")&&!options.containsKey("--schedule")) return;
         Clock clock = Clock.systemUTC();
         var store = new RankingCaptureStore(jdbc, new TransactionTemplate(new DataSourceTransactionManager(ds)), mapper, clock);
         Path root = Path.of(options.getOrDefault("--output", config.getOrDefault("CAPTURE_MATERIAL_DIR", "data/external-captures")));
@@ -91,6 +91,31 @@ public final class RankingCaptureCommand {
         var runner = new RankingCaptureRunner(store, mapper, root, clock, fetcher);
         String tenant=config.getOrDefault("PROFILE_TENANT_ID","default");
         var workspaceStore=new CaptureWorkspaceStore(jdbc,mapper,clock);
+        String ddProfile=config.getOrDefault("CAPTURE_DIANDIAN_PROFILE_DIR","");
+        var supplements=new ProfileSupplementService(workspaceStore,root,ddProfile.isBlank()?null:
+            new com.youkia.capture.browser.DiandianBrowserFetcher(Path.of(ddProfile),config.getOrDefault("CAPTURE_BROWSER_CHANNEL","chrome"),true,clock)::search);
+        if(options.containsKey("--profile-import")) {
+            try(var paths=Files.list(Path.of(options.get("--profile-import")))) {
+                for(var file:paths.filter(p->p.getFileName().toString().endsWith(".json")).sorted().toList()) {
+                    if(Files.size(file)>RawMaterial.MAX_BYTES)throw new CaptureException("INVALID_MATERIAL","资料超过4MB");
+                    var envelope=mapper.readTree(Files.readString(file));
+                    var at=java.time.Instant.parse(envelope.path("capturedAt").asText());
+                    if(at.isAfter(clock.instant().plusSeconds(60)))throw new CaptureException("INVALID_MATERIAL","采集时间不能在未来");
+                    var raw=new RawMaterial(URI.create(envelope.path("sourceUrl").asText()),at,"diandian-visible-browser-import",mapper.writeValueAsBytes(envelope.path("visible")));
+                    System.out.println(mapper.writeValueAsString(supplements.accept(tenant,raw)));
+                }
+            }return;
+        }
+        if(flags.contains("--profile-tick")){System.out.println(mapper.writeValueAsString(supplements.tick(tenant)));return;}
+        if(flags.contains("--profiles-worker")) {
+            Path logs=envFile.toAbsolutePath().getParent().resolve("data/worker-logs");Files.createDirectories(logs);
+            while(!Thread.currentThread().isInterrupted()) {
+                Map<String,Object> extra;
+                try{extra=supplements.tick(tenant);}catch(Exception e){extra=Map.of("errorCode",RankingCaptureRunner.errorCode(e));}
+                if(!Boolean.FALSE.equals(extra.get("executed")))Files.writeString(logs.resolve("profiles-"+java.time.LocalDate.now(java.time.ZoneId.of("Asia/Shanghai"))+".log"),mapper.writeValueAsString(Map.of("at",clock.instant(),"result",extra))+System.lineSeparator(),StandardOpenOption.CREATE,StandardOpenOption.APPEND);
+                Thread.sleep(15000);
+            }return;
+        }
         String trusted=config.getOrDefault("CAPTURE_FIRECRAWL_INTERNAL_URL","");
         var web=new OnlineWebCaptureService(workspaceStore,new com.youkia.capture.web.WebTransport(mapper,clock,trusted),new com.youkia.iaa.service.SecretCipher(config.getOrDefault("CAPTURE_TOOL_ENCRYPTION_KEY","unused-no-credentials")),root,trusted).requireEncryptionKey(!config.getOrDefault("CAPTURE_TOOL_ENCRYPTION_KEY","").isBlank());
         if(flags.contains("--metrics-worker")||flags.contains("--metrics-tick")) {

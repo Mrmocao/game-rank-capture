@@ -25,7 +25,7 @@ final class BrowserProfile implements AutoCloseable {
         try {
             runtime = Playwright.create(new Playwright.CreateOptions().setEnv(Map.of("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD", "1")));
             var options = new BrowserType.LaunchPersistentContextOptions().setChannel(browserChannel).setHeadless(headless)
-                    .setViewportSize(1440, 1000).setTimeout(30_000);
+                    .setViewportSize(1440, 1000).setLocale("zh-CN").setTimeout(30_000);
             context = runtime.chromium().launchPersistentContext(root.resolve("profile"), options);
             context.setDefaultTimeout(15_000); context.setDefaultNavigationTimeout(30_000);
             playwright = runtime;
