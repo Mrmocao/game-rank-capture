@@ -49,8 +49,8 @@ class ResearchPipelineMySqlTest {
             assertEquals(first.get("id"),repeat.get("id"));assertEquals(true,repeat.get("reused"));assertNotNull(first.get("researchSnapshot"));
             String frozen=mapper.writeValueAsString(first.get("researchSnapshot"));
             p.put("family","SYNTHETIC新家族");service.importPacket(v,p);
-            var next=reports.generate(day.minusDays(6),day.plusDays(1));assertNotEquals(first.get("id"),next.get("id"));
-            assertEquals(frozen,mapper.writeValueAsString(reports.report(Long.parseLong(first.get("id").toString())).get("researchSnapshot")));
+            var next=reports.generate(day.minusDays(6),day.plusDays(1));assertEquals(first.get("id"),next.get("id"));
+            assertNotEquals(frozen,mapper.writeValueAsString(reports.report(Long.parseLong(first.get("id").toString())).get("researchSnapshot")));
             // No production mutation may be hidden in the source classification.
             var selection=new SelectionService(j,mapper,new ProductQueryService(j));
             var one=selection.create(product,new SelectionRequest("测试甲",v,"SELECTED",day,null,null,"SYNTHETIC"),"V22-TEST-A");
@@ -80,7 +80,7 @@ class ResearchPipelineMySqlTest {
         var ctx=context();ctx.tx.executeWithoutResult(tx->{
             var j=ctx.jdbc;Long sortSize=j.queryForObject("SELECT @@session.sort_buffer_size",Long.class);
             try{
-                var expected=j.queryForList("SELECT id FROM weekly_report ORDER BY period_start DESC,generated_at DESC,id DESC LIMIT 2",Long.class);
+                var expected=j.queryForList("SELECT id FROM weekly_report ORDER BY week_start DESC LIMIT 2",Long.class);
                 assertFalse(expected.isEmpty(),"real database must contain baseline reports");
                 String large="{\"captureResearchLeads\":{\"items\":[{},{}]},\"syntheticPadding\":\""+"x".repeat(2_000_000)+"\"}";
                 j.update("UPDATE weekly_report SET research_snapshot=? WHERE id=?",large,expected.getFirst());

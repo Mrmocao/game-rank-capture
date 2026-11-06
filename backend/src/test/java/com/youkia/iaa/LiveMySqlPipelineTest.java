@@ -50,10 +50,10 @@ class LiveMySqlPipelineTest {
                 var repeat=reports.generate(date.minusDays(6),date.plusDays(1));
                 assertEquals(report.get("id"),repeat.get("id"));assertEquals(true,repeat.get("reused"));
                 long id=Long.parseLong(report.get("id").toString());String frozen=mapper.writeValueAsString(reports.report(id).get("items"));
-                // Different material, same source/date: append a revision, never mutate old report facts.
+                // Source revisions stay immutable; explicit regeneration replaces the same weekly report.
                 var revised=service.ingest("cn",100,null,partial+"\n");assertNotEquals(first.get("snapshotId"),revised.get("snapshotId"));
                 assertEquals(frozen,mapper.writeValueAsString(reports.report(id).get("items")));
-                var next=reports.generate(date.minusDays(6),date.plusDays(1));assertNotEquals(report.get("id"),next.get("id"));
+                var next=reports.generate(date.minusDays(6),date.plusDays(1));assertEquals(report.get("id"),next.get("id"));
                 assertEquals(((Number)report.get("revision")).intValue()+1,((Number)next.get("revision")).intValue());
                 assertEquals(frozen,mapper.writeValueAsString(reports.report(id).get("items")));
                 assertTrue(((List<?>)reports.history(1,100).get("items")).size()>1);
