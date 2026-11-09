@@ -1,5 +1,9 @@
 # 部署与填写说明
 
+## 2026-11-09 研究卡片折叠
+
+前端已更新到当前 release 的 dist，资源先上传、HTML 入口最后原子替换；无需重启 Java，无数据库迁移及环境参数变化。前端回滚备份为 `/opt/iaa-radar/backups/frontend-before-collapse-20261109.tar.gz`。构建通过；Playwright 在本地预览及生产站点验证 5 项默认折叠、独立展开/收起、键盘操作、完整导出、桌面 1440×1000 和手机 390×844，无页面运行时错误。Browser plugin 不可用，使用已有 Playwright/Chrome。
+
 ## 2026-11-09 研究补位
 
 无新迁移，仍V23。按原Java/JDBC启动，环境配置不变。部署前备份，同周生成覆盖；其他周报告不得修改。策略及验证见[验收](docs/acceptance/2026-11-09-weekly-five.md)。
