@@ -20,7 +20,9 @@ class CaptureResearchLeadTest {
         r.put("parser_version","SYNTHETIC-test");r.put("completeness","REQUESTED_RANGE_COMPLETE");r.put("requested_top_n",100);r.put("contiguous_top_n",100);r.put("source_url","https://example.com/SYNTHETIC");r.put("raw_sha256","SYNTHETIC-"+observation);
         r.put("rank_position",rank);r.put("name",name);r.put("developer",developer);r.put("external_id",null);r.put("evidence_locator","#synthetic-row-"+rank);r.put("source_fields","{\"tags\":[\"休闲\",\""+family+"\"]}");return r;
     }
-    @SuppressWarnings("unchecked") List<Map<String,Object>> items(Map<String,Object> result){return (List<Map<String,Object>>)result.get("items");}
+    @SuppressWarnings("unchecked") List<Map<String,Object>> allItems(Map<String,Object> result){return (List<Map<String,Object>>)result.get("items");}
+    // Existing tests specifically assert the strict opportunity gates, alongside the fill-policy tests below.
+    List<Map<String,Object>> items(Map<String,Object> result){return allItems(result).stream().filter(r->!"RESEARCH_FLEX".equals(r.get("allocatedSlot"))).toList();}
     @SuppressWarnings("unchecked") List<Map<String,Object>> audit(Map<String,Object> result){return (List<Map<String,Object>>)result.get("candidateAudit");}
     @Test void sourceLabelTrendRemainsUnverifiedAndEveryPointHasEvidence(){
         List<Map<String,Object>> rows=new ArrayList<>();for(int i=0;i<7;i++)rows.add(row(i+1,"popularity","WECHAT","SYNTHETIC游戏","SYNTHETIC发行方",day.minusDays(6-i),40-i*5,"消除"));
@@ -93,6 +95,41 @@ class CaptureResearchLeadTest {
         var first=items(service.evaluate(rows,day,cutoff,5)).stream().map(r->r.get("leadKey")).toList();Collections.reverse(rows);
         assertEquals(first,items(service.evaluate(rows,day,cutoff,5)).stream().map(r->r.get("leadKey")).toList());
     }
+
+    @Test void productionResearchFillAddsEvidenceLeadsWithoutChangingFormalStatus(){
+        List<Map<String,Object>> rows=new ArrayList<>();String[] families={"益智","消除","塔防","跑酷","解谜","模拟经营"};
+        for(int d=0;d<7;d++)for(int i=0;i<10;i++)rows.add(row(d+1,"popularity","WECHAT","SYNTHETIC补位"+i,"发行方",day.minusDays(d),i+1,families[i%families.length]));
+        var result=service.evaluate(rows,day,cutoff,5,0,Set.of());var selected=allItems(result);
+        assertEquals(5,selected.size());
+        assertTrue(selected.stream().anyMatch(r->"RESEARCH_FLEX".equals(r.get("allocatedSlot"))));
+        assertTrue(selected.stream().allMatch(r->Boolean.FALSE.equals(r.get("formalEligible"))));
+    }
+
+    @Test void productionResearchFillPrefersAvailableOverseasEvidenceForCoverage(){
+        List<Map<String,Object>> rows=new ArrayList<>();
+        for(int d=0;d<7;d++)for(int i=0;i<8;i++)rows.add(row(d+1,"popularity","WECHAT","SYNTHETIC国内"+i,"发行方",day.minusDays(d),i+1,new String[]{"益智","消除","塔防","跑酷","解谜","模拟经营","棋牌","音乐"}[i]));
+        for(int d=1;d<=6;d++){
+            var overseas=row(900+d,"top-free","GOOGLE_PLAY","SYNTHETIC海外","Overseas Publisher",day.minusDays(d),12,"未知");
+            overseas.put("region","us");overseas.put("external_id","com.synthetic.overseas");rows.add(overseas);
+            var another=new LinkedHashMap<>(overseas);another.put("region","de");another.put("observation_id",1900+d);rows.add(another);
+        }
+        var result=service.evaluate(rows,day,cutoff,5,0,Set.of());
+        var foreign=allItems(result).stream().filter(r->"GOOGLE_PLAY".equals(r.get("platform"))).toList();
+        assertEquals(1,foreign.size(),"same package in multiple countries occupies one seat");
+        var lead=foreign.getFirst();assertEquals("RESEARCH_FLEX",lead.get("allocatedSlot"));assertFalse((boolean)lead.get("formalEligible"));
+        assertNull(lead.get("currentRank"));assertEquals("MISSING_ON_DATE",lead.get("currentState"));assertEquals(day.minusDays(1).toString(),lead.get("latestObservedDate"));
+        assertTrue(lead.get("strictExclusionReason").toString().contains("截止日无观察"));assertFalse(lead.get("whyNow").toString().contains("截止日第"));
+        assertEquals("未知",lead.get("family"));assertTrue(lead.get("gaps").toString().contains("玩法待识别"));
+        assertTrue(allItems(service.evaluate(rows,day.plusDays(1),cutoff,5)).stream().noneMatch(r->"GOOGLE_PLAY".equals(r.get("platform"))),"two-day stale evidence never fills");
+        var onlyOne=rows.stream().filter(r->!"GOOGLE_PLAY".equals(r.get("platform"))||day.minusDays(1).equals(r.get("business_date"))).toList();
+        assertTrue(allItems(service.evaluate(onlyOne,day,cutoff,5)).stream().noneMatch(r->"GOOGLE_PLAY".equals(r.get("platform"))),"one observation cannot fill overseas quota");
+        // Today's chart exists but the prior game is absent: don't confuse drop-out with delayed source.
+        for(String region:List.of("us","de")){
+            var now=row(3000,"top-free","GOOGLE_PLAY","SYNTHETIC其他","Other",day,1,"未知");now.put("external_id","com.synthetic.other");now.put("region",region);rows.add(now);
+        }
+        assertTrue(allItems(service.evaluate(rows,day,cutoff,5)).stream().noneMatch(r->"GOOGLE_PLAY".equals(r.get("platform"))));
+    }
+
     @Test void sparseEndpointRiseDoesNotDisplaceContinuousEvidenceAndDoesNotFillQuota(){
         List<Map<String,Object>> rows=new ArrayList<>();
         for(int d=0;d<7;d++)rows.add(row(d+1,"popularity","WECHAT","SYNTHETIC连续观察","发行方",day.minusDays(d),18+d/3,"塔防"));

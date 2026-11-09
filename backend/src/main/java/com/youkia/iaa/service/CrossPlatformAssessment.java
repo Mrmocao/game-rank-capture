@@ -53,7 +53,7 @@ public final class CrossPlatformAssessment {
         List<Map<String,Object>> out=new ArrayList<>();
         for(String platform:List.of("WECHAT","DOUYIN","IOS","GOOGLE_PLAY")){
             var rows=audit.stream().filter(r->platform.equals(r.get("platform"))).toList();
-            out.add(Map.of("platform",platform,"boardCandidates",rows.size(),"confirmedIdentity",rows.stream().filter(r->r.get("unifiedProductId")!=null).count(),"missingGameplay",rows.stream().filter(r->"未知".equals(r.get("family"))).count(),"selected",rows.stream().filter(r->Boolean.TRUE.equals(r.get("selected"))).count(),"notice","按来源榜单条目计数，同一产品可出现在多个榜；缺失玩法需带证据核验，不能凭名称猜测"));
+            out.add(Map.of("platform",platform,"boardCandidates",rows.size(),"confirmedIdentity",rows.stream().filter(r->r.get("unifiedProductId")!=null).count(),"missingGameplay",rows.stream().filter(r->"未知".equals(r.get("family"))).count(),"latestObservedDate",rows.stream().map(r->s(r,"latestObservedDate")).max(String::compareTo).orElse("无记录"),"currentCandidates",rows.stream().filter(r->"OBSERVED".equals(r.get("currentState"))).count(),"missingCurrent",rows.stream().filter(r->"MISSING_ON_DATE".equals(r.get("currentState"))).count(),"selected",rows.stream().filter(r->Boolean.TRUE.equals(r.get("selected"))).count(),"notice","按来源榜单条目计数，同一产品可出现在多个榜；缺失玩法需带证据核验，不能凭名称猜测"));
         }return out;
     }
     @SuppressWarnings("unchecked") private static boolean continuous(Map<String,Object> r,LocalDate day){

@@ -9,7 +9,7 @@ import java.util.*;
 
 /** Research leads from immutable source observations. Never assigns product identities or IAA eligibility. */
 public final class CaptureResearchLeadService {
-    public static final String VERSION = "capture-research-leads-2.2.0";
+    public static final String VERSION = "capture-research-leads-2.3.0";
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
     public CaptureResearchLeadService(JdbcTemplate jdbc, ObjectMapper mapper) { this.jdbc=jdbc; this.mapper=mapper; }
@@ -83,6 +83,8 @@ public final class CaptureResearchLeadService {
             List<String> gaps=new ArrayList<>();if(tentative)gaps.add(last.get("unified_product_id")!=null?"跨平台产品已有身份关联，但来源未提供平台稳定ID；同来源跨日仍按名称与发行方匹配，需排查更名":"缺少平台稳定ID，名称与发行方匹配仅是来源内待核线索");
             gaps.add("目标版本广告与排除内购证据未核验，纯IAA资格未知");gaps.add("缺少同版本实机、可比玩家评价与团队工期估算");
             if("SOURCE_DESCRIPTION".equals(gameplay.get("basis")))gaps.add("玩法依据为来源描述明确词句，未经实机验证；描述中的DAU/收入等数字未经独立核验");
+            if(!current)gaps.add("截止日"+day+"无该对象记录；最近观察日为"+str(last,"business_date")+"，不得视作当日排名");
+            if(!casual)gaps.add("玩法待识别，榜单名称不能证明核心机制或轻度品类；先补描述及实机核验");
             if(observed.size()<7)gaps.add("7日窗口只有"+observed.size()+"个有记录日，缺日不回填");
             if(paidSignal)gaps.add("28日回看窗口同来源付费/畅销榜出现匹配记录，需优先核查付费/混合变现；榜单本身不是内购事实");
             if(promotional)gaps.add("28日回看窗口同来源发行人热度榜出现该线索，投放信号不等于玩家需求或盈利");
@@ -95,6 +97,7 @@ public final class CaptureResearchLeadService {
             item.put("chartKey",chart);item.put("boardName",last.get("board_name"));item.put("family",family.isBlank()?"未知":family);item.put("sourceTags",fields(last).path("tags"));
             item.put("identityStatus",last.get("unified_product_id")!=null?"CONFIRMED_PRODUCT_ASSOCIATION":tentative?"SOURCE_LABEL_MATCH_UNVERIFIED":"SOURCE_ID_OBSERVED");item.put("externalId",last.get("external_id"));item.put("monetization","UNKNOWN");item.put("formalEligible",false);
             item.put("windowStart",day.minusDays(6).toString());item.put("windowEnd",day.toString());item.put("observationDays",observed.size());item.put("firstObservedDate",str(first,"business_date"));item.put("latestObservedDate",str(last,"business_date"));
+            item.put("currentRank",current?lastRank:null);item.put("currentState",current?"OBSERVED":"MISSING_ON_DATE");
             item.put("firstRank",startRank);item.put("latestRank",lastRank);item.put("rankChange",delta);item.put("risingLabelSequence",rise);item.put("hasBestsellerSignal",paidSignal);item.put("hasPromotionSignal",promotional);
             item.put("hasSourceNewGameSignal",freshGame);
             if(freshGame)gaps.add("同来源新游榜出现匹配记录，仅为第三方新游分类佐证，不证明首发日期或新玩法");
@@ -102,7 +105,7 @@ public final class CaptureResearchLeadService {
             item.put("signalLabel",growth?"榜单增势研究":headHeat?"头部热度 / 基准观察":"继续观察");
             item.put("thumbnailUrl",fields(last).path("thumbnailUrl").asText(""));
             item.put("gameplayEvidence",gameplay);item.put("sourceDescription",fields(last).path("descriptionRaw").asText(""));
-            item.put("whyNow",str(last,"board_name")+"截止日第"+lastRank+"名；7日窗实际观察"+observed.size()+"天"+(delta==null?"，只有一次观察，不能判断增长":(tentative?"；同名同发行方的来源记录":"；同来源ID记录")+"由第"+startRank+"到第"+lastRank+"名，"+(delta>0?"上升"+delta:delta<0?"下降"+(-delta):"持平")+"名")+"。来源名次变化不等于用户量增长。");
+            item.put("whyNow",str(last,"board_name")+"在"+str(last,"business_date")+"观察为第"+lastRank+"名；7日窗实际观察"+observed.size()+"天"+(delta==null?"，只有一次观察，不能判断增长":(tentative?"；同名同发行方的来源记录":"；同来源ID记录")+"由第"+startRank+"到第"+lastRank+"名，"+(delta>0?"上升"+delta:delta<0?"下降"+(-delta):"持平")+"名")+"。来源名次变化不等于用户量增长。");
             StringBuilder caution=new StringBuilder();
             if(history.size()>1){var previous=history.get(history.size()-2);int prev=(int)number(previous.get("rank_position"));
                 if(lastRank>prev)caution.append("最新一次由#").append(prev).append("回落到#").append(lastRank).append("；不能描述为持续单边上涨。");}

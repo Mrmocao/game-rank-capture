@@ -1,5 +1,5 @@
 {
-  "version": "market-weekly-2.5.0",
+  "version": "market-weekly-2.6.0",
   "maxPicks": 5,
   "targetRange": {
     "min": 0,
@@ -56,6 +56,17 @@
     "accelerator": 1,
     "earlyFlex": 1,
     "emptyBackfill": false,
-    "sourceAlgorithm": "capture-research-leads-2.0.0"
+    "sourceAlgorithm": "capture-research-leads-2.3.0",
+    "researchFill": {
+      "enabled": true,
+      "maximumTotal": 5,
+      "minimumObservedDays": 5,
+      "recentConsecutiveDays": 3,
+      "maximumWholeChartDelayDays": 1,
+      "overseasCoveragePreference": 2,
+      "deduplicatePlatformAppAcrossCountries": true,
+      "unknownGameplay": "overseas stable-ID identification research only",
+      "formalEligibilityUnchanged": true
+    }
   }
 }
