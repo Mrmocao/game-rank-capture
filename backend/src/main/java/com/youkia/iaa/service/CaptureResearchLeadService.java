@@ -9,7 +9,7 @@ import java.util.*;
 
 /** Research leads from immutable source observations. Never assigns product identities or IAA eligibility. */
 public final class CaptureResearchLeadService {
-    public static final String VERSION = "capture-research-leads-2.3.0";
+    public static final String VERSION = "capture-research-leads-2.4.0";
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
     public CaptureResearchLeadService(JdbcTemplate jdbc, ObjectMapper mapper) { this.jdbc=jdbc; this.mapper=mapper; }

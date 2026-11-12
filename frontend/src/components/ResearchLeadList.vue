@@ -22,7 +22,7 @@ function exportList(){
   <p>{{report.diagnostic}}</p>
   <details v-if="report.platformDiagnostics"><summary>平台覆盖与筛选缺口（按榜单条目计）</summary><el-table :data="report.platformDiagnostics" size="small"><el-table-column label="平台"><template #default="{row}">{{labels[row.platform]||row.platform}}</template></el-table-column><el-table-column prop="boardCandidates" label="候选条目"/><el-table-column prop="confirmedIdentity" label="已关联身份"/><el-table-column prop="missingGameplay" label="缺少玩法依据"/><el-table-column prop="latestObservedDate" label="最新观察日" min-width="110"/><el-table-column prop="currentCandidates" label="截止日有记录"/><el-table-column prop="missingCurrent" label="截止日缺记录"/><el-table-column prop="selected" label="入选"/></el-table><a :href="`#/identity?date=${report.windowEnd}`">补齐产品关联与玩法证据 →</a></details>
   <template v-if="report.portfolio?.length">
-   <p><b>先发现，再验证：</b>核心 4 席按 2 / 1 / 1 分配，第 5 席只增补早期机会；严格机会席不足时，研究补位最多补到 5 项。补位对象仍是待核线索，不等于纯IAA正式推荐。研究补位使用其他组的空席，下方目标数不可相加；合计最多5项，证据不足仍留空。</p>
+   <p><b>先发现，再验证：</b>各组目标以本期冻结分配为准；严格机会席不足时，研究补位使用空席。补位对象仍是待核线索，不等于纯IAA正式推荐。研究补位使用其他组的空席，下方目标数不可相加；合计最多5项，证据不足仍留空。</p>
    <div class="portfolio-grid"><div v-for="g in report.portfolio" :key="g.group"><b>{{g.label}}</b><strong>{{g.selected}} / {{g.target}}</strong><small>{{g.reason}}</small></div></div>
   </template>
   <div v-if="!items.length" class="empty">当前范围暂无符合条件的研究线索。</div>

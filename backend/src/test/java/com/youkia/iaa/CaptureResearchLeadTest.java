@@ -91,17 +91,17 @@ class CaptureResearchLeadTest {
     @Test void shortlistUsesAvailableSlotsWithoutChangingFormalEligibilityAndIsDeterministic(){
         List<Map<String,Object>> rows=new ArrayList<>();String[] families={"益智","消除","塔防","跑酷","解谜","模拟经营"};
         for(int d=0;d<7;d++)for(int i=0;i<10;i++)rows.add(row(d+1,"popularity","WECHAT","SYNTHETIC游戏"+i,"发行方",day.minusDays(d),i+1,families[i%families.length]));
-        assertEquals(2,items(service.evaluate(rows,day,cutoff,100)).size(),"mature hits cannot consume early opportunity slots");assertEquals(2,items(service.evaluate(rows,day,cutoff,2)).size());assertTrue(items(service.evaluate(rows,day,cutoff,0)).isEmpty());
+        assertEquals(1,allItems(service.evaluate(rows,day,cutoff,100)).size(),"mature hits cannot consume early opportunity slots");assertEquals(1,allItems(service.evaluate(rows,day,cutoff,2)).size());assertTrue(items(service.evaluate(rows,day,cutoff,0)).isEmpty());
         var first=items(service.evaluate(rows,day,cutoff,5)).stream().map(r->r.get("leadKey")).toList();Collections.reverse(rows);
         assertEquals(first,items(service.evaluate(rows,day,cutoff,5)).stream().map(r->r.get("leadKey")).toList());
     }
 
-    @Test void productionResearchFillAddsEvidenceLeadsWithoutChangingFormalStatus(){
+    @Test void researchFillCannotRelabelMatureCandidatesToBypassTwentyPercentCap(){
         List<Map<String,Object>> rows=new ArrayList<>();String[] families={"益智","消除","塔防","跑酷","解谜","模拟经营"};
         for(int d=0;d<7;d++)for(int i=0;i<10;i++)rows.add(row(d+1,"popularity","WECHAT","SYNTHETIC补位"+i,"发行方",day.minusDays(d),i+1,families[i%families.length]));
         var result=service.evaluate(rows,day,cutoff,5,0,Set.of());var selected=allItems(result);
-        assertEquals(5,selected.size());
-        assertTrue(selected.stream().anyMatch(r->"RESEARCH_FLEX".equals(r.get("allocatedSlot"))));
+        assertEquals(1,selected.size());
+        assertEquals("BENCHMARK",selected.getFirst().get("allocatedSlot"));
         assertTrue(selected.stream().allMatch(r->Boolean.FALSE.equals(r.get("formalEligible"))));
     }
 
@@ -224,14 +224,14 @@ class CaptureResearchLeadTest {
     @Test void formalBudgetCannotCrowdOutEarlyResearchAndDuplicateIsExcluded(){
         List<Map<String,Object>> selected=new ArrayList<>();for(int i=0;i<5;i++)selected.add(new LinkedHashMap<>(Map.of("id",i,"selected",true,"eligibleForValidation",true)));
         var run=new LinkedHashMap<String,Object>();run.put("selected",selected);run.put("rows",selected);run.put("diagnostic","SYNTHETIC");WeeklyReportService.reserveEarlyOpportunitySlots(run);
-        assertEquals(2,((List<?>)run.get("selected")).size());assertEquals(List.of(0,1),run.get("selectedIds"));assertEquals(false,selected.get(4).get("selected"));assertEquals(true,selected.get(4).get("eligibleForValidation"));
-        var rows=opportunityRows(1,new int[]{75,58});var r=service.evaluate(rows,day,cutoff,3,2,Set.of("WECHAT:SYNTHETIC新增"));
+        assertEquals(1,((List<?>)run.get("selected")).size());assertEquals(List.of(0),run.get("selectedIds"));assertEquals(false,selected.get(4).get("selected"));assertEquals(true,selected.get(4).get("eligibleForValidation"));
+        var rows=opportunityRows(1,new int[]{75,58});var r=service.evaluate(rows,day,cutoff,4,1,Set.of("WECHAT:SYNTHETIC新增"));
         assertTrue(items(r).isEmpty());assertTrue(named(r,"SYNTHETIC新增").get("exclusionReason").toString().contains("正式精选"));
     }
-    @Test void fifthSlotOnlyAddsEarlyEvidenceAndSourceOrderingIsStable(){
+    @Test void twoNewEntrySeatsReplaceTheOldExtraEarlySeatAndOrderingIsStable(){
         var rows=opportunityRows(1,new int[]{75,58});
         for(int i=0;i<3;i++)for(int d=0;d<=1;d++)rows.add(row(1000+d,"popularity","WECHAT","SYNTHETIC更多"+i,"发行方",day.minusDays(d),d==1?80:50+i,"益智"));
-        var result=service.evaluate(rows,day,cutoff,5);assertEquals(2,items(result).size());assertEquals(Set.of("NEW_ENTRY","EARLY_FLEX"),new HashSet<>(items(result).stream().map(r->r.get("allocatedSlot")).toList()));
+        var result=service.evaluate(rows,day,cutoff,5);assertEquals(2,items(result).size());assertEquals(Set.of("NEW_ENTRY"),new HashSet<>(items(result).stream().map(r->r.get("allocatedSlot")).toList()));
         var keys=items(result).stream().map(r->r.get("leadKey")).toList();Collections.shuffle(rows,new Random(7));assertEquals(keys,items(service.evaluate(rows,day,cutoff,5)).stream().map(r->r.get("leadKey")).toList());
     }
 
@@ -240,6 +240,31 @@ class CaptureResearchLeadTest {
         assertNotEquals("NEW_ENTRY",named(service.evaluate(rows,day,cutoff,5),"SYNTHETIC新增").get("portfolioGroup"));
         rows=opportunityRows(4,new int[]{95,92,90,85,65});rows.stream().filter(x->x.get("name").toString().startsWith("SYNTHETIC基线")).forEach(x->x.put("chart_key","most_played"));
         assertNotEquals("ACCELERATOR",named(service.evaluate(rows,day,cutoff,5),"SYNTHETIC新增").get("portfolioGroup"));
+    }
+
+    @Test void fullPortfolioUsesOneBenchmarkTwoNewEntriesAndTwoAccelerators(){
+        var rows=opportunityRows(1,new int[]{75,58});
+        var twins=new ArrayList<Map<String,Object>>();
+        for(var r:rows)if("SYNTHETIC新增".equals(r.get("name"))){var copy=new LinkedHashMap<>(r);copy.put("name","SYNTHETIC新增2");copy.put("rank_position",((Number)r.get("rank_position")).intValue()+1);twins.add(copy);}
+        rows.addAll(twins);
+        var acceleration=opportunityRows(4,new int[]{95,92,90,85,65});
+        var more=new ArrayList<Map<String,Object>>();
+        for(var r:acceleration){r.put("chart_key","most_played");r.put("observation_id",((Number)r.get("observation_id")).longValue()+5000);
+            if("SYNTHETIC新增".equals(r.get("name"))){r.put("name","SYNTHETIC加速1");r.put("source_fields","{\"tags\":[\"塔防\"]}");var copy=new LinkedHashMap<>(r);copy.put("name","SYNTHETIC加速2");copy.put("rank_position",((Number)r.get("rank_position")).intValue()-1);more.add(copy);}
+            if("SYNTHETIC基线0".equals(r.get("name")))for(int i=5;i<9;i++){var copy=new LinkedHashMap<>(r);copy.put("name","SYNTHETIC基线"+i);copy.put("rank_position",60+i);more.add(copy);}
+        }
+        acceleration.addAll(more);rows.addAll(acceleration);
+        for(int d=0;d<7;d++)rows.add(row(9000+d,"top-free","IOS","SYNTHETIC成熟","发行方",day.minusDays(d),5,"跑酷"));
+        var result=service.evaluate(rows,day,cutoff,5);var selected=allItems(result);
+        assertEquals(5,selected.size());
+        assertEquals(1,selected.stream().filter(r->"BENCHMARK".equals(r.get("allocatedSlot"))).count());
+        assertEquals(2,selected.stream().filter(r->"NEW_ENTRY".equals(r.get("allocatedSlot"))).count());
+        assertEquals(2,selected.stream().filter(r->"ACCELERATOR".equals(r.get("allocatedSlot"))).count());
+        assertTrue(selected.stream().noneMatch(r->"EARLY_FLEX".equals(r.get("allocatedSlot"))));
+        var allocation=(List<Map<String,Object>>)result.get("portfolio");
+        assertEquals(List.of(1,2,2),allocation.stream().filter(r->!"RESEARCH_FLEX".equals(r.get("group"))).map(r->r.get("target")).toList());
+        var withFormal=allItems(service.evaluate(rows,day,cutoff,4,1,Set.of("product:formal")));
+        assertEquals(4,withFormal.size());assertTrue(withFormal.stream().noneMatch(r->"BENCHMARK".equals(r.get("allocatedSlot"))));
     }
 
 }

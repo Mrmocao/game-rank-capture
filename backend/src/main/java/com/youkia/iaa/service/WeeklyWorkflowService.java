@@ -154,7 +154,7 @@ public class WeeklyWorkflowService {
     public static Map<String, Object> mechanismSummary() {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("goal", "尽早发现可验证的新赛道、玩法和增长信号，避免只复刻成熟头部");
-        m.put("quota", "核心4席：成熟基准2席（50%）、新入榜1席（25%）、单榜加速1席（25%）；严格席不足时研究补位，合计最多5项");
+        m.put("quota", "5席目标：成熟基准1席（20%）、新入榜2席（40%）、单榜加速2席（40%）；严格席不足时研究补位，成熟基准不能通过补位绕过1席上限，证据不足仍留空");
         m.put("evidence", "研究补位至少5/7日观察，最近3日连续有证据，Top20或上涨至少10名且Top50；整榜最多延迟1日，缺失不回填");
         m.put("crossPlatform", "统一产品关联后展示各平台独立证据卡；不平均跨榜名次、不跨榜合分，同平台同稳定应用ID跨国去重");
         m.put("gates", "纯IAA、玩法、身份和版本证据独立校验；未知保持待核，付费/畅销风险不进入研究补位");

@@ -1,5 +1,9 @@
 # 部署与填写说明
 
+## 2026-11-12 精选配额20/40/40（当前发布）
+
+当前release为`/opt/iaa-radar/releases/20261112-quota-122`。Skill2.7.0将5席分为成熟1、新入榜2、加速2；无新增迁移与环境参数，启动命令不变。报告36已按新规则生成，交付和机制摘要同步，前两周报告不变。构建、配额回归与生产浏览器验证见[验收记录](docs/acceptance/2026-11-12-quota-122.md)。
+
 ## 2026-11-12 每周精选研发交付与规则复盘
 
 V24 新增周一研发交付包和周五上周规则复盘。默认计划为北京时间周一 09:00、周五 17:00，可用 `INSIGHT_WEEKLY_CRON` 和 `INSIGHT_WEEKLY_REVIEW_CRON` 覆盖。交付包和复盘均由 Java/JDBC 写入 MySQL；不依赖 Docker、MySQL CLI 或个人电脑，不自动发送外部消息。发布前执行 JDBC 备份、Flyway V24、后端测试和前端构建；回滚需同时回退应用并保留 V24 表，不删除已生成的冻结记录。线上验证见 [验收记录](docs/acceptance/2026-11-12-weekly-workflow.md)。

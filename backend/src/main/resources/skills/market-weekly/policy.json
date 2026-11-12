@@ -1,5 +1,5 @@
 {
-  "version": "market-weekly-2.6.0",
+  "version": "market-weekly-2.7.0",
   "maxPicks": 5,
   "targetRange": {
     "min": 0,
@@ -51,12 +51,12 @@
   ],
   "limitations": "六维研究范围为启动方案，未通过真实时间外回测；不得解释为综合排名或盈利概率。运行参数以冻结的researchProfile为准",
   "portfolio": {
-    "benchmark": 2,
-    "newEntry": 1,
-    "accelerator": 1,
-    "earlyFlex": 1,
+    "benchmark": 1,
+    "newEntry": 2,
+    "accelerator": 2,
+    "earlyFlex": 0,
     "emptyBackfill": false,
-    "sourceAlgorithm": "capture-research-leads-2.3.0",
+    "sourceAlgorithm": "capture-research-leads-2.4.0",
     "researchFill": {
       "enabled": true,
       "maximumTotal": 5,
@@ -66,7 +66,8 @@
       "overseasCoveragePreference": 2,
       "deduplicatePlatformAppAcrossCountries": true,
       "unknownGameplay": "overseas stable-ID identification research only",
-      "formalEligibilityUnchanged": true
+      "formalEligibilityUnchanged": true,
+      "benchmarkBackfillAllowed": false
     }
   }
 }
