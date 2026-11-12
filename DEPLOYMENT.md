@@ -1,5 +1,9 @@
 # 部署与填写说明
 
+## 2026-11-12 每周精选研发交付与规则复盘
+
+V24 新增周一研发交付包和周五上周规则复盘。默认计划为北京时间周一 09:00、周五 17:00，可用 `INSIGHT_WEEKLY_CRON` 和 `INSIGHT_WEEKLY_REVIEW_CRON` 覆盖。交付包和复盘均由 Java/JDBC 写入 MySQL；不依赖 Docker、MySQL CLI 或个人电脑，不自动发送外部消息。发布前执行 JDBC 备份、Flyway V24、后端测试和前端构建；回滚需同时回退应用并保留 V24 表，不删除已生成的冻结记录。线上验证见 [验收记录](docs/acceptance/2026-11-12-weekly-workflow.md)。
+
 ## 2026-11-09 研究卡片折叠
 
 前端已更新到当前 release 的 dist，资源先上传、HTML 入口最后原子替换；无需重启 Java，无数据库迁移及环境参数变化。前端回滚备份为 `/opt/iaa-radar/backups/frontend-before-collapse-20261109.tar.gz`。构建通过；Playwright 在本地预览及生产站点验证 5 项默认折叠、独立展开/收起、键盘操作、完整导出、桌面 1440×1000 和手机 390×844，无页面运行时错误。Browser plugin 不可用，使用已有 Playwright/Chrome。

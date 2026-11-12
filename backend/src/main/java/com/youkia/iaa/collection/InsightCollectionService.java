@@ -5,6 +5,7 @@ import com.youkia.iaa.api.ApiException;
 import com.youkia.iaa.service.MarketInsightService;
 import com.youkia.iaa.service.MarketWeeklySkill;
 import com.youkia.iaa.service.WeeklyReportService;
+import com.youkia.iaa.service.WeeklyWorkflowService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -25,14 +26,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** Fixed public endpoints only. Source date is validated by the existing adapters. */
 @Service @EnableScheduling
 public class InsightCollectionService {
-    private final JdbcTemplate jdbc;private final ObjectMapper mapper;private final AppleGamesService apple;private final AppBrainService appBrain;private final WeeklyReportService reports;
+    private final JdbcTemplate jdbc;private final ObjectMapper mapper;private final AppleGamesService apple;private final AppBrainService appBrain;private final WeeklyReportService reports;private final WeeklyWorkflowService workflow;
     private final boolean enabled,appBrainEnabled,weeklyEnabled;private final AtomicBoolean running=new AtomicBoolean();
     public InsightCollectionService(JdbcTemplate jdbc,ObjectMapper mapper,AppleGamesService apple,AppBrainService appBrain,WeeklyReportService reports,
-      @Value("${INSIGHT_DAILY_ENABLED:false}") boolean enabled,@Value("${INSIGHT_APPBRAIN_ENABLED:false}") boolean appBrainEnabled,@Value("${INSIGHT_WEEKLY_ENABLED:false}") boolean weeklyEnabled){this.jdbc=jdbc;this.mapper=mapper;this.apple=apple;this.appBrain=appBrain;this.reports=reports;this.enabled=enabled;this.appBrainEnabled=appBrainEnabled;this.weeklyEnabled=weeklyEnabled;}
+      @Value("${INSIGHT_DAILY_ENABLED:false}") boolean enabled,@Value("${INSIGHT_APPBRAIN_ENABLED:false}") boolean appBrainEnabled,@Value("${INSIGHT_WEEKLY_ENABLED:false}") boolean weeklyEnabled){this(jdbc,mapper,apple,appBrain,reports,null,enabled,appBrainEnabled,weeklyEnabled);}
+    @org.springframework.beans.factory.annotation.Autowired
+    public InsightCollectionService(JdbcTemplate jdbc,ObjectMapper mapper,AppleGamesService apple,AppBrainService appBrain,WeeklyReportService reports,WeeklyWorkflowService workflow,
+      @Value("${INSIGHT_DAILY_ENABLED:false}") boolean enabled,@Value("${INSIGHT_APPBRAIN_ENABLED:false}") boolean appBrainEnabled,@Value("${INSIGHT_WEEKLY_ENABLED:false}") boolean weeklyEnabled){this.jdbc=jdbc;this.mapper=mapper;this.apple=apple;this.appBrain=appBrain;this.reports=reports;this.workflow=workflow;this.enabled=enabled;this.appBrainEnabled=appBrainEnabled;this.weeklyEnabled=weeklyEnabled;}
     private LocalDate today(){return LocalDate.now(ZoneId.of("Asia/Shanghai"));}
     @EventListener(ApplicationReadyEvent.class) public void recoverInterrupted(){jdbc.update("UPDATE insight_collection_attempt SET status='INTERRUPTED',finished_at=UTC_TIMESTAMP(3),result_json='{\"code\":\"PROCESS_RESTARTED\"}' WHERE status='RUNNING'");}
     @Scheduled(cron="${INSIGHT_DAILY_CRON:0 0 8 * * *}",zone="Asia/Shanghai") public void daily(){if(enabled)collect();}
-    @Scheduled(cron="${INSIGHT_WEEKLY_CRON:0 0 9 * * MON}",zone="Asia/Shanghai") public void weekly(){if(weeklyEnabled){LocalDate end=today();attempt("WEEKLY_REPORT",()->{var report=reports.generate(end.minusDays(7),end);return Map.of("reportId",report.get("id"),"revision",report.get("revision"),"reused",report.get("reused"),"itemCount",((List<?>)report.get("items")).size());});}}
+    @Scheduled(cron="${INSIGHT_WEEKLY_CRON:0 0 9 * * MON}",zone="Asia/Shanghai") public void weekly(){if(weeklyEnabled){LocalDate end=today();attempt("WEEKLY_REPORT",()->{var report=reports.generate(end.minusDays(7),end);long id=((Number)report.get("id")).longValue();var delivery=workflow==null?Map.of("status","NOT_CONFIGURED"):workflow.ensureDelivery(id);return Map.of("reportId",id,"revision",report.get("revision"),"reused",report.get("reused"),"itemCount",((List<?>)report.get("items")).size(),"deliveryStatus",delivery.get("status"),"recipientTeam","研发");});}}
+    @Scheduled(cron="${INSIGHT_WEEKLY_REVIEW_CRON:0 0 17 * * FRI}",zone="Asia/Shanghai") public void weeklyReview(){if(weeklyEnabled&&workflow!=null){LocalDate previous=WeeklyReportService.weekStart(today()).minusDays(7);var ids=jdbc.queryForList("SELECT id FROM weekly_report WHERE week_start=?",Long.class,previous);if(!ids.isEmpty())attempt("WEEKLY_REVIEW",()->Map.of("reportId",ids.getFirst(),"review",workflow.generateReview(ids.getFirst())));}}
     public Map<String,Object> collect(){
         if(!running.compareAndSet(false,true))throw new ApiException(HttpStatus.CONFLICT,"COLLECTION_RUNNING","免费来源正在采集，请稍后查看运行记录");
         try{List<Map<String,Object>> outcomes=new ArrayList<>();outcomes.add(attempt("APPLE_CN",()->apple.ingest("cn",100,null,fetch("https://itunes.apple.com/cn/rss/topfreeapplications/limit=100/genre=6014/json"))));

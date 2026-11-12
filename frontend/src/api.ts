@@ -29,6 +29,11 @@ export const getLatestReport = () => reportJson('/api/v1/reports/latest?pageView
 export const getReport = (id:string, full=false) => reportJson(`/api/v1/reports/${encodeURIComponent(id)}${full?'':'?pageView=true'}`,undefined,full?240000:45000)
 export const getReportHistory = (page=1) => reportJson(`/api/v1/reports?page=${page}&pageSize=20`)
 export const getReportSkill = () => json('/api/v1/reports/skill')
+export const getWeeklyDelivery = (id:string) => reportJson(`/api/v1/reports/${encodeURIComponent(id)}/delivery`)
+export const createWeeklyDelivery = (id:string) => reportJson(`/api/v1/admin/reports/${encodeURIComponent(id)}/delivery`,{method:'POST'})
+export const acknowledgeWeeklyDelivery = (id:string,actor='研发成员',note='') => reportJson(`/api/v1/admin/reports/${encodeURIComponent(id)}/delivery/ack`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({actor,note})})
+export const getWeeklyReview = (id:string) => reportJson(`/api/v1/reports/${encodeURIComponent(id)}/review`)
+export const createWeeklyReview = (id:string) => reportJson(`/api/v1/admin/reports/${encodeURIComponent(id)}/review`,{method:'POST'})
 export const getInsightCollection = (date:string) => json(`/api/v1/admin/insight-collection?date=${date}`)
 export const runInsightCollection = () => json('/api/v1/admin/insight-collection/run',{method:'POST'})
 export const getCollectionSources = (params:Record<string,string|undefined>={}) => {const q=new URLSearchParams();Object.entries(params).forEach(([k,v])=>v&&q.set(k,v));return json(`/api/v1/collection/sources?${q}`)}
