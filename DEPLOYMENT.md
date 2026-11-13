@@ -1,5 +1,11 @@
 # 部署与填写说明
 
+## 舆情扩展的部署准备（2026-11-13，规划）
+
+[内容与舆情开发计划](docs/25-CONTENT-INTELLIGENCE-PLAN.md)规定：SearXNG可用Linux非容器方式自建，私有入口；先复用现有模型服务，不在当前业务主机默认部署本地LLM/Open WebUI。P0测试出口、内存和来源权限后再决定同机或独立执行器，限制并发/任务预算，来源失败不阻断榜单。
+
+本轮没有新增服务、数据库迁移或环境变量；`.env.example`与现行启动命令保持不变。文档中的CONTENT_*为拟实现参数，不应现在填写或启用；实施时锁定实际版本、补运行模板/回滚和真实验收，不以搜索官网可访问代替采集链路成功。
+
 ## 2026-11-13 HTML 导出前端更新
 
 在当前 release `/opt/iaa-radar/releases/20261112-quota-122` 上更新 dist。执行 `npm --prefix frontend run build` 后上传静态资源，先复制新哈希 assets，再原子替换 index.html；保留旧 assets，无需重启 Java 或 Nginx。无迁移、无新增依赖或环境变量，`.env.example`、JDBC 参数和启动方式保持不变。
