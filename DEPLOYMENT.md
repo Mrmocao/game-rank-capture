@@ -1,5 +1,11 @@
 # 部署与填写说明
 
+## 2026-11-13 HTML 导出前端更新
+
+在当前 release `/opt/iaa-radar/releases/20261112-quota-122` 上更新 dist。执行 `npm --prefix frontend run build` 后上传静态资源，先复制新哈希 assets，再原子替换 index.html；保留旧 assets，无需重启 Java 或 Nginx。无迁移、无新增依赖或环境变量，`.env.example`、JDBC 参数和启动方式保持不变。
+
+回滚包：`/opt/iaa-radar/backups/frontend-before-html-20261113-1342.tar.gz`。回滚时先解压到临时目录，将旧 assets 复制回当前 dist，再原子替换旧 index.html；不要删除数据库、当前 dist 或历史 assets。验收见 [2026-11-13 HTML 下载](docs/acceptance/2026-11-13-weekly-html.md)。
+
 ## 2026-11-12 精选配额20/40/40（当前发布）
 
 当前release为`/opt/iaa-radar/releases/20261112-quota-122`。Skill2.7.0将5席分为成熟1、新入榜2、加速2；无新增迁移与环境参数，启动命令不变。报告36已按新规则生成，交付和机制摘要同步，前两周报告不变。构建、配额回归与生产浏览器验证见[验收记录](docs/acceptance/2026-11-12-quota-122.md)。
