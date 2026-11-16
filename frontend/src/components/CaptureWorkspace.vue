@@ -5,14 +5,13 @@ import { profileRequest } from '../api'
 import OnlineWebCapture from './OnlineWebCapture.vue'
 import GameMetricCapture from './GameMetricCapture.vue'
 import ProfileSupplements from './ProfileSupplements.vue'
+import CaptureLogin from './CaptureLogin.vue'
 import RankingMetricColumns from './RankingMetricColumns.vue'
 import RankingMetricEvidence from './RankingMetricEvidence.vue'
 import { useObservationMetrics } from '../composables/observationMetrics'
 
 const base='/api/v1/admin/capture-workspace'
-const overseas=ref<any>(null),sourceSession=ref<any>(null),maintenanceOpen=ref(false)
-const sessionNeedsLogin=computed(()=>sourceSession.value?.status==='LOGIN_REQUIRED')
-const sessionReviewDue=computed(()=>!!sourceSession.value?.reviewAfter&&Date.now()>=Date.parse(sourceSession.value.reviewAfter))
+const overseas=ref<any>(null)
 const data=ref<any>(null),runs=ref<any[]>([]),jobs=ref<any[]>([]),tab=ref('targets'),busy=ref(false),error=ref(''),search=ref(''),failuresOnly=ref(false)
 const detail=ref<any>(null),detailOpen=ref(false),page=ref(1),job=ref<any>(null),jobOpen=ref(false),editOpen=ref(false),scheduleOpen=ref(false)
 const publicObservationId=ref<number|undefined>(),publicProfiles=ref<any>(null),publicProfileBusy=ref(false)
@@ -35,7 +34,7 @@ const entries=computed(()=>detail.value?.bundle_json?.observation?.entries||[])
 const visibleEntries=computed(()=>entries.value.slice((page.value-1)*20,page.value*20))
 const request=(path:string,method='GET',body?:unknown)=>profileRequest(base+path,{method,...(body!==undefined?{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})})
 async function guard(action:()=>Promise<void>){if(busy.value)return;busy.value=true;error.value='';try{await action()}catch(e:any){error.value=e.message;ElMessage.error(e.message)}finally{busy.value=false}}
-async function refresh(){const [overview,history,repairs,coverage]=await Promise.all([request(''),profileRequest('/api/v1/admin/ranking-capture/runs'),request('/repairs'),profileRequest('/api/v1/market/coverage')]);data.value=overview;runs.value=history;jobs.value=repairs;sourceSession.value=coverage.sync?.['source-session'];overseas.value=coverage.sync?.overseas}
+async function refresh(){const [overview,history,repairs,coverage]=await Promise.all([request(''),profileRequest('/api/v1/admin/ranking-capture/runs'),request('/repairs'),profileRequest('/api/v1/market/coverage')]);data.value=overview;runs.value=history;jobs.value=repairs;overseas.value=coverage.sync?.overseas}
 const reload=()=>guard(refresh)
 function edit(target?:any){editKey.value=target?.target_key||'';editingImplemented.value=!!target?.source_key||!!target?.onlineRule;Object.assign(form,{name:target?.name||'',url:target?.source_url||'',fields:target?.field_scope||'',notes:target?.notes||'',toolKey:target?.tool_key||'http-html',enabled:!!target?.enabled,revision:target?.revision||0});editOpen.value=true}
 function register(candidate:any){edit();form.name=candidate.name;try{const u=new URL(candidate.url);form.url=u.origin+u.pathname}catch{form.url=''}form.fields=candidate.fields||'';form.notes=`目录 ${candidate.sourceId}；${candidate.collectionMethod}；${candidate.limitations}`;form.toolKey=String(candidate.collectionMethod).toLowerCase().includes('firecrawl')?'firecrawl':'http-html'}
@@ -62,8 +61,7 @@ onMounted(reload)
   <template v-else>
     <div class="metrics"><article><span>纳入采集的网站目标</span><strong>{{data.summary.enabledTargets}}<small> / {{data.summary.targetCount}}</small></strong><p>可在目标配置中调整范围</p></article><article><span>计划覆盖榜单</span><strong>{{data.summary.plannedCharts}}<small> 榜 × 100名</small></strong><p>每榜独立校验连续排名</p></article><article><span>最近运行完整榜单</span><strong>{{data.summary.completeCharts}}<small> / {{data.summary.plannedCharts}}</small></strong><p>完整榜共 {{data.summary.latestRows}} 条记录</p></article><article><span>定时采集</span><strong class="schedule-state">{{data.schedule.enabled?'已启用':'未启用'}}</strong><p>{{data.schedule.workerOnline?'执行器在线':'执行器离线 / 尚无心跳'}}</p></article></div>
     <div class="schedule-strip"><div><b>{{data.schedule.cron_expression.includes(';')?'每天 08:30、23:00':'每天 08:30'}} <span>北京时间</span></b><p>下次执行：{{time(data.schedule.next_due_at)}} · 执行器心跳：{{time(data.schedule.worker_seen_at)}}</p><p v-if="data.schedule.last_result_json">最近计划：{{status(data.schedule.last_result_json.status)}} · {{time(data.schedule.last_finished_at)}}</p></div><el-button :disabled="busy" @click="editSchedule">管理定时计划</el-button></div>
-    <div class="schedule-strip source-session"><div><b>引力引擎 · 服务器登录维护</b><p>{{sessionNeedsLogin?'登录已失效：需要人工重新验证':sessionReviewDue?'建议续登：距上次登录验证已满6天':sourceSession?.status==='VERIFIED'?'已通过完整榜单采集验证':'等待服务器登录验证'}}</p><p>最近登录验证：{{time(sourceSession?.lastLoginVerifiedAt)}} · 建议下次检查：{{time(sourceSession?.reviewAfter)}}</p><p class="muted">源站会话约7天；实际可能提前失效。第6天提示检查，失败保留原数据。采集在服务器运行，无需个人电脑常开。</p></div><el-button :type="sessionNeedsLogin?'danger':sessionReviewDue?'warning':'primary'" @click="maintenanceOpen=true">续登说明</el-button></div>
-    <el-dialog v-model="maintenanceOpen" title="服务器登录维护" width="min(680px,94vw)"><p>1. 在运维电脑打开项目目录，运行下方维护工具。工具会临时打开服务器浏览器；仅在登录期间使用本机。</p><pre style="white-space:pre-wrap;overflow-wrap:anywhere">powershell -ExecutionPolicy Bypass -File scripts/renew-server-capture-login.ps1</pre><p>2. 在远程窗口完成引力引擎短信或扫码登录，建议选择“7天免登录”。账号和验证码只在源站输入。</p><p>3. 返回维护工具按回车，它会保存会话、关闭临时窗口、执行真实榜单验证并恢复定时任务。成功后刷新本页查看验证时间。</p><p>维护工具需要已有服务器SSH配置。登录入口只通过临时安全隧道访问，未在公网开放远程桌面。维护完成后可关闭电脑。</p><p>如果取消或遗忘关闭，35分钟后服务端会清理登录窗口并恢复采集计划；未登录成功的来源保持失败，不生成假数据。</p></el-dialog>
+    <CaptureLogin/>
     <div class="schedule-strip"><div><b>Google Play · 独立云端采集</b><p>每天北京时间 08:40、23:10（云端排队可能延迟）；按已启用地区采集免费、付费、畅销、新免费、新付费榜。</p><p>最近交付：{{overseas?status(overseas.status):'等待首次交付'}} · {{time(overseas?.receivedAt)}} · {{overseas?.importedEntries??0}}条 · 来源失败 {{overseas?.sourceFailedCount??0}} 个 · 部分覆盖 {{overseas?.sourcePartialCount??0}} 个</p><p>此处是最近交付回执，并非实时在线状态。停止某地区可在目标配置中关闭；云端失败保留历史，不把旧数据当今天。</p></div><a href="https://github.com/Mrmocao/game-rank-capture/actions/workflows/overseas-capture.yml" target="_blank" rel="noopener noreferrer">查看云端任务与失败日志 ↗</a></div>
     <el-alert :title="data.notice" type="info" :closable="false" class="notice"/>
     <el-tabs v-model="tab" class="capture-tabs">

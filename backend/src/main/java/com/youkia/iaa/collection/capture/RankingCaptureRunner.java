@@ -67,7 +67,7 @@ public final class RankingCaptureRunner {
                 result.put("chart", request.chartKey()); result.put("status", "FAILED"); result.put("errorCode", code); outcomes.add(result);
                 if (code.equals("SOURCE_AUTH_REQUIRED")) {
                     result.put("requiresLogin", true);
-                    result.put("action", "请运行 scripts/login-ranking-capture.ps1 手动重新登录引力引擎，再执行采集");
+                    result.put("action", "请进入信息抓取工作台，点击打开续登页面，手动登录后保存并验证");
                 }
             }
         }
