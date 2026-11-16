@@ -13,6 +13,24 @@ import static org.junit.jupiter.api.Assertions.*;
 @EnabledIfEnvironmentVariable(named="RUN_CAPTURE_BROWSER_TESTS", matches="true")
 class BrowserDomTest {
     @TempDir Path profile;
+    @Test void scrollingMayAppendRowsBeforeHoverResolves() throws Exception {
+        try(var browser=new BrowserProfile(profile,true,"chrome")) {
+            browser.context.route("**/*",route->route.abort());
+            var page=browser.context.newPage();
+            page.setContent("""
+                <section class="rank-card" style="height:200px;overflow:auto"></section>
+                <script>
+                const card=document.querySelector('.rank-card');
+                const append=n=>{for(let i=0;i<n;i++)card.insertAdjacentHTML('beforeend','<div class="rank-child-item" style="height:60px">Synthetic row</div>');};
+                append(20);
+                card.addEventListener('scroll',()=>{if(card.children.length===20){append(80);card.lastElementChild.style.display='none';}});
+                </script>
+                """);
+            page.setDefaultTimeout(3000);
+            GravityBrowserFetcher.scrollLoadedRows(page,page.locator(".rank-card"),20);
+            assertEquals(100,page.locator(".rank-child-item").count());
+        }
+    }
     @Test void historicalSelectionUsesPageControlAndPreservesActualCaptureTime() throws Exception {
         try(var browser=new BrowserProfile(profile,true,"chrome")) {
             browser.context.route("**/*",route->route.abort());

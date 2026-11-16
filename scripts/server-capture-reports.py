@@ -47,6 +47,15 @@ def finalize(batch,deliveries,post):
     result['completedAt']=datetime.datetime.now(datetime.timezone.utc).isoformat()
     atomic(receipt,result);atomic(deliveries/'latest.json',result);return result
 
+def post_report(start,end):
+    headers={'Content-Type':'application/json'}
+    token=os.environ.get('PROFILE_ACCESS_TOKEN','')
+    if token:headers['Authorization']='Bearer '+token
+    # The page projection retains IDs, revision and item arrays used by finalize,
+    # without serializing the duplicated frozen evidence into this small bridge.
+    request=urllib.request.Request('http://127.0.0.1:18081/api/v1/admin/reports/generate?periodStart='+str(start)+'&periodEnd='+str(end)+'&pageView=true',data=b'{}',headers=headers)
+    with urllib.request.urlopen(request,timeout=300) as response:return json.load(response)['data']
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--root',default='/opt/iaa-radar');p.add_argument('--initialize',action='store_true');p.add_argument('--once',action='store_true');args=p.parse_args()
     root=pathlib.Path(args.root);materials=root/'shared/external-captures';deliveries=root/'shared/deliveries';deliveries.mkdir(parents=True,exist_ok=True)
@@ -55,19 +64,13 @@ def main():
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         if args.initialize:
             state['done']=[p.stem for p in materials.glob('batch-*.json')];atomic(state_file,state);return
-        def post(start,end):
-            headers={'Content-Type':'application/json'}
-            token=os.environ.get('PROFILE_ACCESS_TOKEN','')
-            if token:headers['Authorization']='Bearer '+token
-            request=urllib.request.Request('http://127.0.0.1:18081/api/v1/admin/reports/generate?periodStart='+str(start)+'&periodEnd='+str(end),data=b'{}',headers=headers)
-            with urllib.request.urlopen(request,timeout=300) as response:return json.load(response)['data']
         while True:
             queue=sorted((p for p in materials.glob('batch-*.json') if p.stem not in state['done']),key=lambda p:p.stat().st_mtime)
             heartbeat={'worker':'SERVER_CAPTURE_REPORTS','seenAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'pendingBatches':len(queue),'state':'SYNCING' if queue else 'IDLE'}
             atomic(deliveries/'heartbeat.json',heartbeat)
             for batch_file in queue:
                 try:
-                    result=finalize(json.loads(batch_file.read_text(encoding='utf-8')),deliveries,post)
+                    result=finalize(json.loads(batch_file.read_text(encoding='utf-8')),deliveries,post_report)
                     state['done'].append(batch_file.stem);state['lastBatchId']=result['batchId'];atomic(state_file,state)
                     print(json.dumps({'batchId':result['batchId'],'status':result['status'],'reportId':result.get('reportId')},ensure_ascii=True),flush=True)
                 except Exception as e:

@@ -6,6 +6,14 @@ bridge=importlib.util.module_from_spec(spec)
 with patch.dict(sys.modules,{'fcntl':types.SimpleNamespace()}):spec.loader.exec_module(bridge)
 
 class BridgeTest(unittest.TestCase):
+    def test_bridge_requests_projection_and_retains_receipt_fields(self):
+        import io,json
+        from urllib.parse import urlparse,parse_qs
+        report=self.report();report['items']=[{'id':'synthetic'}];report['researchLeads']['items']=[{'name':'synthetic'}]
+        with patch.object(bridge.urllib.request,'urlopen',return_value=io.BytesIO(json.dumps({'data':report}).encode())) as call:
+            result=bridge.post_report('2026-11-09','2026-11-16')
+        self.assertEqual(report,result)
+        self.assertEqual({'periodStart':['2026-11-09'],'periodEnd':['2026-11-16'],'pageView':['true']},parse_qs(urlparse(call.call_args[0][0].full_url).query))
     def batch(self):return {'batchId':'SYNTHETIC-test','failedCount':0,'partialCount':0,'attempts':[{'source':'synthetic','chart':'test','status':'SUCCEEDED','observationId':1,'businessDate':'2026-11-02','entries':100}]}
     def report(self):return {'id':'SYNTHETIC-report','revision':1,'items':[],'researchLeads':{'items':[]}}
     def test_completed_batch_never_repeats_report_call(self):

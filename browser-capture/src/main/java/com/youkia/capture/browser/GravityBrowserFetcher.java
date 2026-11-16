@@ -65,9 +65,7 @@ public final class GravityBrowserFetcher implements MaterialFetcher {
                     int count = card.locator(".rank-child-item").count();
                     if (count >= 100) break;
                     if (count == 0) throw new CaptureException("NO_ENTRIES", "浏览器未显示榜单行");
-                    card.locator(".rank-child-item").last().scrollIntoViewIfNeeded();
-                    card.locator(".rank-child-item").last().hover();
-                    page.mouse().wheel(0, 900);
+                    scrollLoadedRows(page, card, count);
                     page.waitForTimeout(700);
                     int after = card.locator(".rank-child-item").count();
                     unchanged = after == previous ? unchanged + 1 : 0; previous = after;
@@ -76,7 +74,9 @@ public final class GravityBrowserFetcher implements MaterialFetcher {
             }
             RawMaterial material = snapshot(page, url, clock);
             stage = "VALIDATE";
-            validateComplete(material, clock);
+            if (requestedDate != null && requestedDate.isBefore(LocalDate.now(clock.withZone(ZoneId.of("Asia/Shanghai")))))
+                validateHistoricalAvailable(material, clock, requestedDate);
+            else validateComplete(material, clock);
             return material;
         } catch (PlaywrightException e) {
             var network = java.util.regex.Pattern.compile("net::ERR_[A-Z_]+").matcher(Objects.toString(e.getMessage(), ""));
@@ -103,6 +103,15 @@ public final class GravityBrowserFetcher implements MaterialFetcher {
         page.waitForFunction("expected => { const cards = [...document.querySelectorAll('.rank-card')]; return cards.length === expected && cards.every(n => n.querySelectorAll('.rank-child-item').length >= 20); }",
                 expectedCharts, new Page.WaitForFunctionOptions().setTimeout(30_000));
     }
+    static void scrollLoadedRows(Page page, Locator card, int count) {
+        // Scrolling can append rows immediately. Keep the original anchor instead of
+        // resolving last() again to a newly appended row outside the scroll viewport.
+        Locator anchor = card.locator(".rank-child-item").nth(count - 1);
+        anchor.scrollIntoViewIfNeeded();
+        if (card.locator(".rank-child-item").count() >= 100) return;
+        anchor.hover();
+        page.mouse().wheel(0, 900);
+    }
     static void selectSourceDate(Page page, LocalDate requestedDate) {
         if (requestedDate.isAfter(LocalDate.now(ZoneId.of("Asia/Shanghai"))))
             throw new CaptureException("INVALID_SCOPE", "不能采集未来日期");
@@ -116,6 +125,8 @@ public final class GravityBrowserFetcher implements MaterialFetcher {
         page.waitForFunction("date => [...document.querySelectorAll('input')].some(n => n.value.startsWith(date)) && !document.querySelector('.el-loading-mask:not([style*=\"display: none\"])')",
                 date, new Page.WaitForFunctionOptions().setTimeout(30_000));
         if (!input.inputValue().startsWith(date)) throw new CaptureException("SOURCE_DATE_MISMATCH", "来源未接受所选历史日期");
+        input.press("Escape");
+        input.press("Tab");
     }
     static RawMaterial snapshot(Page page, URI url, Clock clock) {
         // Capture only ranking DOM; never serialize application state, forms, cookies or storage.
@@ -158,6 +169,21 @@ public final class GravityBrowserFetcher implements MaterialFetcher {
                     throw new CaptureException("SOURCE_AUTH_REQUIRED", "引力引擎登录已失效，请运行 scripts/login-ranking-capture.ps1 重新登录");
                 throw new CaptureException("SOURCE_TOP100_INCOMPLETE", "滚动后仍未取得连续1至100名，未降级为20条成功结果");
             }
+        }
+    }
+    static void validateHistoricalAvailable(RawMaterial material, Clock clock, LocalDate requestedDate) {
+        if (material.text().contains("登录查看完整榜单"))
+            throw new CaptureException("SOURCE_AUTH_REQUIRED", "请在信息抓取工作台续登后重试");
+        String platform = material.sourceUrl().getPath().startsWith("/wechat/") ? "WECHAT" : "DOUYIN";
+        var adapter = new GravityRankingAdapter(platform);
+        var pipeline = new CapturePipeline(List.of(adapter), ignored -> material, (b,m) -> {}, clock);
+        for (var request : CaptureSources.daily(100).stream().filter(r -> r.sourceKey().equals(adapter.key())).toList()) {
+            var historical = new CaptureRequest(request.sourceKey(), request.region(), request.requestedTopN(), requestedDate, request.chartKey());
+            var bundle = pipeline.inspect(historical, material);
+            // Archived charts can lose entries at the source. Preserve their actual ranks;
+            // downstream coverage marks each chart PARTIAL independently. Never accept a preview.
+            if (bundle.coverage().actualCount() <= 20)
+                throw new CaptureException("SOURCE_TOP100_INCOMPLETE", "历史榜仍只有预览范围，未接受为完整采集");
         }
     }
 }

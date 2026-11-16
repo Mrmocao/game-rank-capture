@@ -37,4 +37,16 @@ class GravityBrowserFetcherTest {
     @Test void visibleRank100DoesNotHideMissingMiddleRank() {
         assertEquals("SOURCE_TOP100_INCOMPLETE",assertThrows(CaptureException.class,()->GravityBrowserFetcher.validateComplete(fixture("wechat",100,false,51),clock)).code());
     }
+    @Test void historicalRowsRetainPartialCoverageAndRejectPreviewOrWrongDate() {
+        var day=LocalDate.of(2026,11,2);
+        assertDoesNotThrow(()->GravityBrowserFetcher.validateHistoricalAvailable(fixture("douyin",99,false,-1),clock,day));
+        assertEquals("SOURCE_TOP100_INCOMPLETE",assertThrows(CaptureException.class,()->GravityBrowserFetcher.validateHistoricalAvailable(fixture("douyin",20,false,-1),clock,day)).code());
+        assertEquals("SOURCE_AUTH_REQUIRED",assertThrows(CaptureException.class,()->GravityBrowserFetcher.validateHistoricalAvailable(fixture("douyin",20,true,-1),clock,day)).code());
+        assertEquals("SOURCE_DATE_MISMATCH",assertThrows(CaptureException.class,()->GravityBrowserFetcher.validateHistoricalAvailable(fixture("douyin",99,false,-1),clock,day.minusDays(1))).code());
+        var material=fixture("douyin",100,false,51);
+        var adapter=new com.youkia.capture.adapters.GravityRankingAdapter("DOUYIN");
+        var bundle=new CapturePipeline(List.of(adapter),u->material,(b,m)->{},clock).inspect(new CaptureRequest("gravity-douyin","cn",100,day,"popularity"),material);
+        assertEquals(99,bundle.coverage().actualCount());
+        assertNotEquals("REQUESTED_RANGE_COMPLETE",bundle.coverage().status());
+    }
 }
