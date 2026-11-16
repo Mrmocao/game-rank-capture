@@ -1,0 +1,41 @@
+CREATE TABLE market_taxonomy_term (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '市场分类词条ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属工作区',
+ term_type VARCHAR(20) NOT NULL COMMENT 'GENRE类型、THEME题材、MECHANIC核心机制',
+ canonical_name VARCHAR(160) NOT NULL COMMENT '规范名称',
+ normalized_name VARCHAR(160) NOT NULL COMMENT '用于去重的规范化名称',
+ parent_id BIGINT NULL COMMENT '父级词条ID，空表示一级词条',
+ definition VARCHAR(2000) NOT NULL COMMENT '分类边界和包含/排除说明',
+ status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'ACTIVE启用、RETIRED停用',
+ created_by VARCHAR(100) NOT NULL COMMENT '登记人',
+ created_at DATETIME(3) NOT NULL COMMENT '创建时间UTC',
+ revision INT NOT NULL DEFAULT 1 COMMENT '词条修订号',
+ UNIQUE KEY uq_taxonomy_term(tenant_id,term_type,normalized_name),
+ KEY idx_taxonomy_parent(tenant_id,parent_id),
+ CONSTRAINT fk_taxonomy_parent FOREIGN KEY(parent_id) REFERENCES market_taxonomy_term(id)
+) COMMENT='市场游戏类型、题材与核心机制的规范词条档案';
+
+CREATE TABLE market_taxonomy_observation (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '分类观察记录ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属工作区',
+ term_id BIGINT NOT NULL COMMENT '分类词条ID',
+ product_id BIGINT NULL COMMENT '统一产品ID，未确认时为空',
+ platform_version_id BIGINT NULL COMMENT '平台版本ID，平台未知时为空',
+ market VARCHAR(8) NULL COMMENT '适用市场CN、US、GB、DE、FR，未知为空',
+ scope VARCHAR(32) NOT NULL COMMENT 'PRODUCT产品级、VERSION版本级、MARKET市场级',
+ source_name VARCHAR(200) NOT NULL COMMENT '来源名称或来源族',
+ source_url VARCHAR(2000) NULL COMMENT '证据链接',
+ excerpt TEXT NOT NULL COMMENT '允许保存的原文摘录',
+ observed_date DATE NOT NULL COMMENT '材料观察业务日',
+ available_at DATETIME(3) NOT NULL COMMENT '服务器首次可用时间UTC',
+ content_sha256 CHAR(64) NOT NULL COMMENT '词条、对象和证据内容哈希',
+ status VARCHAR(24) NOT NULL DEFAULT 'PENDING_REVIEW' COMMENT 'PENDING_REVIEW已登记待复核、CONFIRMED已确认、REJECTED已拒绝',
+ actor VARCHAR(100) NOT NULL COMMENT '登记人或复核人',
+ created_at DATETIME(3) NOT NULL COMMENT '登记时间UTC',
+ UNIQUE KEY uq_taxonomy_observation(tenant_id,content_sha256),
+ KEY idx_taxonomy_observation_term(tenant_id,term_id,observed_date),
+ KEY idx_taxonomy_observation_product(tenant_id,product_id,platform_version_id),
+ CONSTRAINT fk_taxonomy_observation_term FOREIGN KEY(term_id) REFERENCES market_taxonomy_term(id),
+ CONSTRAINT fk_taxonomy_observation_product FOREIGN KEY(product_id) REFERENCES product(id),
+ CONSTRAINT fk_taxonomy_observation_version FOREIGN KEY(platform_version_id) REFERENCES platform_version(id)
+) COMMENT='产品、平台版本和市场与类型题材词条的带证据关联历史';

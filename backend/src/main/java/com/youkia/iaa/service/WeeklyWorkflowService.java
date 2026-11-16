@@ -168,6 +168,7 @@ public class WeeklyWorkflowService {
         x.put("region", text(n, "region", "未知市场")); x.put("type", type); x.put("route", text(n, "route", text(n, "signalLabel", "待核")));
         x.put("whyNow", text(n, "whyNow", text(n, "action", "按冻结证据进一步核验"))); x.put("gaps", n.has("gaps") ? n.get("gaps") : n.path("unresolvedFields"));
         x.put("sourceDate", text(n, "latestObservedDate", text(n, "business_date", "未知"))); x.put("currentState", text(n, "currentState", "见冻结证据"));
+        for(String key:List.of("launchDate","launchDateStatus","launchAgeDays","launchDateGap","launchDateEvidence","launchGate","longObservationDays","requiredObservationDays","taxonomyEvidence","nextAction","opportunityHypothesis"))if(n.has(key))x.put(key,n.get(key));
         return x;
     }
 

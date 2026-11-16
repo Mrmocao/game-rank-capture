@@ -51,6 +51,9 @@ public final class MarketInsightService {
         for(var e:latestEntries.values()){var s=byId.get(num(e,"snapshot_id"));
             Map<String,Object> c=new LinkedHashMap<>(s);c.putAll(e);
             try {var m=mapper.readTree(String.valueOf(e.get("source_metrics")));
+                String launch=m.path("sourceReleaseDate").asText("");
+                c.put("launchDate",launch.length()>=10?launch.substring(0,10):launch);
+                c.put("launchDateBasis","SOURCE_LISTING_DATE");
                 for(var field:Map.of("product_name","name","summary","summary","developer","developer","store_url","storeUrl","recent_installs","recentInstallsDisplay","summary_kind","summaryKind").entrySet())c.put(field.getKey(),m.path(field.getValue()).isMissingNode()?null:m.path(field.getValue()).asText());
             }catch(Exception ignored){}
             if(c.get("product_name")==null)c.put("product_name",e.get("version_name"));

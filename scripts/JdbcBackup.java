@@ -27,7 +27,7 @@ public class JdbcBackup {
     try(var st=c.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY)){
      st.setFetchSize(Integer.MIN_VALUE);st.setQueryTimeout(120);
      try(var rs=st.executeQuery("SELECT * FROM `"+table+"`")){int columns=rs.getMetaData().getColumnCount();
-     while(rs.next()){out.write("INSERT INTO `"+table+"` VALUES(");for(int i=1;i<=columns;i++){if(i>1)out.write(',');String v=rs.getString(i);out.write(v==null?"NULL":v.isEmpty()?"''":"CONVERT(0x"+HexFormat.of().formatHex(v.getBytes(StandardCharsets.UTF_8))+" USING utf8mb4)");}out.write(");\n");rows++;}}
+     while(rs.next()){out.write("INSERT INTO `"+table+"` VALUES(");for(int i=1;i<=columns;i++){if(i>1)out.write(',');writeValue(out,rs.getString(i));}out.write(");\n");rows++;}}
     }
    }
    out.write("SET FOREIGN_KEY_CHECKS=1;\n");c.commit();
@@ -35,4 +35,15 @@ public class JdbcBackup {
   Files.move(partial,target);
   System.out.println("Backup complete: "+tableCount+" tables, "+rows+" rows; file contents not printed.");
  }
+ private static void writeValue(Writer out,String value)throws IOException{
+  if(value==null){out.write("NULL");return;}
+  if(value.isEmpty()){out.write("''");return;}
+  out.write("CONVERT(0x");
+  for(int start=0;start<value.length();){int end=Math.min(value.length(),start+8192);
+   if(end<value.length()&&Character.isHighSurrogate(value.charAt(end-1)))end--;
+   out.write(HexFormat.of().formatHex(value.substring(start,end).getBytes(StandardCharsets.UTF_8)));start=end;
+  }
+  out.write(" USING utf8mb4)");
+ }
+
 }

@@ -1,5 +1,9 @@
 # 游探 / 锦鲤云 IAA 产品情报系统
 
+## 2026-11-16 当前升级
+
+来源规则2.5.0 / Skill2.8.0：已知上架满730天的游戏移出精选；未知日期需28日内14个实际观察日，不能进入新入榜/加速席。“玩法与赛道”可按类型、题材、机制建档并登记关联证据，匹配证据冻结到周报和研发HTML。Flyway V25，无新增配置。详见[规则与档案](docs/26-TAXONOMY-LAUNCH-GATE.md)及[实际验收](docs/acceptance/2026-11-16-taxonomy-launch-gate.md)。以下带日期内容为历史交付记录。
+
 ## 游戏内容与舆情扩展计划（2026-11-13，待实施）
 
 已完成 SearXNG 搜索、原文获取、模型提取和数据库留存方案评估，形成 [闭环开发计划](docs/25-CONTENT-INTELLIGENCE-PLAN.md)。复用当前舆情页、产品关联、档案证据、每周精选、研发反馈与 HTML 交付；搜索同时面向已有游戏补证和榜前玩法/需求发现。模型优先沿用现有兼容供应商，Open WebUI、本地推理和向量检索后置，避免主机资源膨胀。
@@ -108,7 +112,7 @@ Google Play采用GitHub Actions独立临时执行器经专用HTTPS接口回传�
 1. 安装 Java 21、Maven 3.9+、Node 20+、MySQL 8。**不需要 Docker 或 MySQL CLI**。
 2. 复制 `.env.example` 为 `.env`，填写已创建数据库的 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD`，通过 JDBC 连接。
 3. 填写 `APP_CONFIG_ENCRYPTION_KEY` 以保护 AI 密钥。当前生产按业务要求关闭登录，`PROFILE_ACCESS_TOKEN` 留空即可；如以后需要公网共享口令，再填写独立值。`PROFILE_TENANT_ID` 由服务端固定。
-4. 根目录执行 `mvn package`，再运行 `java -jar backend/target/iaa-radar-api-0.1.0-SNAPSHOT.jar`，Flyway 自动执行至 V17。现有库先备份；全新库不要先手工执行参考 DDL 再运行 Flyway。运行中不要重新打包其正在使用的JAR；常驻实例使用独立版本副本。
+4. 根目录执行 `mvn package`，再运行 `java -jar backend/target/iaa-radar-api-0.1.0-SNAPSHOT.jar`，Flyway 自动执行至 V25。现有库先备份；全新库不要先手工执行参考 DDL 再运行 Flyway。运行中不要重新打包其正在使用的JAR；常驻实例使用独立版本副本。
 5. 执行 `npm ci --prefix frontend`、`npm run dev --prefix frontend`，访问 `http://localhost:5173`，开发 API 默认 `http://localhost:8080/api/v1`。
 
 开发模拟数据仅在明确需要时使用 `dev` profile。生产不得启用 `dev`；已执行过的历史 V2 seed 迁移必须保留以满足 Flyway 校验，开发另使用可重复 seed。DEMO/SYNTHETIC 材料不是市场证据。
@@ -161,3 +165,7 @@ JDBC/Flyway 已在配置数据库与生产数据库执行 V9～V12；两者是�
 
 
 免费商店下载与付费信息：信息抓取页新增独立指标补全、来源历史及授权平台配置，见[运行手册](docs/20-GAME-METRIC-CAPTURE.md)。
+
+## 2026-11-16 存量游戏过滤与市场分类档案
+
+每周精选新增上线时间门槛：已知上线满730天（约两年）的游戏默认只进入市场档案和长期观察，不占精选席；上线日期未知保留待核并显示观察要求，不把首次观察当成首次上线。研究页“玩法与赛道”现已改为市场分类档案，可建立游戏类型、题材、核心机制词条，并为产品/平台版本登记带来源摘录的关联观察。该分类不直接改变IAA资格或推荐分数。迁移为Flyway V25，新增表均有中文注释；详见 [分类档案与存量过滤](docs/26-TAXONOMY-LAUNCH-GATE.md)。

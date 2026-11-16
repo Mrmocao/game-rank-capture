@@ -1044,6 +1044,49 @@ CREATE TABLE capture_metric_provider (
  PRIMARY KEY(tenant_id,provider_key)
 ) COMMENT='估算数据商授权准备；未验证前不调用收费API';
 
+-- V25: market taxonomy archive
+CREATE TABLE market_taxonomy_term (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '市场分类词条ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属工作区',
+ term_type VARCHAR(20) NOT NULL COMMENT 'GENRE类型、THEME题材、MECHANIC核心机制',
+ canonical_name VARCHAR(160) NOT NULL COMMENT '规范名称',
+ normalized_name VARCHAR(160) NOT NULL COMMENT '用于去重的规范化名称',
+ parent_id BIGINT NULL COMMENT '父级词条ID，空表示一级词条',
+ definition VARCHAR(2000) NOT NULL COMMENT '分类边界和包含/排除说明',
+ status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'ACTIVE启用、RETIRED停用',
+ created_by VARCHAR(100) NOT NULL COMMENT '登记人',
+ created_at DATETIME(3) NOT NULL COMMENT '创建时间UTC',
+ revision INT NOT NULL DEFAULT 1 COMMENT '词条修订号',
+ UNIQUE KEY uq_taxonomy_term(tenant_id,term_type,normalized_name),
+ KEY idx_taxonomy_parent(tenant_id,parent_id),
+ CONSTRAINT fk_taxonomy_parent FOREIGN KEY(parent_id) REFERENCES market_taxonomy_term(id)
+) COMMENT='市场游戏类型、题材与核心机制的规范词条档案';
+
+CREATE TABLE market_taxonomy_observation (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '分类观察记录ID',
+ tenant_id VARCHAR(64) NOT NULL COMMENT '所属工作区',
+ term_id BIGINT NOT NULL COMMENT '分类词条ID',
+ product_id BIGINT NULL COMMENT '统一产品ID，未确认时为空',
+ platform_version_id BIGINT NULL COMMENT '平台版本ID，平台未知时为空',
+ market VARCHAR(8) NULL COMMENT '适用市场CN、US、GB、DE、FR，未知为空',
+ scope VARCHAR(32) NOT NULL COMMENT 'PRODUCT产品级、VERSION版本级、MARKET市场级',
+ source_name VARCHAR(200) NOT NULL COMMENT '来源名称或来源族',
+ source_url VARCHAR(2000) NULL COMMENT '证据链接',
+ excerpt TEXT NOT NULL COMMENT '允许保存的原文摘录',
+ observed_date DATE NOT NULL COMMENT '材料观察业务日',
+ available_at DATETIME(3) NOT NULL COMMENT '服务器首次可用时间UTC',
+ content_sha256 CHAR(64) NOT NULL COMMENT '词条、对象和证据内容哈希',
+ status VARCHAR(24) NOT NULL DEFAULT 'PENDING_REVIEW' COMMENT 'PENDING_REVIEW已登记待复核、CONFIRMED已确认、REJECTED已拒绝',
+ actor VARCHAR(100) NOT NULL COMMENT '登记人或复核人',
+ created_at DATETIME(3) NOT NULL COMMENT '登记时间UTC',
+ UNIQUE KEY uq_taxonomy_observation(tenant_id,content_sha256),
+ KEY idx_taxonomy_observation_term(tenant_id,term_id,observed_date),
+ KEY idx_taxonomy_observation_product(tenant_id,product_id,platform_version_id),
+ CONSTRAINT fk_taxonomy_observation_term FOREIGN KEY(term_id) REFERENCES market_taxonomy_term(id),
+ CONSTRAINT fk_taxonomy_observation_product FOREIGN KEY(product_id) REFERENCES product(id),
+ CONSTRAINT fk_taxonomy_observation_version FOREIGN KEY(platform_version_id) REFERENCES platform_version(id)
+) COMMENT='产品、平台版本和市场与类型题材词条的带证据关联历史';
+
 
 -- 业务确认：自然周只保留一份报告，重新生成覆盖；执行前须备份数据库。
 -- 以实际分析截止日（period_end - 1）归周，避免旧滚动窗口跨周归错。
@@ -1072,3 +1115,37 @@ ALTER TABLE weekly_report
  MODIFY COLUMN status VARCHAR(20) NOT NULL COMMENT 'PUBLISHED已发布；同周显式生成可覆盖',
  MODIFY COLUMN candidate_audit JSON NULL COMMENT '最近一次成功生成时的候选指标与筛选依据',
  COMMENT='每自然周唯一报告：保存最近一次成功生成的完整结果';
+
+
+-- V24: weekly delivery and review
+CREATE TABLE weekly_report_delivery (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '研发交付记录ID',
+    report_id BIGINT NOT NULL COMMENT '周报ID；同一周唯一报告',
+    week_start DATE NOT NULL COMMENT '北京时间周一；研发交付所属周',
+    recipient_team VARCHAR(80) NOT NULL COMMENT '接收团队，默认研发',
+    status VARCHAR(24) NOT NULL COMMENT 'READY已生成/ACKNOWLEDGED已确认',
+    package_json JSON NOT NULL COMMENT '冻结的研发交付包摘要，不替代周报证据',
+    delivered_at DATETIME(3) NOT NULL COMMENT '交付包生成时间UTC',
+    acknowledged_at DATETIME(3) NULL COMMENT '研发确认接收时间UTC',
+    acknowledged_by VARCHAR(120) NULL COMMENT '确认人标识',
+    note VARCHAR(500) NULL COMMENT '交付备注',
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间UTC',
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间UTC',
+    UNIQUE KEY uq_weekly_delivery_report_team(report_id, recipient_team),
+    KEY idx_weekly_delivery_week(week_start),
+    CONSTRAINT fk_weekly_delivery_report FOREIGN KEY(report_id) REFERENCES weekly_report(id)
+) COMMENT='每周精选研发交付包及确认状态';
+
+CREATE TABLE weekly_report_review (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '周报复盘记录ID',
+    report_id BIGINT NOT NULL COMMENT '被复盘的上周报告ID',
+    week_start DATE NOT NULL COMMENT '被复盘报告所属周周一',
+    status VARCHAR(24) NOT NULL COMMENT 'PUBLISHED已生成/DRAFT草稿',
+    review_json JSON NOT NULL COMMENT '规则总结、结果观察、证据缺口和迭代建议',
+    generated_at DATETIME(3) NOT NULL COMMENT '复盘生成时间UTC',
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间UTC',
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间UTC',
+    UNIQUE KEY uq_weekly_review_report(report_id),
+    KEY idx_weekly_review_week(week_start),
+    CONSTRAINT fk_weekly_review_report FOREIGN KEY(report_id) REFERENCES weekly_report(id)
+) COMMENT='每周五对上周精选规则与结果的复盘说明';

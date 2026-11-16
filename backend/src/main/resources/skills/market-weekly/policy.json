@@ -1,5 +1,5 @@
 {
-  "version": "market-weekly-2.7.0",
+  "version": "market-weekly-2.8.0",
   "maxPicks": 5,
   "targetRange": {
     "min": 0,
@@ -51,12 +51,13 @@
   ],
   "limitations": "六维研究范围为启动方案，未通过真实时间外回测；不得解释为综合排名或盈利概率。运行参数以冻结的researchProfile为准",
   "portfolio": {
+    "launchGate": {"legacyDays": 730, "unknownMinimumObservedDays": 14, "lookbackDays": 28, "unknownEarlySlotsAllowed": false},
     "benchmark": 1,
     "newEntry": 2,
     "accelerator": 2,
     "earlyFlex": 0,
     "emptyBackfill": false,
-    "sourceAlgorithm": "capture-research-leads-2.4.0",
+    "sourceAlgorithm": "capture-research-leads-2.5.0",
     "researchFill": {
       "enabled": true,
       "maximumTotal": 5,

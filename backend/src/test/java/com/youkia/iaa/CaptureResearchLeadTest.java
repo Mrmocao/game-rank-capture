@@ -18,7 +18,7 @@ class CaptureResearchLeadTest {
         Map<String,Object> r=new LinkedHashMap<>();r.put("observation_id",observation);r.put("source_key","gravity-"+platform.toLowerCase(Locale.ROOT));r.put("origin_family","gravity-engine");r.put("source_authority","THIRD_PARTY");
         r.put("chart_key",chart);r.put("board_name",chart);r.put("platform",platform);r.put("region","cn");r.put("business_date",date);r.put("captured_at",cutoff.minusMinutes(10));r.put("available_at",cutoff.minusMinutes(5));
         r.put("parser_version","SYNTHETIC-test");r.put("completeness","REQUESTED_RANGE_COMPLETE");r.put("requested_top_n",100);r.put("contiguous_top_n",100);r.put("source_url","https://example.com/SYNTHETIC");r.put("raw_sha256","SYNTHETIC-"+observation);
-        r.put("rank_position",rank);r.put("name",name);r.put("developer",developer);r.put("external_id",null);r.put("evidence_locator","#synthetic-row-"+rank);r.put("source_fields","{\"tags\":[\"休闲\",\""+family+"\"]}");return r;
+        r.put("rank_position",rank);r.put("name",name);r.put("developer",developer);r.put("external_id",null);r.put("evidence_locator","#synthetic-row-"+rank);r.put("source_fields","{\"releaseDate\":\"2026-10-01\",\"tags\":[\"休闲\",\""+family+"\"]}");return r;
     }
     @SuppressWarnings("unchecked") List<Map<String,Object>> allItems(Map<String,Object> result){return (List<Map<String,Object>>)result.get("items");}
     // Existing tests specifically assert the strict opportunity gates, alongside the fill-policy tests below.
@@ -31,6 +31,44 @@ class CaptureResearchLeadTest {
         assertEquals("SOURCE_LABEL_MATCH_UNVERIFIED",lead.get("identityStatus"));assertEquals(false,lead.get("formalEligible"));assertEquals("UNKNOWN",lead.get("monetization"));assertFalse(lead.containsKey("productId"));
         var history=(List<Map<String,Object>>)lead.get("history");assertEquals(7,history.size());assertTrue(history.stream().allMatch(p->p.containsKey("evidence")));
         assertTrue(lead.get("whyNow").toString().contains("不等于用户量增长"));
+    }
+    @Test void knownLegacyLaunchDateStaysInObservationAndCannotConsumeShortlist(){
+        List<Map<String,Object>> rows=new ArrayList<>();
+        for(int i=0;i<7;i++){
+            var r=row(i+1,"popularity","WECHAT","SYNTHETIC老游戏","SYNTHETIC发行方",day.minusDays(6-i),5,"跑酷");
+            r.put("source_fields","{\"tags\":[\"休闲\",\"跑酷\"],\"releaseDate\":\"2020-01-01\"}");rows.add(r);
+        }
+        var result=service.evaluate(rows,day,cutoff,5);assertTrue(allItems(result).isEmpty());
+        var audit=audit(result).getFirst();assertEquals("LEGACY",audit.get("launchAgeStatus"));assertEquals("LEGACY_EXCLUDED",audit.get("portfolioGroup"));
+        assertTrue(audit.get("exclusionReason").toString().contains("成熟存量游戏"));
+    }
+    @Test void unknownLaunchNeedsFourteenActualDaysNotElapsedTime(){
+        List<Map<String,Object>> rows=new ArrayList<>();
+        for(int i=0;i<14;i++){
+            var r=row(i+1,"popularity","WECHAT","SYNTHETIC未知日期","发行方",day.minusDays(i),5,"消除");
+            r.put("source_fields","{\"tags\":[\"消除\"]}");rows.add(r);
+        }
+        var result=service.evaluate(rows,day,cutoff,5);assertEquals(1,allItems(result).size());
+        assertEquals(14,allItems(result).getFirst().get("longObservationDays"));
+        rows.remove(10);assertTrue(allItems(service.evaluate(rows,day,cutoff,5)).isEmpty(),"13 observed days over 14 elapsed days is insufficient");
+    }
+    @Test void unknownFutureAndInvalidDatesCannotClaimEarlyOpportunity(){
+        for(String release:List.of("","2026-11-20","2026-02-30")){
+            var rows=opportunityRows(1,new int[]{75,58});
+            rows.stream().filter(r->"SYNTHETIC新增".equals(r.get("name"))).forEach(r->r.put("source_fields","{\"tags\":[\"消除\"],\"releaseDateRaw\":\""+release+"\"}"));
+            var lead=named(service.evaluate(rows,day,cutoff,5),"SYNTHETIC新增");
+            assertEquals(false,lead.get("selected"));assertEquals(false,lead.get("launchGatePassed"));
+        }
+    }
+    @Test void actualAppleReleaseDateRawExcludesLegacyAtBoundary(){
+        for(int age:List.of(729,730)){
+            List<Map<String,Object>> rows=new ArrayList<>();
+            for(int d=0;d<7;d++){
+                var r=row(d+1,"top-free","IOS","SYNTHETIC苹果","发行方",day.minusDays(d),5,"消除");
+                r.put("source_fields","{\"tags\":[\"消除\"],\"releaseDateRaw\":\""+day.minusDays(age)+"T00:00:00Z\"}");rows.add(r);
+            }
+            assertEquals(age<730?1:0,allItems(service.evaluate(rows,day,cutoff,5)).size());
+        }
     }
     @Test void cutoffExcludesLateKnowledgeAndNeverFillsMissingHistoricalDays(){
         var old=row(1,"popularity","WECHAT","SYNTHETIC","发行方",day.minusDays(1),30,"消除");
@@ -170,12 +208,12 @@ class CaptureResearchLeadTest {
         List<Map<String,Object>> rows=new ArrayList<>();
         for(int i=0;i<7;i++){
             var r=row(i+1,"popularity","DOUYIN","SYNTHETIC描述候选","发行方",day.minusDays(6-i),19-i,"未知");
-            r.put("source_fields","{\"tags\":[],\"descriptionRaw\":\"画风简约的挪车消除小游戏，DAU百万为来源自述\"}");rows.add(r);
+            r.put("source_fields","{\"releaseDate\":\"2026-10-01\",\"tags\":[],\"descriptionRaw\":\"画风简约的挪车消除小游戏，DAU百万为来源自述\"}");rows.add(r);
         }
         var selected=items(service.evaluate(rows,day,cutoff,5)).getFirst();
         assertEquals("消除",selected.get("family"));assertEquals("UNKNOWN",selected.get("monetization"));assertEquals(false,selected.get("formalEligible"));
         assertTrue(selected.get("gameplayEvidence").toString().contains("SOURCE_DESCRIPTION"));
-        for(var r:rows)r.put("source_fields","{\"tags\":[],\"descriptionRaw\":\"DAU百万\"}");
+        for(var r:rows)r.put("source_fields","{\"releaseDate\":\"2026-10-01\",\"tags\":[],\"descriptionRaw\":\"DAU百万\"}");
         assertTrue(items(service.evaluate(rows,day,cutoff,5)).isEmpty());
     }
     @Test void lateArrivalOfOlderMaterialCannotReplaceNewerCapture(){
@@ -250,7 +288,7 @@ class CaptureResearchLeadTest {
         var acceleration=opportunityRows(4,new int[]{95,92,90,85,65});
         var more=new ArrayList<Map<String,Object>>();
         for(var r:acceleration){r.put("chart_key","most_played");r.put("observation_id",((Number)r.get("observation_id")).longValue()+5000);
-            if("SYNTHETIC新增".equals(r.get("name"))){r.put("name","SYNTHETIC加速1");r.put("source_fields","{\"tags\":[\"塔防\"]}");var copy=new LinkedHashMap<>(r);copy.put("name","SYNTHETIC加速2");copy.put("rank_position",((Number)r.get("rank_position")).intValue()-1);more.add(copy);}
+            if("SYNTHETIC新增".equals(r.get("name"))){r.put("name","SYNTHETIC加速1");r.put("source_fields","{\"releaseDate\":\"2026-10-01\",\"tags\":[\"塔防\"]}");var copy=new LinkedHashMap<>(r);copy.put("name","SYNTHETIC加速2");copy.put("rank_position",((Number)r.get("rank_position")).intValue()-1);more.add(copy);}
             if("SYNTHETIC基线0".equals(r.get("name")))for(int i=5;i<9;i++){var copy=new LinkedHashMap<>(r);copy.put("name","SYNTHETIC基线"+i);copy.put("rank_position",60+i);more.add(copy);}
         }
         acceleration.addAll(more);rows.addAll(acceleration);

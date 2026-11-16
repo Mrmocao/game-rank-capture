@@ -8,7 +8,8 @@ import java.util.*;
 public final class OpportunityPortfolio {
     private OpportunityPortfolio() {}
     public static final int BENCHMARK_LIMIT=1, NEW_ENTRY_LIMIT=2, ACCELERATOR_LIMIT=2;
-    public static final String POLICY="5席目标：成熟基准1席（20%）、新入榜2席（40%）、单榜加速2席（40%）。不再单列第5个额外早期席；严格机会席不足时，用研究补位席补足最多5项，但补位对象仍标记待核，不提升为纯IAA正式推荐。正式精选占成熟基准席，不降低IAA资格。新入榜须此前连续3日同口径完整Top100未出现，入榜不超过3日、至少2日连续记录且实际上升≥10名。单榜加速须同样的入榜基线、入榜4—14日，最近3日连续、两日上升≥15名、最新日增速比前日多≥5名，且在至少5个可比样本的同榜两日增幅前20%。28日内回归不算新入榜；名称与发行方匹配仍待身份核验。成熟基准（含已确认产品及同平台稳定ID别名）不得通过研究补位绕过1席上限。比例为满额5项的目标，不足时不放宽证据。研究补位须至少5/7日、最近观察连续3日、同榜Top20或涨≥10且Top50；最多容忍整榜延迟1天。海外缺少玩法时只作待识别研究，须有稳定应用ID。跨榜优先覆盖最多2项海外，其后补不同平台；榜内按趋势、观察天数、名次排序，同平台同应用跨国只占一席。缺失日期不回填。不同榜不合分，优先早期席、同榜排序、跨榜稳定轮转、单玩法最多2项。排名上涨不是用户增长，首次入榜不是首次上线，更不证明新赛道。阈值为待回测研究默认值。已确认统一产品跨平台只占一席，保留各榜独立名次；同名仅提示待核。跨平台扩散同组优先，走势分歧降序，多平台成熟头部只占基准席；不跨平台传播IAA/玩法结论。";
+    public static final int LEGACY_AGE_DAYS=730, EXTENDED_AGE_OBSERVATION_DAYS=14;
+    public static final String POLICY="5席目标：成熟基准1席（20%）、新入榜2席（40%）、单榜加速2席（40%）。已知上线满24个月的老游戏默认不进入每周精选，只保留市场档案与长期观察；当前不提供自动例外。上线日期未知不冒充新机会，在28日窗口至少有14个实际观察日才可进入基准或待核研究补位，不能进入新入榜/加速席。新入榜须此前连续3日同口径完整Top100未出现，入榜不超过3日、至少2日连续记录且实际上升≥10名。单榜加速须同样的入榜基线、入榜4—14日，最近3日连续、两日上升≥15名、最新日增速比前日多≥5名，且在至少5个可比样本的同榜两日增幅前20%。28日内回归不算新入榜；首次入榜不等于首次上线。成熟基准（含已确认产品及同平台稳定ID别名）不得通过研究补位绕过1席上限。比例为满额5项的目标，不足时不放宽证据。研究补位须至少5/7日、最近观察连续3日、同榜Top20或涨≥10且Top50；最多容忍整榜延迟1天。海外缺少玩法时只作待识别研究，须有稳定应用ID。跨榜优先覆盖最多2项海外，其后补不同平台；榜内按趋势、观察天数、名次排序，同平台同应用跨国只占一席。缺失日期不回填。不同榜不合分，排名上涨不是用户增长，也不证明新赛道。";
     public static final List<Map<String,String>> DATA_REQUIREMENTS=List.of(
         Map.of("priority","P0","data","连续28—60天同榜完整Top100（条件允许Top500）及业务日期、发布时间、采集时间、完整度","purpose","区分首次观察、真正新入榜、重返榜单和缺采；按日发现无需等到周末","availability","现有来源继续积累；历史回采受来源可访问范围约束"),
         Map.of("priority","P0","data","平台稳定appid、发行方、首发日期、版本更新时间及旧名称","purpose","排除改名/换皮/重发；首次入榜不等于新上线","availability","当前微信/抖音榜单缺稳定ID，须补官方详情或发行方证据"),
@@ -48,15 +49,20 @@ public final class OpportunityPortfolio {
             entry.put("meaning","仅指28日可见窗口内首次进入该来源Top100；不证明新上线或历史从未入榜。名称/发行方更名仍需排查。");
             entry.put("reason",reentry?"28日内已有更早记录，中间退出或缺采后回归，不算新增":confirmed?"入榜前3个连续业务日完整Top100没有此来源身份/标签":"缺少入榜前连续3日完整Top100或可匹配身份，无法确认新入榜");
             item.put("entryEvidence",entry);item.put("portfolioGroup","OBSERVE");
+            item.put("longObservationDays",days.size());
+            item.put("longObservationEvidence",days.values().stream().map(OpportunityPortfolio::presenceEvidence).toList());
+            applyLaunchGate(item, day);
             item.put("noveltyStatus","UNVERIFIED");item.put("opportunityHypothesis","针对“"+s(item,"name")+"”的来源分类“"+s(item,"family")+"”，核对核心操作、目标/失败条件和关卡机制，与至少3款近似竞品逐项对照。先验证玩法差异是否成立，再验证能否解释本榜走势；当前标签与排名不足以认定新赛道。");
             Integer gain1=gain(days,day.minusDays(1),day),gain0=gain(days,day.minusDays(2),day.minusDays(1));
             Map<String,Object> momentum=new LinkedHashMap<>();momentum.put("latestDailyGain",gain1);momentum.put("previousDailyGain",gain0);
             momentum.put("twoDayGain",gain1!=null&&gain0!=null?gain1+gain0:null);momentum.put("acceleration",gain1!=null&&gain0!=null?gain1-gain0:null);
             momentum.put("comparableCount",0);momentum.put("withinChartOrder",null);item.put("momentum",momentum);
             if(gain1!=null&&gain0!=null)comparisons.computeIfAbsent(scope,k->new ArrayList<>()).add(item);
-            boolean eligible=current&&SourceIdentityService.FAMILIES.contains(s(item,"family"))&&!"其他/重度".equals(s(item,"family"))&&!Boolean.TRUE.equals(item.get("hasBestsellerSignal"))&&!formalLabels.contains(s(item,"platform")+":"+s(item,"name"));
-            item.put("earlyEligible",eligible&&confirmed);
-            if(eligible&&confirmed&&age>=1&&age<=3&&days.size()==age+1&&gain1!=null&&gain1>0&&n(days.get(first),"rank_position")-n(days.get(day),"rank_position")>=10){
+            boolean legacy="LEGACY".equals(s(item,"launchAgeStatus"));
+            boolean eligible=current&&!legacy&&Boolean.TRUE.equals(item.get("launchGatePassed"))&&SourceIdentityService.FAMILIES.contains(s(item,"family"))&&!"其他/重度".equals(s(item,"family"))&&!Boolean.TRUE.equals(item.get("hasBestsellerSignal"))&&!formalLabels.contains(s(item,"platform")+":"+s(item,"name"));
+            boolean early=eligible&&"KNOWN".equals(s(item,"launchDateStatus"));
+            item.put("earlyEligible",early&&confirmed);
+            if(early&&confirmed&&age>=1&&age<=3&&days.size()==age+1&&gain1!=null&&gain1>0&&n(days.get(first),"rank_position")-n(days.get(day),"rank_position")>=10){
                 item.put("portfolioGroup","NEW_ENTRY");item.put("exclusionReason","");
             }else if(eligible&&s(item,"exclusionReason").isBlank())item.put("portfolioGroup","BENCHMARK");
             if(formalLabels.contains(s(item,"platform")+":"+s(item,"name")))item.put("exclusionReason","正式精选已有同平台同名项，保守避重；待身份核验后再关联");
@@ -152,7 +158,7 @@ public final class OpportunityPortfolio {
     }
     @SuppressWarnings("unchecked") private static boolean researchEligible(Map<String,Object> r,LocalDate day,Set<String> todayScopes){
         int age;try{age=(int)ChronoUnit.DAYS.between(LocalDate.parse(s(r,"latestObservedDate")),day);}catch(Exception e){return false;}
-        if(age<0||age>1||Boolean.TRUE.equals(r.get("hasBestsellerSignal")))return false;
+        if(!Boolean.TRUE.equals(r.get("launchGatePassed"))||age<0||age>1||Boolean.TRUE.equals(r.get("hasBestsellerSignal"))||"LEGACY".equals(s(r,"launchAgeStatus")))return false;
         if(age==1&&todayScopes.contains(s(r,"scopeKey")))return false; // A missing game in today's chart is not a delayed chart.
         boolean knownFamily=SourceIdentityService.FAMILIES.contains(s(r,"family"))&&!"其他/重度".equals(s(r,"family"));
         boolean overseasIdentification="GOOGLE_PLAY".equals(s(r,"platform"))&&!"CN".equalsIgnoreCase(s(r,"region"))
@@ -176,7 +182,7 @@ public final class OpportunityPortfolio {
     @SuppressWarnings("unchecked") private static Map<String,Object> momentum(Map<String,Object> r){return (Map<String,Object>)r.get("momentum");}
     private static void take(List<Map<String,Object>> audit,String group,int quota,int limit,List<Map<String,Object>> selected,Set<String> used,Map<String,Integer> families){
         Map<String,List<Map<String,Object>>> queues=new TreeMap<>();
-        for(var r:audit)if(s(r,"exclusionReason").isBlank()&&!Boolean.TRUE.equals(r.get("selected"))&&(group.equals(s(r,"portfolioGroup"))||group.equals("EARLY_FLEX")&&Set.of("NEW_ENTRY","ACCELERATOR").contains(s(r,"portfolioGroup"))))queues.computeIfAbsent(s(r,"scopeKey"),k->new ArrayList<>()).add(r);
+        for(var r:audit)if(Boolean.TRUE.equals(r.get("launchGatePassed"))&&s(r,"exclusionReason").isBlank()&&!Boolean.TRUE.equals(r.get("selected"))&&!"LEGACY".equals(s(r,"launchAgeStatus"))&&(group.equals(s(r,"portfolioGroup"))||group.equals("EARLY_FLEX")&&Set.of("NEW_ENTRY","ACCELERATOR").contains(s(r,"portfolioGroup"))))queues.computeIfAbsent(s(r,"scopeKey"),k->new ArrayList<>()).add(r);
         Comparator<Map<String,Object>> order=Comparator.<Map<String,Object>>comparingInt(r->momentum(r).get("twoDayGain") instanceof Number n?-n.intValue():0).thenComparingInt(r->n(r,"latestRank")).thenComparing(r->s(r,"leadKey"));
         Comparator<Map<String,Object>> benchmarkOrder=Comparator.<Map<String,Object>,Boolean>comparing(r->Boolean.TRUE.equals(r.get("risingLabelSequence"))).reversed()
                 .thenComparing(Comparator.comparingInt((Map<String,Object> r)->n(r,"observationDays")).reversed()).thenComparingInt(r->n(r,"latestRank")).thenComparing(r->s(r,"leadKey"));
@@ -190,7 +196,32 @@ public final class OpportunityPortfolio {
             }
         }}
     }
-    private static String label(String g){return switch(g){case "BENCHMARK"->"成熟基准 · 20%";case "NEW_ENTRY"->"新入榜机会 · 40%";case "ACCELERATOR"->"单榜加速机会 · 40%";case "RESEARCH_FLEX"->"研究补位 · 待核";default->"额外早期研究 · 最多1席";};}
+    private static String label(String g){return switch(g){case "BENCHMARK"->"成熟基准 · 20%";case "NEW_ENTRY"->"新入榜机会 · 40%";case "ACCELERATOR"->"单榜加速机会 · 40%";case "RESEARCH_FLEX"->"研究补位 · 待核";case "LEGACY_EXCLUDED"->"存量观察 · 不进入精选";default->"额外早期研究 · 最多1席";};}
+    public static void applyLaunchGate(Map<String,Object> item, LocalDate day){
+        String raw=s(item,"launchDate");
+        item.put("launchGatePassed",false);
+        item.put("launchDateStatus",raw.isBlank()?"UNKNOWN":"INVALID");item.put("launchAgeStatus","UNKNOWN");
+        if(!raw.isBlank())try{
+            LocalDate launch=LocalDate.parse(raw);
+            if(launch.isAfter(day))throw new IllegalArgumentException("future launch");
+            int age=(int)ChronoUnit.DAYS.between(launch,day);
+            item.put("launchDateStatus","KNOWN");item.put("launchAgeDays",age);item.put("requiredObservationDays",5);
+            if(age>=LEGACY_AGE_DAYS){
+                item.put("launchAgeStatus","LEGACY");item.put("portfolioGroup","LEGACY_EXCLUDED");
+                item.put("exclusionReason","来源上架已"+age+"天（≥"+LEGACY_AGE_DAYS+"天），属于成熟存量游戏；只进长期观察，不进入本周精选");
+            }else{item.put("launchAgeStatus","WITHIN_730_DAYS");item.put("launchGatePassed",true);}
+            return;
+        }catch(java.time.DateTimeException|IllegalArgumentException ignored){/* Invalid/future dates are unknown, never age zero. */}
+        item.put("requiredObservationDays",EXTENDED_AGE_OBSERVATION_DAYS);
+        int observed=item.get("longObservationDays") instanceof Number n?n.intValue():0;
+        String gap="首发/上架日期缺失或无法核验：28日窗口实际观察"+observed+"日，需至少14日；只能作基准/待核研究，不能宣称新游戏";
+        item.put("launchDateGap",gap);
+        item.put("launchGatePassed",observed>=EXTENDED_AGE_OBSERVATION_DAYS);
+        if(observed<EXTENDED_AGE_OBSERVATION_DAYS){
+            item.put("portfolioGroup","AGE_OBSERVATION");
+            item.put("exclusionReason",s(item,"exclusionReason")+(s(item,"exclusionReason").isBlank()?"":"；")+gap);
+        }
+    }
     private static Integer gain(Map<LocalDate,Map<String,Object>> days,LocalDate a,LocalDate b){return days.containsKey(a)&&days.containsKey(b)?n(days.get(a),"rank_position")-n(days.get(b),"rank_position"):null;}
     private static String s(Map<String,Object> r,String k){return Objects.toString(r.get(k),"");}
     private static int n(Map<String,Object> r,String k){return r.get(k) instanceof Number n?n.intValue():Integer.parseInt(r.get(k).toString());}

@@ -4,20 +4,37 @@ import {ElMessage} from 'element-plus'
 const props=defineProps<{mode:string;date:string}>()
 const loading=ref(false),error=ref(''),rows=ref<any[]>([]),q=ref(''),domain=ref(''),profile=ref<any>(null),params=ref<any>({}),actor=ref(''),versionId=ref(''),packetText=ref(''),simulationText=ref(''),simulation=ref<any>(null)
 const evidenceOpen=ref(false),selected=ref<any>(null),constraintRows=ref<any[]>([]),selectionId=ref(''),outcomeText=ref(''),outcomeRows=ref<any[]>([])
+const taxonomyRows=ref<any[]>([]),taxonomyForm=ref({termType:'GENRE',canonicalName:'',definition:'',actor:''}),taxonomyTermId=ref('')
+const taxonomyEvidence=ref<any[]>([]),taxonomyBusy=ref(false)
+const taxonomyObservation=ref({actor:'',scope:'PRODUCT',market:'',productId:'',platformVersionId:'',sourceName:'',sourceUrl:'',excerpt:'',observedDate:props.date})
+const typeNames:Record<string,string>={GENRE:'游戏类型',THEME:'题材',MECHANIC:'核心机制'}
 async function request(path:string,body?:unknown,headers?:Record<string,string>){const r=await fetch('/api/v1/research'+path,body===undefined?undefined:{method:'POST',headers:{'Content-Type':'application/json',...headers},body:JSON.stringify(body)});const b=await r.json();if(!r.ok)throw new Error(b.error?.message||'请求失败');return b.data}
+async function taxonomyRequest(path:string,body?:unknown){const r=await fetch('/api/v1/market-taxonomy'+path,body===undefined?undefined:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const b=await r.json();if(!r.ok)throw new Error(b.error?.message||'请求失败');return b.data}
 const names:Record<string,string>={catalog:'信息采集范围',research:'研究目标与推荐',opinions:'玩家评价与舆情',families:'玩法与赛道',materials:'研究材料与补证',planning:'采集接入规划',experiments:'验证反馈'}
 const dimNames=['市场持续性 D','近期增势 M','玩家认可 P','制作适配 F','素材验证 A','改进空间 O']
 const filtered=computed(()=>rows.value.filter(r=>(!domain.value||r.domain===domain.value)&&JSON.stringify(r).toLowerCase().includes(q.value.toLowerCase())))
 const domains=computed(()=>[...new Set(rows.value.map(r=>r['信息域']))])
-const families=computed(()=>{const m=new Map<string,any>();for(const r of rows.value){const f=r.material?.family||'未知';if(!m.has(f))m.set(f,{name:f,products:new Set(),versions:0,markets:new Set()});const x=m.get(f);x.products.add(r.product_id);x.versions++;x.markets.add(r.market)}return [...m.values()].map(x=>({...x,products:x.products.size,markets:[...x.markets].join(' / ')}))})
+
 const weightTotal=computed(()=>params.value.weights?.reduce((s:number,v:number)=>s+Number(v||0),0)||0)
+const taxonomyTerms=computed(()=>taxonomyRows.value)
 async function load(){loading.value=true;error.value='';try{
  if(props.mode==='catalog')rows.value=await request('/catalog')
  else if(props.mode==='research'){profile.value=await request('/profile');params.value=structuredClone(profile.value.parameters)}
  else if(props.mode==='opinions')rows.value=await request('/opinions?date='+props.date)
- else if(['families','materials'].includes(props.mode)){rows.value=await request('/packets?date='+props.date);if(props.mode==='materials')constraintRows.value=await request('/constraints')}
+ else if(props.mode==='families'){taxonomyRows.value=await taxonomyRequest('?date='+props.date)}
+ else if(props.mode==='materials'){rows.value=await request('/packets?date='+props.date);constraintRows.value=await request('/constraints')}
  }catch(e:any){error.value=e.message}finally{loading.value=false}}
 watch(()=>[props.mode,props.date],load,{immediate:true})
+
+async function createTaxonomyTerm(){if(taxonomyBusy.value)return;taxonomyBusy.value=true;try{const result=await taxonomyRequest('/terms',taxonomyForm.value);taxonomyTermId.value=String(result.id);ElMessage.success(result.reused?'词条已存在，已定位':'分类词条已建立');taxonomyRows.value=await taxonomyRequest('?date='+props.date);await showTaxonomyEvidence(taxonomyTermId.value)}catch(e:any){ElMessage.error(e.message)}finally{taxonomyBusy.value=false}}
+async function showTaxonomyEvidence(id:string){taxonomyTermId.value=String(id);taxonomyEvidence.value=await taxonomyRequest('/terms/'+encodeURIComponent(id)+'/observations?date='+props.date)}
+async function chooseTaxonomy(row:any){try{await showTaxonomyEvidence(String(row.id))}catch(e:any){ElMessage.error(e.message)}}
+async function saveTaxonomyObservation(){if(taxonomyBusy.value)return;taxonomyBusy.value=true;try{
+ if(!taxonomyTermId.value)throw Error('请先选择分类词条');
+ const f=taxonomyObservation.value;const body={...f,productId:f.productId||null,platformVersionId:f.platformVersionId||null};
+ const result=await taxonomyRequest('/terms/'+encodeURIComponent(taxonomyTermId.value)+'/observations',body);
+ ElMessage.success(result.reused?'同一证据已存在':'分类证据已登记，等待复核');taxonomyRows.value=await taxonomyRequest('?date='+props.date);await showTaxonomyEvidence(taxonomyTermId.value)
+ }catch(e:any){ElMessage.error(e.message)}finally{taxonomyBusy.value=false}}
 async function publish(){try{profile.value=await request('/profile',{actor:actor.value,parameters:params.value});ElMessage.success('研究方案已发布，旧报告保持冻结')}catch(e:any){ElMessage.error(e.message)}}
 async function simulate(){try{simulation.value=await request('/simulations',{isSimulation:true,parameters:params.value,candidates:JSON.parse(simulationText.value)});ElMessage.success('只读试算完成，未写入事实和报告')}catch(e:any){ElMessage.error(e.message)}}
 async function importPacket(){try{if(!versionId.value)throw Error('请填写平台版本ID');const b=JSON.parse(packetText.value);const result=await request('/versions/'+encodeURIComponent(versionId.value)+'/packets',b);ElMessage.success(result.reused?'同材料已存在，复用记录':'材料已登记并保留引用');await load()}catch(e:any){ElMessage.error(e.message)}}
@@ -60,8 +77,33 @@ async function resolve(){try{await request('/constraints/'+resolution.value.id+'
   <article v-for="r in rows" :key="r.id" class="insight-panel"><div class="section-heading"><h2>{{r.name}}</h2><span>{{r.platform}} / {{r.market}} · {{r.state}}</span><el-button @click="show(r)">原文与证据</el-button></div><p>14日窗口：原始 {{r.summary.rawCount}} 条 / 去重 {{r.summary.clusters}} 簇；正向 {{r.summary.positive}} / 可判断 {{r.summary.denominator}}；混合或未知 {{r.summary.ambiguous}}。</p><p>{{r.summary.comparable?'抽样声明可比，仍需评估代表性':'仅定性展示：跨来源/抽样范围不一致或缺可比声明'}}</p><div class="card-tags"><span v-for="(n,topic) in r.summary.topics" :key="topic">{{topic}} · {{n}}</span></div><p class="muted">{{r.summary.notice}}</p></article>
  </template>
  <template v-else-if="mode==='families'">
-  <div class="notice-band">玩法相似只建立家族关系，不合并产品身份。这里统计已登记研究范围，不代表全市场供给或蓝海结论。</div>
-  <el-table :data="families" border><el-table-column prop="name" label="玩法家族"/><el-table-column prop="products" label="独立产品数"/><el-table-column prop="versions" label="材料版本数"/><el-table-column prop="markets" label="覆盖市场"/></el-table><p v-if="!families.length" class="empty">玩法尚未核验，请先登记实机材料与机制分类。</p>
+  <div class="notice-band">这里建立市场分类词条：类型、题材、核心机制分开管理；每个关联必须带来源摘录和适用范围。词条不是产品身份，也不会直接改变推荐资格。</div>
+  <div class="insight-panel taxonomy-create"><h3>建立分类词条</h3>
+   <el-form label-position="top" class="research-grid">
+    <el-form-item label="分类维度"><el-select v-model="taxonomyForm.termType" aria-label="分类维度"><el-option v-for="(label,key) in typeNames" :key="key" :label="label" :value="key"/></el-select></el-form-item>
+    <el-form-item label="规范名称"><el-input v-model="taxonomyForm.canonicalName" :maxlength="160" placeholder="例如：合成消除"/></el-form-item>
+    <el-form-item label="登记人"><el-input v-model="taxonomyForm.actor" :maxlength="100" placeholder="词条登记人"/></el-form-item>
+    <el-form-item label="分类边界"><el-input v-model="taxonomyForm.definition" type="textarea" :maxlength="2000" placeholder="哪些特征属于此类、哪些不属于"/></el-form-item>
+   </el-form><el-button type="primary" :loading="taxonomyBusy" @click="createTaxonomyTerm">建立/定位词条</el-button>
+  </div>
+  <el-table :data="taxonomyTerms" border><el-table-column label="分类维度" width="110"><template #default="{row}">{{typeNames[row.term_type]||row.term_type}}</template></el-table-column><el-table-column prop="canonical_name" label="规范名称" min-width="150"/><el-table-column prop="definition" label="分类边界" min-width="240"/><el-table-column prop="observation_count" label="证据数" width="90"/><el-table-column prop="latest_observed_date" label="最近观察" width="120"/><el-table-column label="建档" width="120"><template #default="{row}"><el-button link @click="chooseTaxonomy(row)">查看/登记证据</el-button></template></el-table-column></el-table>
+  <p v-if="!taxonomyTerms.length" class="empty">尚无市场分类词条，请先建立类型、题材或核心机制。</p>
+  <div class="insight-panel taxonomy-observe"><h3>登记分类证据</h3><p class="muted">分类证据目前保存为待复核材料，不自动认定新玩法或调整推荐分数。先建立词条，再登记关联。</p>
+   <el-form label-position="top" class="research-grid">
+    <el-form-item label="关联词条"><el-select v-model="taxonomyTermId" placeholder="选择分类词条" @change="(id:string)=>chooseTaxonomy({id})"><el-option v-for="t in taxonomyTerms" :key="t.id" :label="typeNames[t.term_type]+' · '+t.canonical_name" :value="String(t.id)"/></el-select></el-form-item>
+    <el-form-item label="适用范围"><el-select v-model="taxonomyObservation.scope" @change="()=>{taxonomyObservation.productId='';taxonomyObservation.platformVersionId=''}"><el-option label="统一产品" value="PRODUCT"/><el-option label="平台版本" value="VERSION"/><el-option label="市场样本（未关联产品）" value="MARKET"/></el-select></el-form-item>
+    <el-form-item v-if="taxonomyObservation.scope!=='MARKET'" label="统一产品ID"><el-input v-model="taxonomyObservation.productId" placeholder="产品档案中的ID；版本级可不填"/></el-form-item>
+    <el-form-item v-if="taxonomyObservation.scope==='VERSION'" label="平台版本ID"><el-input v-model="taxonomyObservation.platformVersionId" placeholder="核实的平台版本ID"/></el-form-item>
+    <el-form-item label="适用市场"><el-select v-model="taxonomyObservation.market" clearable><el-option v-for="m in ['CN','US','GB','DE','FR']" :key="m" :label="m" :value="m"/></el-select></el-form-item>
+    <el-form-item label="观察日期"><el-input v-model="taxonomyObservation.observedDate" type="date"/></el-form-item>
+    <el-form-item label="来源名称"><el-input v-model="taxonomyObservation.sourceName" placeholder="例如：发行方玩法说明" :maxlength="200"/></el-form-item>
+    <el-form-item label="来源链接"><el-input v-model="taxonomyObservation.sourceUrl" placeholder="https://..." :maxlength="2000"/></el-form-item>
+    <el-form-item label="证据登记人"><el-input v-model="taxonomyObservation.actor" placeholder="证据登记人" :maxlength="100"/></el-form-item>
+    <el-form-item label="原文摘录 / 实机观察"><el-input v-model="taxonomyObservation.excerpt" type="textarea" :rows="4" :maxlength="2000" placeholder="保存支持该分类的具体原句；不要用标签代替实机核验"/></el-form-item>
+   </el-form><el-button type="primary" :loading="taxonomyBusy" @click="saveTaxonomyObservation">登记分类证据</el-button>
+   <h3>当前词条的证据记录（最近200条）</h3><p v-if="!taxonomyEvidence.length" class="muted">尚无证据记录；保存后可在此追溯。</p>
+   <article v-for="e in taxonomyEvidence" :key="e.id" class="taxonomy-evidence"><b>{{e.source_name}} · {{e.observed_date}}</b><p>{{e.product_name||e.version_name||'市场样本'}} · {{e.market||'市场未指定'}} · {{e.status==='PENDING_REVIEW'?'待复核':e.status}} · {{e.actor}}</p><p>{{e.excerpt}}</p><a v-if="e.source_url" :href="e.source_url" target="_blank" rel="noopener noreferrer">查看原始来源</a></article>
+  </div>
  </template>
  <template v-else-if="mode==='experiments'">
   <div class="notice-band">每条反馈绑定独立选用记录。完成制作不等于测试成功；样本不足保存unknown及原因。</div>
@@ -76,5 +118,5 @@ async function resolve(){try{await request('/constraints/'+resolution.value.id+'
 </section>
 </template>
 <style scoped>
-.research-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:18px 0}.research-workspace .el-button{margin-top:8px}.research-workspace input[type=file]{max-width:210px}.research-workspace pre{white-space:pre-wrap}.research-workspace .insight-panel{overflow:auto}@media(max-width:1050px){.research-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.research-grid{grid-template-columns:1fr}}
+.research-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:18px 0}.research-workspace .el-button{margin-top:8px}.research-workspace input[type=file]{max-width:210px}.research-workspace pre{white-space:pre-wrap}.taxonomy-evidence{border-top:1px solid #dce6f4;padding:14px 0;overflow-wrap:anywhere}.taxonomy-create,.taxonomy-observe{margin:16px 0}.research-workspace .insight-panel{overflow:auto}@media(max-width:1050px){.research-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.research-grid{grid-template-columns:1fr}}
 </style>

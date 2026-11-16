@@ -9,7 +9,7 @@ import java.util.*;
 
 /** Research leads from immutable source observations. Never assigns product identities or IAA eligibility. */
 public final class CaptureResearchLeadService {
-    public static final String VERSION = "capture-research-leads-2.4.0";
+    public static final String VERSION = "capture-research-leads-2.5.0";
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
     public CaptureResearchLeadService(JdbcTemplate jdbc, ObjectMapper mapper) { this.jdbc=jdbc; this.mapper=mapper; }
@@ -29,7 +29,10 @@ public final class CaptureResearchLeadService {
 
             """,tenant,day.minusDays(27),day,knowledgeCutoff,knowledgeCutoff);
         new SourceIdentityService(jdbc,mapper,tenant).enrich(rows,day,knowledgeCutoff);
-        return evaluate(rows, day, knowledgeCutoff, remainingSlots,formalCount,formalLabels);
+        var result=evaluate(rows, day, knowledgeCutoff, remainingSlots,formalCount,formalLabels);
+        @SuppressWarnings("unchecked") var leads=(List<Map<String,Object>>)result.get("candidateAudit");
+        new MarketTaxonomyService(jdbc,tenant).attachEvidence(leads,day,knowledgeCutoff);
+        return result;
     }
 
     /** Pure observation evaluation, also used by the contract tests. All timestamps remain in the frozen evidence. */
@@ -104,6 +107,10 @@ public final class CaptureResearchLeadService {
             item.put("signalType",growth?"RANK_GROWTH":headHeat?"HEAD_HEAT":"OBSERVE_ONLY");
             item.put("signalLabel",growth?"榜单增势研究":headHeat?"头部热度 / 基准观察":"继续观察");
             item.put("thumbnailUrl",fields(last).path("thumbnailUrl").asText(""));
+            String launchDate=sourceLaunchDate(last);
+            item.put("launchDate",launchDate);
+            item.put("launchDateBasis",launchDate.isBlank()?"UNKNOWN":"SOURCE_LISTING_DATE");
+            if(!launchDate.isBlank())item.put("launchDateEvidence",evidence(last));
             item.put("gameplayEvidence",gameplay);item.put("sourceDescription",fields(last).path("descriptionRaw").asText(""));
             item.put("whyNow",str(last,"board_name")+"在"+str(last,"business_date")+"观察为第"+lastRank+"名；7日窗实际观察"+observed.size()+"天"+(delta==null?"，只有一次观察，不能判断增长":(tentative?"；同名同发行方的来源记录":"；同来源ID记录")+"由第"+startRank+"到第"+lastRank+"名，"+(delta>0?"上升"+delta:delta<0?"下降"+(-delta):"持平")+"名")+"。来源名次变化不等于用户量增长。");
             StringBuilder caution=new StringBuilder();
@@ -132,7 +139,7 @@ public final class CaptureResearchLeadService {
         Map<String,Object> result=new LinkedHashMap<>();result.put("algorithmVersion",VERSION);result.put("windowStart",day.minusDays(6).toString());result.put("windowEnd",day.toString());result.put("limit",limit);
         result.put("thresholds",Map.of("benchmark",Map.of("minimumObservedDays",5,"recentContinuousDays",3,"headHeatTopN",20,"growthMinimumRankGain",10,"growthCurrentTopN",50),
             "entry",Map.of("lookbackDays",28,"priorCompleteAbsenceDays",3,"topN",100,"maximumAgeDays",3,"minimumGain",10),
-            "acceleration",Map.of("minimumAgeDays",4,"maximumAgeDays",14,"recentContinuousDays",3,"twoDayGain",15,"minimumAcceleration",5,"minimumComparables",5,"topFraction",0.2),"familyCap",2));
+            "acceleration",Map.of("minimumAgeDays",4,"maximumAgeDays",14,"recentContinuousDays",3,"twoDayGain",15,"minimumAcceleration",5,"minimumComparables",5,"topFraction",0.2),"familyCap",2,"launchGate",Map.of("legacyDays",730,"unknownMinimumObservedDays",14,"lookbackDays",28)));
         result.put("productEvidence",portfolio.get("productEvidence"));result.put("platformDiagnostics",CrossPlatformAssessment.diagnostics(audit));
         result.put("policy",OpportunityPortfolio.POLICY);result.put("portfolio",portfolio.get("allocation"));
         result.put("dataRequirements",OpportunityPortfolio.DATA_REQUIREMENTS);result.put("lookbackStart",day.minusDays(27).toString());
@@ -150,5 +157,13 @@ public final class CaptureResearchLeadService {
     private static String identity(Map<String,Object> r){return !str(r,"external_id").isBlank()?"id:"+str(r,"external_id"):"label:"+str(r,"name")+":"+str(r,"developer")+(str(r,"developer").isBlank()?":observation:"+r.get("observation_id"):"");}
     private static String entity(Map<String,Object> r){return str(r,"source_key")+":"+str(r,"platform")+":"+str(r,"region")+":"+identity(r);}
     private JsonNode fields(Map<String,Object> r){try{Object v=r.get("source_fields");return v instanceof JsonNode n?n:v instanceof byte[] bytes?mapper.readTree(bytes):mapper.readTree(Objects.toString(v,"{}"));}catch(Exception e){throw new IllegalStateException("来源字段无法解析",e);}}
+    private String sourceLaunchDate(Map<String,Object> r){
+        JsonNode f=fields(r);
+        for(String key:List.of("releaseDate","release_date","firstReleaseDate","first_release_date","sourceReleaseDate","releaseDateRaw")){
+            String value=f.path(key).asText("");
+            if(value.length()>=10&&value.substring(0,10).matches("\\d{4}-\\d{2}-\\d{2}"))return value.substring(0,10);
+        }
+        return "";
+    }
     private Map<String,Object> evidence(Map<String,Object> r){Map<String,Object> e=new LinkedHashMap<>();for(String key:List.of("observation_id","source_url","raw_sha256","evidence_locator","business_date","captured_at","available_at","parser_version","completeness","requested_top_n","contiguous_top_n"))e.put(key,r.get(key));return e;}
 }
