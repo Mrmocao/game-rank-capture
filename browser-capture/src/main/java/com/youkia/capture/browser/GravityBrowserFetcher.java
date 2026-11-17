@@ -88,7 +88,11 @@ public final class GravityBrowserFetcher implements MaterialFetcher {
     private static void navigate(Page page, URI url) {
         for (int attempt = 0; ; attempt++) {
             try {
-                var response = page.navigate(url.toString(), new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
+                // The authenticated ranking page can spend longer than the public
+                // HTML request on client hydration and session restoration. Keep a
+                // bounded wait, but do not turn a slow page into a false auth failure.
+                var response = page.navigate(url.toString(), new Page.NavigateOptions()
+                        .setWaitUntil(WaitUntilState.DOMCONTENTLOADED).setTimeout(90_000));
                 if (response != null && response.status() >= 400)
                     throw new CaptureException("SOURCE_HTTP_"+response.status(), "来源页面未返回成功响应");
                 return;
