@@ -10,6 +10,26 @@ import java.util.*;
 /** Research leads from immutable source observations. Never assigns product identities or IAA eligibility. */
 public final class CaptureResearchLeadService {
     public static final String VERSION = "capture-research-leads-2.5.0";
+    /**
+     * The report window can contain tens of thousands of entries.  Do not pull
+     * the immutable source payload (which may include raw HTML and provider
+     * responses) into one JdbcTemplate result set.  Project only the fields
+     * used by the report and cap free text at a safe size while keeping the
+     * value valid JSON for the existing parser.
+     */
+    private static final String REPORT_SOURCE_FIELDS = """
+              JSON_OBJECT(
+                'tags', COALESCE(JSON_EXTRACT(e.source_fields,'$.tags'),JSON_ARRAY()),
+                'descriptionRaw', LEFT(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(e.source_fields,'$.descriptionRaw')), ''),4000),
+                'thumbnailUrl', LEFT(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(e.source_fields,'$.thumbnailUrl')), ''),2048),
+                'releaseDate', LEFT(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(e.source_fields,'$.releaseDate')), ''),64),
+                'release_date', LEFT(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(e.source_fields,'$.release_date')), ''),64),
+                'firstReleaseDate', LEFT(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(e.source_fields,'$.firstReleaseDate')), ''),64),
+                'first_release_date', LEFT(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(e.source_fields,'$.first_release_date')), ''),64),
+                'sourceReleaseDate', LEFT(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(e.source_fields,'$.sourceReleaseDate')), ''),64),
+                'releaseDateRaw', LEFT(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(e.source_fields,'$.releaseDateRaw')), ''),64)
+              ) AS source_fields
+            """;
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
     public CaptureResearchLeadService(JdbcTemplate jdbc, ObjectMapper mapper) { this.jdbc=jdbc; this.mapper=mapper; }
@@ -22,12 +42,29 @@ public final class CaptureResearchLeadService {
             SELECT o.id observation_id,o.source_key,o.origin_family,o.source_authority,o.chart_key,o.board_name,
               o.platform,o.region,o.business_date,o.captured_at,o.available_at,o.parser_version,o.completeness,
               o.requested_top_n,o.contiguous_top_n,o.source_url,o.raw_sha256,
-              e.rank_position,e.external_id,e.name,e.developer,e.evidence_locator,e.source_fields
+              e.rank_position,e.external_id,e.name,e.developer,e.evidence_locator,
+              """+REPORT_SOURCE_FIELDS+"""
             FROM external_ranking_observation o JOIN external_ranking_entry e ON e.observation_id=o.id
-            WHERE o.tenant_id=? AND o.business_date>=? AND o.business_date<=? AND o.available_at<=? AND o.captured_at<=?
-              AND EXISTS(SELECT 1 FROM external_capture_run r WHERE r.tenant_id=o.tenant_id AND r.observation_id=o.id AND r.status IN ('SUCCEEDED','PARTIAL'))
+            WHERE o.tenant_id=? AND o.business_date>=? AND o.business_date<=?
+              AND o.available_at<=? AND o.captured_at<=?
+              AND EXISTS(SELECT 1 FROM external_capture_run r
+                WHERE r.tenant_id=o.tenant_id AND r.observation_id=o.id
+                  AND r.status IN ('SUCCEEDED','PARTIAL'))
+              AND NOT EXISTS(
+                SELECT 1 FROM external_ranking_observation n
+                WHERE n.tenant_id=o.tenant_id AND n.source_key=o.source_key
+                  AND n.platform=o.platform AND n.region=o.region
+                  AND n.chart_key=o.chart_key AND n.business_date=o.business_date
+                  AND n.available_at<=? AND n.captured_at<=?
+                  AND (n.captured_at>o.captured_at
+                    OR (n.captured_at=o.captured_at AND n.available_at>o.available_at)
+                    OR (n.captured_at=o.captured_at AND n.available_at=o.available_at AND n.id>o.id))
+                  AND EXISTS(SELECT 1 FROM external_capture_run nr
+                    WHERE nr.tenant_id=n.tenant_id AND nr.observation_id=n.id
+                      AND nr.status IN ('SUCCEEDED','PARTIAL'))
+              )
 
-            """,tenant,day.minusDays(27),day,knowledgeCutoff,knowledgeCutoff);
+            """,tenant,day.minusDays(27),day,knowledgeCutoff,knowledgeCutoff,knowledgeCutoff,knowledgeCutoff);
         new SourceIdentityService(jdbc,mapper,tenant).enrich(rows,day,knowledgeCutoff);
         var result=evaluate(rows, day, knowledgeCutoff, remainingSlots,formalCount,formalLabels);
         @SuppressWarnings("unchecked") var leads=(List<Map<String,Object>>)result.get("candidateAudit");
