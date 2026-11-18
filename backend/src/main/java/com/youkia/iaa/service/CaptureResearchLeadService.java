@@ -39,32 +39,55 @@ public final class CaptureResearchLeadService {
     }
     public Map<String,Object> build(String tenant, LocalDate day, LocalDateTime knowledgeCutoff, int remainingSlots,int formalCount,Set<String> formalLabels) {
         var rows=jdbc.queryForList("""
-            SELECT o.id observation_id,o.source_key,o.origin_family,o.source_authority,o.chart_key,o.board_name,
-              o.platform,o.region,o.business_date,o.captured_at,o.available_at,o.parser_version,o.completeness,
-              o.requested_top_n,o.contiguous_top_n,o.source_url,o.raw_sha256,
-              e.rank_position,e.external_id,e.name,e.developer,e.evidence_locator,
+            WITH accepted AS (
+              SELECT o.id,o.source_key,o.origin_family,o.source_authority,o.chart_key,o.board_name,
+                o.platform,o.region,o.business_date,o.captured_at,o.available_at,o.parser_version,o.completeness,
+                o.requested_top_n,o.contiguous_top_n,o.source_url,o.raw_sha256
+              FROM external_ranking_observation o
+              WHERE o.tenant_id=? AND o.business_date>=? AND o.business_date<=?
+                AND o.available_at<=? AND o.captured_at<=?
+                AND EXISTS(SELECT 1 FROM external_capture_run r
+                  WHERE r.tenant_id=o.tenant_id AND r.observation_id=o.id
+                    AND r.status IN ('SUCCEEDED','PARTIAL'))
+                AND NOT EXISTS(
+                  SELECT 1 FROM external_ranking_observation n
+                  WHERE n.tenant_id=o.tenant_id AND n.source_key=o.source_key
+                    AND n.platform=o.platform AND n.region=o.region
+                    AND n.chart_key=o.chart_key AND n.business_date=o.business_date
+                    AND n.available_at<=? AND n.captured_at<=?
+                    AND (n.captured_at>o.captured_at
+                      OR (n.captured_at=o.captured_at AND n.available_at>o.available_at)
+                      OR (n.captured_at=o.captured_at AND n.available_at=o.available_at AND n.id>o.id))
+                    AND EXISTS(SELECT 1 FROM external_capture_run nr
+                      WHERE nr.tenant_id=n.tenant_id AND nr.observation_id=n.id
+                        AND nr.status IN ('SUCCEEDED','PARTIAL'))
+                )
+            ), base AS (
+              SELECT a.*,e.rank_position,e.external_id,e.name,e.developer,e.evidence_locator,
+                CASE WHEN NULLIF(e.external_id,'') IS NOT NULL THEN CONCAT('id:',e.external_id)
+                     WHEN NULLIF(e.developer,'') IS NOT NULL THEN CONCAT('label:',e.name,':',e.developer)
+                     ELSE CONCAT('label:',e.name,':observation:',e.id) END entity_key
+              FROM accepted a JOIN external_ranking_entry e ON e.observation_id=a.id
+            ), candidate_entities AS (
+              SELECT source_key,platform,region,entity_key
+              FROM base
+              WHERE chart_key IN ('popularity','top-free','top-new-free','most_played')
+              GROUP BY source_key,platform,region,entity_key
+              HAVING MAX(CASE WHEN business_date=? THEN rank_position END)<=20
+                  OR (COUNT(DISTINCT CASE WHEN business_date>=? AND business_date<=? THEN business_date END)>=5
+                 AND COUNT(DISTINCT CASE WHEN business_date>=? AND business_date<=? THEN business_date END)=3
+                 AND MAX(CASE WHEN business_date=? THEN rank_position END)<=50)
+            )
+            SELECT b.id observation_id,b.source_key,b.origin_family,b.source_authority,b.chart_key,b.board_name,
+              b.platform,b.region,b.business_date,b.captured_at,b.available_at,b.parser_version,b.completeness,
+              b.requested_top_n,b.contiguous_top_n,b.source_url,b.raw_sha256,
+              b.rank_position,b.external_id,b.name,b.developer,b.evidence_locator,
               """+REPORT_SOURCE_FIELDS+"""
-            FROM external_ranking_observation o JOIN external_ranking_entry e ON e.observation_id=o.id
-            WHERE o.tenant_id=? AND o.business_date>=? AND o.business_date<=?
-              AND o.available_at<=? AND o.captured_at<=?
-              AND EXISTS(SELECT 1 FROM external_capture_run r
-                WHERE r.tenant_id=o.tenant_id AND r.observation_id=o.id
-                  AND r.status IN ('SUCCEEDED','PARTIAL'))
-              AND NOT EXISTS(
-                SELECT 1 FROM external_ranking_observation n
-                WHERE n.tenant_id=o.tenant_id AND n.source_key=o.source_key
-                  AND n.platform=o.platform AND n.region=o.region
-                  AND n.chart_key=o.chart_key AND n.business_date=o.business_date
-                  AND n.available_at<=? AND n.captured_at<=?
-                  AND (n.captured_at>o.captured_at
-                    OR (n.captured_at=o.captured_at AND n.available_at>o.available_at)
-                    OR (n.captured_at=o.captured_at AND n.available_at=o.available_at AND n.id>o.id))
-                  AND EXISTS(SELECT 1 FROM external_capture_run nr
-                    WHERE nr.tenant_id=n.tenant_id AND nr.observation_id=n.id
-                      AND nr.status IN ('SUCCEEDED','PARTIAL'))
-              )
-
-            """,tenant,day.minusDays(27),day,knowledgeCutoff,knowledgeCutoff,knowledgeCutoff,knowledgeCutoff);
+            FROM base b JOIN candidate_entities c
+              ON c.source_key=b.source_key AND c.platform=b.platform AND c.region=b.region AND c.entity_key=b.entity_key
+            JOIN external_ranking_entry e ON e.observation_id=b.id AND e.rank_position=b.rank_position
+            """,tenant,day.minusDays(27),day,knowledgeCutoff,knowledgeCutoff,knowledgeCutoff,knowledgeCutoff,
+                day,day.minusDays(6),day,day.minusDays(2),day,day);
         new SourceIdentityService(jdbc,mapper,tenant).enrich(rows,day,knowledgeCutoff);
         var result=evaluate(rows, day, knowledgeCutoff, remainingSlots,formalCount,formalLabels);
         @SuppressWarnings("unchecked") var leads=(List<Map<String,Object>>)result.get("candidateAudit");
